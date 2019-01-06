@@ -1,0 +1,17 @@
+name: TheWalls
+version: 1.0
+main: pl.grzegorz2047.thewalls.TheWalls
+depend: [Database]
+commands:
+    team:
+        description: Dolacza do druzyny
+        aliases: [druzyna, t, d]
+    wyjdz:
+        description: Pozwala wyjsc na powierzchnie
+        aliases: [surface]
+    walls:
+        description: Fajne komendy
+        aliases: [thewalls]
+    tep:
+        description: Komenda do teleportacji pomiedzy graczami w druzynie
+        aliases: [teleport]

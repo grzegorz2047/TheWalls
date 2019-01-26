@@ -19,10 +19,10 @@ public class ServerMotd implements Listener {
     }
 
     @EventHandler
-    public void onServerPing(ServerListPingEvent serverListPingEvent){
-        serverListPingEvent.setMotd("§7§l> Time: §a" + TimeUtil.formatHHMMSS(counter.getTime()) +
-                "\n§7§l> Status: §a" + gameData.getStatus().toString() +
-                "                         §6§l1.7 - 1.13.2");
-
+    public void onServerPing(ServerListPingEvent serverListPingEvent) {
+        serverListPingEvent.setMotd(
+                        "§7§l> Time: §a" + TimeUtil.formatHHMMSS(counter.getTime()) +
+                        "                         §6§l1.8 - 1.13.2" +
+                        "\n§7§l> Status: §a" + gameData.getStatus().toString());
     }
 }

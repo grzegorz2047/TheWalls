@@ -27,24 +27,26 @@ public class PlayerJoin implements Listener {
 
     private final TheWalls plugin;
     private final GameData gameData;
-    private final WorldManagement worldManagement;
     private final MoneyAPI moneyManager;
     private final StatsAPI statsManager;
     private final ScoreboardAPI scoreboardAPI;
     private final MessageAPI messageManager;
     private final DatabaseAPI playerManager;
     private final ShopAPI shopManager;
+    private final World loadedWorld;
+    private final Location spawn;
 
-    public PlayerJoin(TheWalls plugin) {
+    public PlayerJoin(TheWalls plugin, World loadedWorld) {
         this.plugin = plugin;
-        gameData = this.plugin.getGameData();
-        worldManagement = gameData.getWorldManagement();
-        moneyManager = this.plugin.getMoneyManager();
-        statsManager = this.plugin.getStatsManager();
-        scoreboardAPI = this.plugin.getScoreboardAPI();
-        messageManager = this.plugin.getMessageManager();
-        playerManager = this.plugin.getPlayerManager();
-        shopManager = this.plugin.getShopManager();
+        this.gameData = plugin.getGameData();
+        this.moneyManager = plugin.getMoneyManager();
+        this.statsManager = plugin.getStatsManager();
+        this.scoreboardAPI = plugin.getScoreboardAPI();
+        this.messageManager = plugin.getMessageManager();
+        this.playerManager = plugin.getPlayerManager();
+        this.shopManager = plugin.getShopManager();
+        this.loadedWorld = loadedWorld;
+        spawn = new Location(this.loadedWorld, 0, 147, 0);
     }
 
     @EventHandler
@@ -55,41 +57,20 @@ public class PlayerJoin implements Listener {
         e.setJoinMessage(null);
         Player p = e.getPlayer();
         //Location spawn = WorldManagement.getLoadedWorld().getSpawnLocation();
-        World loadedWorld = worldManagement.getLoadedWorld();
         String loadedWorldName = loadedWorld.getName();
-        Location spawn = new Location(loadedWorld, 0, 147, 0);
         p.teleport(spawn);
         // int money = 5;
         //plugin.getPlayerManager().insertPlayer(p);
         String playerName = p.getName();
-        moneyManager.insertPlayer(playerName);
-        statsManager.insertPlayer(playerName);
-        int money = moneyManager.getPlayer(playerName);
-        //plugin.getPlayerManager().changePlayerExp(p.getName(), 100);
-        SQLUser user = playerManager.getPlayer(playerName);
-        StatsUser statsUser = statsManager.getPlayer(playerName);
-        List<Transaction> transactions = shopManager.getPlayerItems(playerName);
-        GameUser gameUser = new GameUser(user, statsUser, transactions, money);
-        HashMap<String, GameUser> gameUsers = gameData.getGameUsers();
-        gameUsers.put(playerName, gameUser);
-
-        String userRank = gameUser.getRank();
-        if (userRank.equals("HeadAdmin")
-                || userRank.equals("Admin")) {
-            PermissionAttacher.attachAdminsPermissions(plugin, p, loadedWorldName);
-        } else if (userRank.equals("GlobalMod")
-                || userRank.equals("Mod")
-                || userRank.equals("KidMod")
-                || userRank.equals("Helper")) {
-            PermissionAttacher.attachModsPermissions(plugin, p, loadedWorldName);
-        }
+        GameUser gameUser = getGameUser(playerName);
+        assignUserPermission(p, loadedWorldName, gameUser);
 
         GameData.GameStatus status = gameData.getStatus();
         if (!status.equals(GameData.GameStatus.INGAME)) {
             gameData.checkToStart();
             Counter counter = gameData.getCounter();
             Counter.CounterStatus counterStatus = counter.getStatus();
-            preparePlayer(p, gameData, scoreboardAPI, user.getLanguage(), gameUser.getMoney(), statsUser.getKills(), statsUser.getDeaths(), statsUser.getWins(), statsUser.getLose(), counterStatus);
+            preparePlayer(p, gameData, scoreboardAPI, gameUser.getLanguage(), gameUser.getMoney(), gameUser.getKills(), gameUser.getDeaths(), gameUser.getWins(), gameUser.getLose(), counterStatus);
             if (counterStatus.equals(Counter.CounterStatus.IDLE)) {
                 for (Player pl : Bukkit.getOnlinePlayers()) {
                     scoreboardAPI.updateDisplayName(0, pl);
@@ -102,13 +83,42 @@ public class PlayerJoin implements Listener {
         for (PotionEffect effect : p.getActivePotionEffects()) {
             p.removePotionEffect(effect.getType());
         }
-        PermissionAttacher.attachPlayersPermissions(plugin, p, loadedWorldName);
         //ArenaStatus.setPlayers(Bukkit.getOnlinePlayers().size());
 
     }
 
+
+    private GameUser getGameUser(String playerName) {
+        moneyManager.insertPlayer(playerName);
+        statsManager.insertPlayer(playerName);
+        int money = moneyManager.getPlayer(playerName);
+        //plugin.getPlayerManager().changePlayerExp(p.getName(), 100);
+        SQLUser user = playerManager.getPlayer(playerName);
+        StatsUser statsUser = statsManager.getPlayer(playerName);
+        List<Transaction> transactions = shopManager.getPlayerItems(playerName);
+        GameUser gameUser = new GameUser(user, statsUser, transactions, money);
+        HashMap<String, GameUser> gameUsers = gameData.getGameUsers();
+        gameUsers.put(playerName, gameUser);
+        return gameUser;
+    }
+
+    private void assignUserPermission(Player p, String loadedWorldName, GameUser gameUser) {
+        String userRank = gameUser.getRank();
+        if (userRank.equals("HeadAdmin")
+                || userRank.equals("Admin")) {
+            PermissionAttacher.attachAdminsPermissions(p, loadedWorldName);
+        } else if (userRank.equals("GlobalMod")
+                || userRank.equals("Mod")
+                || userRank.equals("KidMod")
+                || userRank.equals("Helper")) {
+            PermissionAttacher.attachModsPermissions(p, loadedWorldName);
+        }
+        PermissionAttacher.attachPlayersPermissions(p, loadedWorldName);
+    }
+
     private void prepareSpectator(Player p, GameData gameData, GameUser gameUser, ScoreboardAPI scoreboardAPI) {
-        gameData.makePlayerSpectator(gameUser, p, gameData.getWorldManagement().getLoadedWorld().getName());
+        gameData.makePlayerSpectator(gameUser, p, loadedWorld.getName());
+        gameData.makePlayerSpectator(gameUser, p, loadedWorld.getName());
         scoreboardAPI.createJoinSpectatorScoreboard(p, gameUser);
     }
 

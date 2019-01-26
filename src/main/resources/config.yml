@@ -1,0 +1,7 @@
+msg: 'Test wiadomosci!'
+tw:
+  url: 'localhost'
+  port: 3306
+  dbName: 'thewalls'
+  user: 'thewalls'
+  password: 'thewalls'

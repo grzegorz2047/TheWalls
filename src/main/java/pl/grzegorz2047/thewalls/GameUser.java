@@ -80,9 +80,6 @@ public class GameUser extends SQLUser {
         this.ingameKills += ingameKills;
     }
 
-    public StatsUser getStatsUser() {
-        return statsUser;
-    }
 
     public List<Transaction> getTransactions() {
         return transactions;
@@ -99,4 +96,20 @@ public class GameUser extends SQLUser {
     public void setProtectedFurnaces(int protectedFurnaces) {
         this.protectedFurnaces = protectedFurnaces;
     }
+    public int getLose() {
+        return this.statsUser.getLose();
+    }
+
+    public int getWins() {
+        return this.statsUser.getWins();
+    }
+
+    public int getDeaths() {
+        return this.statsUser.getDeaths();
+    }
+
+    public int getKills() {
+        return this.statsUser.getKills();
+    }
+
 }

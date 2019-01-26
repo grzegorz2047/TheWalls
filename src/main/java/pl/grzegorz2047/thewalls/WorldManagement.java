@@ -29,6 +29,7 @@ public class WorldManagement {
         loadedWorld.setKeepSpawnInMemory(true);
         loadedWorld.setStorm(false);
         loadedWorld.setThundering(true);
+        loadedWorld.setSpawnLocation(0, 147, 0);
         for (Entity e : loadedWorld.getEntities()) {
             e.remove();
         }

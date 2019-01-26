@@ -9,7 +9,6 @@ import org.bukkit.inventory.ItemStack;
 import pl.grzegorz2047.databaseapi.SQLUser;
 import pl.grzegorz2047.databaseapi.shop.Item;
 import pl.grzegorz2047.databaseapi.shop.Transaction;
-import pl.grzegorz2047.serversmanagement.ArenaStatus;
 import pl.grzegorz2047.thewalls.api.exception.IncorrectDataStringException;
 import pl.grzegorz2047.thewalls.api.util.*;
 import pl.grzegorz2047.thewalls.permissions.PermissionAttacher;
@@ -42,7 +41,7 @@ public class GameData {
 
     public GameData(TheWalls plugin) {
         this.plugin = plugin;
-        this.counter = new Counter(plugin);
+        this.counter = new Counter(plugin.getSettings());
         HashMap<String, String> settings = plugin.getSettings();
         this.minPlayers = Integer.parseInt(settings.get("thewalls.minplayers"));
         maxTeamSize = Integer.parseInt(settings.get("thewalls.maxteamsize"));
@@ -121,13 +120,13 @@ public class GameData {
     public void restartGame() {
         HashMap<String, String> settings = plugin.getSettings();
         for (Player p : Bukkit.getOnlinePlayers()) {
-            p.kickPlayer("Restart!");
+            p.kickPlayer("Arena przygotowuje sie do nowej gry!");
         }
         this.getWorldManagement().reloadLoadedWorld(settings.get("thewalls.numberofmaps"));
         startGameLocationLoader = new StartGameLocationLoader(plugin).invoke(worldManagement);
         initializeArrays();
         status = GameStatus.WAITING;
-        counter = new Counter(plugin);
+        this.counter.cancel();
         /*ArenaStatus.setStatus(ArenaStatus.Status.WAITING);
         ArenaStatus.setLore(
                 "\n§7§l> §a1.7 - 1.10"
@@ -377,7 +376,7 @@ public class GameData {
         p.setGameMode(GameMode.SPECTATOR);
         p.setAllowFlight(true);
         p.setFlying(true);
-        PermissionAttacher.attachSpectatorPermissions(plugin, p, worldName);
+        PermissionAttacher.attachSpectatorPermissions(p, worldName);
         if (gameUser.getAssignedTeam() != null) {
             this.getTeams().get(gameUser.getAssignedTeam()).remove(p.getName());
             gameUser.setAssignedTeam(null);
@@ -420,7 +419,7 @@ public class GameData {
                 public void run() {
                     restartGame();
                 }
-            }, 20 * 6);
+            }, 20 * 10);
 
         } else if (i == 1) {
             final GameTeam finalTeam = team;

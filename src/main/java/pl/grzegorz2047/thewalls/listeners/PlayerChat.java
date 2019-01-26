@@ -12,6 +12,7 @@ import pl.grzegorz2047.thewalls.GameUser;
 import pl.grzegorz2047.thewalls.TheWalls;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,44 +34,47 @@ public class PlayerChat implements Listener {
             return;
         }
         Player p = e.getPlayer();
-        GameUser user = plugin.getGameData().getGameUsers().get(p.getName());
-        String format = plugin.getSettings().get("chat." + user.getRank().toLowerCase());
+        GameData gameData = plugin.getGameData();
+        String playerName = p.getName();
+        GameUser user = gameData.getGameUsers().get(playerName);
+        String userRank = user.getRank();
+        String displayName = p.getDisplayName();
+
+        HashMap<String, String> settings = plugin.getSettings();
+        String format = settings.get("chat." + userRank.toLowerCase());
         String message = e.getMessage();
         message = message.replace('%', ' ');
-        if (!user.getRank().equals("Gracz")) {
+        if (!userRank.equals("Gracz")) {
             message = ChatColor.translateAlternateColorCodes('&', message);
         }
-        e.setFormat(format.replace("{DISPLAYNAME}", p.getDisplayName()).replace("{MESSAGE}", message).replace("{LANG}", user.getLanguage()));
-        if (plugin.getGameData().getStatus().equals(GameData.GameStatus.INGAME)) {
+        String chatFormat = format.replace("{DISPLAYNAME}", displayName).replace("{MESSAGE}", message);
+        String chatFormatLang = chatFormat.replace("{LANG}",
+                user.getLanguage());
+        e.setFormat(chatFormatLang);
+        if (gameData.getStatus().equals(GameData.GameStatus.INGAME)) {
             e.setCancelled(true);
             if (user.getAssignedTeam() == null) {
-                if ((!user.getRank().equals("Gracz") && !user.getRank().equals("Vip") && !user.getRank().equals("Youtube") && !user.getRank().equals("miniYT"))) {
+                if ((!userRank.equals("Gracz") && !userRank.equals("Vip") && !userRank.equals("Youtube") && !userRank.equals("miniYT"))) {
                     for (Player pl : Bukkit.getOnlinePlayers()) {
-                        pl.sendMessage(format.replace("{DISPLAYNAME}",
-                                p.getDisplayName()).replace("{MESSAGE}",
-                                message).replace("{LANG}",
-                                user.getLanguage()));
+                        pl.sendMessage(chatFormatLang);
                     }
 
                 }
                 return;
             }
             boolean toAll = false;
-            if (!user.getRank().equals("Gracz")) {
+            if (!userRank.equals("Gracz")) {
                 toAll = message.startsWith("!");
             }
 
-            List<String> recipent = plugin.getGameData().getTeams().get(user.getAssignedTeam());
-            String formatted = format.replace("{DISPLAYNAME}",
-                    p.getDisplayName()).replace("{MESSAGE}",
-                    message).replace("{LANG}",
-                    user.getLanguage());
+            List<String> recipent = gameData.getTeams().get(user.getAssignedTeam());
             for (Player pl : Bukkit.getOnlinePlayers()) {
                 if (recipent.contains(pl.getName()) || toAll) {
                     if (toAll) {
-                        pl.sendMessage("§7[§bGLOBAL§7] " + formatted.substring(1));
+                        String globalFormat = "§7[§bGLOBAL§7] " + chatFormatLang.substring(1);
+                        pl.sendMessage(globalFormat);
                     } else {
-                        pl.sendMessage(formatted);
+                        pl.sendMessage(chatFormatLang);
                     }
                 }
             }

@@ -2,11 +2,13 @@ package pl.grzegorz2047.thewalls;
 
 import org.bukkit.Bukkit;
 
+import java.util.HashMap;
+
 /**
  * Created by grzeg on 16.05.2016.
  */
 public class Counter {
-    private final TheWalls plugin;
+     private final HashMap<String, String> settings;
 
     public int getTime() {
         return time;
@@ -15,8 +17,8 @@ public class Counter {
     private int time;
     private boolean running = false;
 
-    public Counter(TheWalls plugin) {
-        this.plugin = plugin;
+    public Counter(HashMap<String, String> settings) {
+        this.settings = settings;
     }
 
     private CounterStatus status = CounterStatus.IDLE;
@@ -40,6 +42,7 @@ public class Counter {
 
     public void cancel() {
         this.setStatus(CounterStatus.IDLE);
+        this.time = 0;
         this.running = false;
     }
 
@@ -47,16 +50,16 @@ public class Counter {
         this.running = true;
 
         if (status.equals(CounterStatus.COUNTINGTOSTART)) {
-            time = Integer.parseInt(plugin.getSettings().get("thewalls.countingtostarttime"));
+            time = Integer.parseInt(settings.get("thewalls.countingtostarttime"));
         }
         if (status.equals(CounterStatus.COUNTINGTODROPWALLS)) {
-            time = Integer.parseInt(plugin.getSettings().get("thewalls.countingtodropwalls"));
+            time = Integer.parseInt(settings.get("thewalls.countingtodropwalls"));
         }
         if (status.equals(CounterStatus.COUNTINGTODM)) {
-            time = Integer.parseInt(plugin.getSettings().get("thewalls.countingtodm"));
+            time = Integer.parseInt(settings.get("thewalls.countingtodm"));
         }
         if (status.equals(CounterStatus.DEATHMATCH)) {
-            time = Integer.parseInt(plugin.getSettings().get("thewalls.countingtoend"));
+            time = Integer.parseInt(settings.get("thewalls.countingtoend"));
         }
         this.setStatus(status);
     }

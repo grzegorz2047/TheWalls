@@ -380,6 +380,15 @@ public class GameData {
         user.setProtectedFurnaces(user.getProtectedFurnaces() - 1);
     }
 
+    public boolean isFurnaceOwner(String username, Location blockLocation) {
+        return getPlayerProtectedFurnace(blockLocation).equals(username);
+    }
+
+    public void protectNewFurnace(Location blockLocation, String username, GameUser user) {
+        protectedFurnaces.put(blockLocation, username);
+        user.setProtectedFurnaces(user.getProtectedFurnaces() + 1);
+    }
+
     public enum GameTeam {
         TEAM1("§a"),
         TEAM2("§b"),

@@ -41,7 +41,7 @@ public class BlockBreak implements Listener {
             GameUser user = gameData.getGameUser(username);
             String language = user.getLanguage();
             Location blockLocation = block.getLocation();
-            if (!isFurnaceOwner(username, blockLocation)) {
+            if (!gameData.isFurnaceOwner(username, blockLocation)) {
                 p.sendMessage(messageManager.getMessage(language, "thewalls.msg.furnacenotyours"));
                 e.setCancelled(true);
             } else {
@@ -51,9 +51,7 @@ public class BlockBreak implements Listener {
         }
     }
 
-    private boolean isFurnaceOwner(String username, Location blockLocation) {
-        return gameData.getPlayerProtectedFurnace(blockLocation).equals(username);
-    }
+
 
 
 }

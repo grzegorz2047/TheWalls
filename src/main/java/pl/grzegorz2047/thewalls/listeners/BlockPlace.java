@@ -34,7 +34,7 @@ public class BlockPlace implements Listener {
 
     @EventHandler
     public void onPlace(BlockPlaceEvent e) {
-        Player p = e.getPlayer();
+        Player player = e.getPlayer();
 
         List<Material> list = Arrays.asList(Material.FIRE, Material.TNT, Material.PISTON_BASE, Material.BEDROCK);
         Counter.CounterStatus counterStatus = counter.getStatus();
@@ -43,22 +43,22 @@ public class BlockPlace implements Listener {
         Location blockLocation = block.getLocation();
         if (counterStatus.equals(Counter.CounterStatus.COUNTINGTODROPWALLS)) {
 
-            String username = p.getName();
+            String username = player.getName();
             if (list.contains(blockType)) {
                 GameUser user = gameData.getGameUser(username);
-                e.getPlayer().sendMessage(messageManager.getMessage(user.getLanguage(), "thewalls.msg.cantuseitnow"));
+                player.sendMessage(messageManager.getMessage(user.getLanguage(), "thewalls.msg.cantuseitnow"));
                 e.setCancelled(true);
                 return;
             }
             if (blockType.equals(Material.FURNACE)) {
                 GameUser user = gameData.getGameUser(username);
-                if (user.getProtectedFurnaces() >= 3) {
-                    e.getPlayer().sendMessage(messageManager.getMessage(user.getLanguage(), "thewalls.msg.furnacenotprotected"));
+                String language = user.getLanguage();
+                if (exceedsNumberOfProtectedFurnaces(user)) {
+                    player.sendMessage(messageManager.getMessage(language, "thewalls.msg.furnacenotprotected"));
                     return;
                 } else {
-                    gameData.getProtectedFurnaces().put(blockLocation, username);
-                    e.getPlayer().sendMessage(messageManager.getMessage(user.getLanguage(), "thewalls.msg.furnacenowprotected"));
-                    user.setProtectedFurnaces(user.getProtectedFurnaces() + 1);
+                    gameData.protectNewFurnace(blockLocation, username, user);
+                    player.sendMessage(messageManager.getMessage(language, "thewalls.msg.furnacenowprotected"));
                     return;
                 }
             }
@@ -71,5 +71,11 @@ public class BlockPlace implements Listener {
                 block.getWorld().createExplosion(blockLocation.getX(), blockLocation.getY(), blockLocation.getZ(), 1, true, false);
             }
         }
+    }
+
+
+
+    private boolean exceedsNumberOfProtectedFurnaces(GameUser user) {
+        return user.getProtectedFurnaces() >= 3;
     }
 }

@@ -11,18 +11,18 @@ public class ServerMotd implements Listener {
 
     private final GameData gameData;
     private Counter counter;
+    private String motd = "§7§l> Czas: §a%TIME%                         §6§l1.8 - 1.14.1\n§7§l> Status: §a%STATUS%";
 
     public ServerMotd(GameData gameData) {
         this.gameData = gameData;
         counter = gameData.getCounter();
-        System.out.println("Register motd");
     }
 
     @EventHandler
     public void onServerPing(ServerListPingEvent serverListPingEvent) {
-        serverListPingEvent.setMotd(
-                        "§7§l> Time: §a" + TimeUtil.formatHHMMSS(counter.getTime()) +
-                        "                         §6§l1.8 - 1.13.2" +
-                        "\n§7§l> Status: §a" + gameData.getStatus().toString());
+        String time = TimeUtil.formatHHMMSS(counter.getTime());
+        String status = gameData.getStatus().toString();
+        motd = motd.replaceAll("%TIME%", time).replaceAll("%STATUS%", status);
+        serverListPingEvent.setMotd(motd);
     }
 }

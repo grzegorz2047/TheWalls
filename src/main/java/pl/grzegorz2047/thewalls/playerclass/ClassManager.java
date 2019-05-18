@@ -4,9 +4,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Item;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import pl.grzegorz2047.databaseapi.messages.MessageAPI;
+import pl.grzegorz2047.thewalls.GameUser;
 import pl.grzegorz2047.thewalls.TheWalls;
 import pl.grzegorz2047.thewalls.api.playersclasses.CustomInventory;
 import pl.grzegorz2047.thewalls.api.util.CreateItemUtil;
@@ -20,6 +23,7 @@ import java.util.HashMap;
 public class ClassManager {
 
     private final TheWalls plugin;
+    private final MessageAPI messageManager;
 
     public HashMap<CLASS, HashMap<String, CustomInventory>> getClassInventory() {
         return classInventory;
@@ -48,6 +52,7 @@ public class ClassManager {
         addAlchemikItems();
         classMenu = Bukkit.createInventory(null, 18, "Kits");
         createClassMenuItems();
+        messageManager = plugin.getMessageManager();
     }
 
     private void createClassMenuItems() {
@@ -94,18 +99,20 @@ public class ClassManager {
 
 
     private void addGornikItems() {
-        classInventory.get(CLASS.GORNIK).get("Gracz").getInventory().addItem(new ItemStack(Material.getMaterial(274), 1));
-        classInventory.get(CLASS.GORNIK).get("Gracz").getInventory().addItem(new ItemStack(Material.getMaterial(263), 8));
-        classInventory.get(CLASS.GORNIK).get("Gracz").getInventory().addItem(new ItemStack(Material.getMaterial(50), 8));
-        classInventory.get(CLASS.GORNIK).get("Gracz").getInventory().addItem(new ItemStack(Material.getMaterial(364), 5));
+        Inventory standardDiggerInventory = classInventory.get(CLASS.GORNIK).get("Gracz").getInventory();
+        standardDiggerInventory.addItem(new ItemStack(Material.getMaterial(274), 1));
+        standardDiggerInventory.addItem(new ItemStack(Material.getMaterial(263), 8));
+        standardDiggerInventory.addItem(new ItemStack(Material.getMaterial(50), 8));
+        standardDiggerInventory.addItem(new ItemStack(Material.getMaterial(364), 5));
 
 
         ItemStack pickaxe = new ItemStack(Material.getMaterial(257), 1);
         pickaxe.addEnchantment(Enchantment.DIG_SPEED, 1);
-        classInventory.get(CLASS.GORNIK).get("Vip").getInventory().addItem(pickaxe);
-        classInventory.get(CLASS.GORNIK).get("Vip").getInventory().addItem(new ItemStack(Material.getMaterial(263), 16));
-        classInventory.get(CLASS.GORNIK).get("Vip").getInventory().addItem(new ItemStack(Material.getMaterial(50), 16));
-        classInventory.get(CLASS.GORNIK).get("Vip").getInventory().addItem(new ItemStack(Material.getMaterial(364), 10));
+        Inventory vipDiggerInventory = classInventory.get(CLASS.GORNIK).get("Vip").getInventory();
+        vipDiggerInventory.addItem(pickaxe);
+        vipDiggerInventory.addItem(new ItemStack(Material.getMaterial(263), 16));
+        vipDiggerInventory.addItem(new ItemStack(Material.getMaterial(50), 16));
+        vipDiggerInventory.addItem(new ItemStack(Material.getMaterial(364), 10));
 
 
     }
@@ -113,64 +120,72 @@ public class ClassManager {
     private void addWojownikItems() {
         ItemStack sword = new ItemStack(Material.getMaterial(267), 1);
         sword.addEnchantment(Enchantment.DAMAGE_ALL, 1);
-        classInventory.get(CLASS.WOJOWNIK).get("Gracz").getInventory().addItem(sword);
-        classInventory.get(CLASS.WOJOWNIK).get("Gracz").getInventory().addItem(new ItemStack(Material.getMaterial(364), 5));
-        classInventory.get(CLASS.WOJOWNIK).get("Gracz").getInventory().addItem(new ItemStack(Material.getMaterial(322), 2));
+        Inventory standardFighterInventory = classInventory.get(CLASS.WOJOWNIK).get("Gracz").getInventory();
+        standardFighterInventory.addItem(sword);
+        standardFighterInventory.addItem(new ItemStack(Material.getMaterial(364), 5));
+        standardFighterInventory.addItem(new ItemStack(Material.getMaterial(322), 2));
 
         ItemStack vipsword = new ItemStack(Material.getMaterial(267), 1);
         vipsword.addEnchantment(Enchantment.DAMAGE_ALL, 2);
-        classInventory.get(CLASS.WOJOWNIK).get("Vip").getInventory().addItem(vipsword);
-        classInventory.get(CLASS.WOJOWNIK).get("Vip").getInventory().addItem(new ItemStack(Material.getMaterial(364), 10));
-        classInventory.get(CLASS.WOJOWNIK).get("Vip").getInventory().addItem(new ItemStack(Material.getMaterial(322), 4));
+        Inventory vipFighterInventory = classInventory.get(CLASS.WOJOWNIK).get("Vip").getInventory();
+        vipFighterInventory.addItem(vipsword);
+        vipFighterInventory.addItem(new ItemStack(Material.getMaterial(364), 10));
+        vipFighterInventory.addItem(new ItemStack(Material.getMaterial(322), 4));
     }
 
     private void addLucznikItems() {
-        classInventory.get(CLASS.LUCZNIK).get("Gracz").getInventory().addItem(new ItemStack(Material.getMaterial(261), 1));
-        classInventory.get(CLASS.LUCZNIK).get("Gracz").getInventory().addItem(new ItemStack(Material.getMaterial(262), 32));
-        classInventory.get(CLASS.LUCZNIK).get("Gracz").getInventory().addItem(new ItemStack(Material.getMaterial(364), 5));
+        Inventory standardBowmanInventory = classInventory.get(CLASS.LUCZNIK).get("Gracz").getInventory();
+        standardBowmanInventory.addItem(new ItemStack(Material.getMaterial(261), 1));
+        standardBowmanInventory.addItem(new ItemStack(Material.getMaterial(262), 32));
+        standardBowmanInventory.addItem(new ItemStack(Material.getMaterial(364), 5));
 
         ItemStack vipbow = new ItemStack(Material.getMaterial(261), 1);
         vipbow.addUnsafeEnchantment(Enchantment.ARROW_DAMAGE, 1);
-        classInventory.get(CLASS.LUCZNIK).get("Vip").getInventory().addItem(vipbow);
-        classInventory.get(CLASS.LUCZNIK).get("Vip").getInventory().addItem(new ItemStack(Material.getMaterial(262), 64));
-        classInventory.get(CLASS.LUCZNIK).get("Vip").getInventory().addItem(new ItemStack(Material.getMaterial(364), 10));
-        classInventory.get(CLASS.LUCZNIK).get("Vip").getInventory().addItem(new ItemStack(Material.getMaterial(322), 3));
-        classInventory.get(CLASS.LUCZNIK).get("Vip").getInventory().addItem(new ItemStack(Material.getMaterial(298), 1));
-        classInventory.get(CLASS.LUCZNIK).get("Vip").getInventory().addItem(new ItemStack(Material.getMaterial(301), 1));
+        Inventory vipBowmanInventory = classInventory.get(CLASS.LUCZNIK).get("Vip").getInventory();
+        vipBowmanInventory.addItem(vipbow);
+        vipBowmanInventory.addItem(new ItemStack(Material.getMaterial(262), 64));
+        vipBowmanInventory.addItem(new ItemStack(Material.getMaterial(364), 10));
+        vipBowmanInventory.addItem(new ItemStack(Material.getMaterial(322), 3));
+        vipBowmanInventory.addItem(new ItemStack(Material.getMaterial(298), 1));
+        vipBowmanInventory.addItem(new ItemStack(Material.getMaterial(301), 1));
 
     }
 
     public void addDrwalItems() {
-        classInventory.get(CLASS.DRWAL).get("Gracz").getInventory().addItem(new ItemStack(Material.getMaterial(275), 1));
-        classInventory.get(CLASS.DRWAL).get("Gracz").getInventory().addItem(new ItemStack(Material.getMaterial(17), 16));
-        classInventory.get(CLASS.DRWAL).get("Gracz").getInventory().addItem(new ItemStack(Material.getMaterial(364), 5));
+        Inventory standardLumberjackInventory = classInventory.get(CLASS.DRWAL).get("Gracz").getInventory();
+        standardLumberjackInventory.addItem(new ItemStack(Material.getMaterial(275), 1));
+        standardLumberjackInventory.addItem(new ItemStack(Material.getMaterial(17), 16));
+        standardLumberjackInventory.addItem(new ItemStack(Material.getMaterial(364), 5));
 
-        classInventory.get(CLASS.DRWAL).get("Vip").getInventory().addItem(new ItemStack(Material.getMaterial(258), 1));
-        classInventory.get(CLASS.DRWAL).get("Vip").getInventory().addItem(new ItemStack(Material.getMaterial(17), 32));
-        classInventory.get(CLASS.DRWAL).get("Vip").getInventory().addItem(new ItemStack(Material.getMaterial(65), 16));
-        classInventory.get(CLASS.DRWAL).get("Vip").getInventory().addItem(new ItemStack(Material.getMaterial(364), 10));
+        Inventory vipLumberjackInventory = classInventory.get(CLASS.DRWAL).get("Vip").getInventory();
+        vipLumberjackInventory.addItem(new ItemStack(Material.getMaterial(258), 1));
+        vipLumberjackInventory.addItem(new ItemStack(Material.getMaterial(17), 32));
+        vipLumberjackInventory.addItem(new ItemStack(Material.getMaterial(65), 16));
+        vipLumberjackInventory.addItem(new ItemStack(Material.getMaterial(364), 10));
     }
 
     public void addKucharzItems() {
         ItemStack sword = new ItemStack(Material.getMaterial(267), 1);
         sword.addEnchantment(Enchantment.KNOCKBACK, 1);
-        classInventory.get(CLASS.KUCHARZ).get("Gracz").getInventory().addItem(sword);
-        classInventory.get(CLASS.KUCHARZ).get("Gracz").getInventory().addItem(new ItemStack(Material.getMaterial(354), 1));
-        classInventory.get(CLASS.KUCHARZ).get("Gracz").getInventory().addItem(new ItemStack(Material.getMaterial(297), 16));
-        classInventory.get(CLASS.KUCHARZ).get("Gracz").getInventory().addItem(new ItemStack(Material.getMaterial(363), 32));
-        classInventory.get(CLASS.KUCHARZ).get("Gracz").getInventory().addItem(new ItemStack(Material.getMaterial(322), 16));
-        classInventory.get(CLASS.KUCHARZ).get("Gracz").getInventory().addItem(new ItemStack(Material.getMaterial(61), 2));
-        classInventory.get(CLASS.KUCHARZ).get("Gracz").getInventory().addItem(new ItemStack(Material.getMaterial(263), 4));
+        Inventory standardFoodInventory = classInventory.get(CLASS.KUCHARZ).get("Gracz").getInventory();
+        standardFoodInventory.addItem(sword);
+        standardFoodInventory.addItem(new ItemStack(Material.getMaterial(354), 1));
+        standardFoodInventory.addItem(new ItemStack(Material.getMaterial(297), 16));
+        standardFoodInventory.addItem(new ItemStack(Material.getMaterial(363), 32));
+        standardFoodInventory.addItem(new ItemStack(Material.getMaterial(322), 16));
+        standardFoodInventory.addItem(new ItemStack(Material.getMaterial(61), 2));
+        standardFoodInventory.addItem(new ItemStack(Material.getMaterial(263), 4));
 
         ItemStack vipsword = new ItemStack(Material.getMaterial(267), 1);
         sword.addEnchantment(Enchantment.KNOCKBACK, 2);
-        classInventory.get(CLASS.KUCHARZ).get("Vip").getInventory().addItem(vipsword);
-        classInventory.get(CLASS.KUCHARZ).get("Vip").getInventory().addItem(new ItemStack(Material.getMaterial(354), 1));
-        classInventory.get(CLASS.KUCHARZ).get("Vip").getInventory().addItem(new ItemStack(Material.getMaterial(297), 16));
-        classInventory.get(CLASS.KUCHARZ).get("Vip").getInventory().addItem(new ItemStack(Material.getMaterial(363), 32));
-        classInventory.get(CLASS.KUCHARZ).get("Vip").getInventory().addItem(new ItemStack(Material.getMaterial(322), 16));
-        classInventory.get(CLASS.KUCHARZ).get("Vip").getInventory().addItem(new ItemStack(Material.getMaterial(61), 2));
-        classInventory.get(CLASS.KUCHARZ).get("Vip").getInventory().addItem(new ItemStack(Material.getMaterial(263), 4));
+        Inventory vipFoodInventory = classInventory.get(CLASS.KUCHARZ).get("Vip").getInventory();
+        vipFoodInventory.addItem(vipsword);
+        vipFoodInventory.addItem(new ItemStack(Material.getMaterial(354), 1));
+        vipFoodInventory.addItem(new ItemStack(Material.getMaterial(297), 16));
+        vipFoodInventory.addItem(new ItemStack(Material.getMaterial(363), 32));
+        vipFoodInventory.addItem(new ItemStack(Material.getMaterial(322), 16));
+        vipFoodInventory.addItem(new ItemStack(Material.getMaterial(61), 2));
+        vipFoodInventory.addItem(new ItemStack(Material.getMaterial(263), 4));
     }
 
     public void addAlchemikItems() {
@@ -206,5 +221,21 @@ public class ClassManager {
         return classes;
     }
 
+    public void givePlayerClass(Player p, GameUser user) {
+        ClassManager.CLASS playerClass = this.getPlayerClasses().get(p.getName());
+        if (playerClass == null) {
+            playerClass = ClassManager.CLASS.GORNIK;
+        }
+        String kittype = "Gracz";
+        if (!user.getRank().equals("Gracz")) {
+            kittype = "Vip";
+        }
+        for (ItemStack it : this.getClassInventory().get(playerClass).get(kittype).getInventory()) {
+            if (it != null) {
+                p.getInventory().addItem(it);
+            }
+        }
+        p.sendMessage(messageManager.getMessage(user.getLanguage(), "thewalls.msg.classgiven").replace("{CLASS}", playerClass.name()));
+    }
 
 }

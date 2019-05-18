@@ -14,7 +14,6 @@ import pl.grzegorz2047.thewalls.TheWalls;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by grzeg on 07.05.2016.
@@ -23,9 +22,17 @@ public class PlayerChat implements Listener {
 
 
     private final TheWalls plugin;
+    private final HashMap<String, String> settings;
+    private final GameData gameData;
+    private final HashMap<GameData.GameTeam, ArrayList<String>> teams;
+    private final HashMap<String, GameUser> gameUsers;
 
     public PlayerChat(TheWalls plugin) {
         this.plugin = plugin;
+        settings = this.plugin.getSettings();
+        gameData = this.plugin.getGameData();
+        teams = gameData.getTeams();
+        gameUsers = gameData.getGameUsers();
     }
 
     @EventHandler
@@ -34,27 +41,33 @@ public class PlayerChat implements Listener {
             return;
         }
         Player p = e.getPlayer();
-        GameData gameData = plugin.getGameData();
         String playerName = p.getName();
-        GameUser user = gameData.getGameUsers().get(playerName);
+        GameUser user = gameUsers.get(playerName);
         String userRank = user.getRank();
         String displayName = p.getDisplayName();
 
-        HashMap<String, String> settings = plugin.getSettings();
         String format = settings.get("chat." + userRank.toLowerCase());
-        String message = e.getMessage();
-        message = message.replace('%', ' ');
-        if (!userRank.equals("Gracz")) {
+        String message = e.getMessage().replace('%', ' ');
+        boolean hasStandardRank = userRank.equals("Gracz");
+        boolean toGlobalChat = false;
+        if (!hasStandardRank) {
             message = ChatColor.translateAlternateColorCodes('&', message);
+            toGlobalChat = message.startsWith("!");
+            if(toGlobalChat){
+                message = message.substring(1);
+            }
         }
+
         String chatFormat = format.replace("{DISPLAYNAME}", displayName).replace("{MESSAGE}", message);
-        String chatFormatLang = chatFormat.replace("{LANG}",
-                user.getLanguage());
+        String chatFormatLang = chatFormat.replace("{LANG}", user.getLanguage());
         e.setFormat(chatFormatLang);
-        if (gameData.getStatus().equals(GameData.GameStatus.INGAME)) {
+        GameData.GameStatus status = gameData.getStatus();
+        if (status.equals(GameData.GameStatus.INGAME)) {
             e.setCancelled(true);
-            if (user.getAssignedTeam() == null) {
-                if ((!userRank.equals("Gracz") && !userRank.equals("Vip") && !userRank.equals("Youtube") && !userRank.equals("miniYT"))) {
+            boolean isObserver = user.getAssignedTeam() == null;
+            if (isObserver) {
+                boolean isAdminRank = !hasStandardRank && !hasSpecialVipRank(userRank);
+                if (isAdminRank) {
                     for (Player pl : Bukkit.getOnlinePlayers()) {
                         pl.sendMessage(chatFormatLang);
                     }
@@ -62,25 +75,23 @@ public class PlayerChat implements Listener {
                 }
                 return;
             }
-            boolean toAll = false;
-            if (!userRank.equals("Gracz")) {
-                toAll = message.startsWith("!");
-            }
 
-            List<String> recipent = gameData.getTeams().get(user.getAssignedTeam());
+            List<String> recipent = teams.get(user.getAssignedTeam());
             for (Player pl : Bukkit.getOnlinePlayers()) {
-                if (recipent.contains(pl.getName()) || toAll) {
-                    if (toAll) {
-                        String globalFormat = "§7[§bGLOBAL§7] " + chatFormatLang.substring(1);
+                if (recipent.contains(pl.getName()) || toGlobalChat) {
+                    if (toGlobalChat) {
+                        String globalFormat = "§7[§bGLOBAL§7] " + chatFormatLang;
                         pl.sendMessage(globalFormat);
                     } else {
                         pl.sendMessage(chatFormatLang);
                     }
                 }
             }
-
-
         }
+    }
+
+    private boolean hasSpecialVipRank(String userRank) {
+        return userRank.equals("Vip") || userRank.equals("Youtube") || !userRank.equals("miniYT");
     }
 
     @EventHandler

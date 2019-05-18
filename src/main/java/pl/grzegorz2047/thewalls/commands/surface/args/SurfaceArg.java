@@ -23,8 +23,8 @@ public class SurfaceArg implements Arg {
     @Override
     public void execute(CommandSender sender, String[] args) {
         Player p = (Player) sender;
-        GameUser user = plugin.getGameData().getGameUsers().get(p.getName());
-        if (!plugin.getGameData().getStatus().equals(GameData.GameStatus.INGAME)) {
+        GameUser user = plugin.getGameData().getGameUser(p.getName());
+        if (!plugin.getGameData().isStatus(GameData.GameStatus.INGAME)) {
             p.sendMessage(plugin.getMessageManager().getMessage(user.getLanguage(), "thewalls.msg.surfacenotavailableyet"));
             return;
         }

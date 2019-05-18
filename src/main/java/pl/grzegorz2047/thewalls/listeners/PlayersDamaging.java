@@ -1,12 +1,10 @@
 package pl.grzegorz2047.thewalls.listeners;
 
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Egg;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Snowball;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -22,14 +20,16 @@ public class PlayersDamaging implements Listener {
 
 
     private final TheWalls plugin;
+    private final GameData gameData;
 
     public PlayersDamaging(TheWalls plugin) {
         this.plugin = plugin;
+        gameData = plugin.getGameData();
     }
 
     @EventHandler
     public void przyDamagu(EntityDamageEvent e) {
-        if (!plugin.getGameData().getStatus().equals(GameData.GameStatus.INGAME)) {
+        if (!gameData.isStatus(GameData.GameStatus.INGAME)) {
             e.setCancelled(true);
         }
     }
@@ -43,9 +43,9 @@ public class PlayersDamaging implements Listener {
             if (event.getEntity() instanceof Player) {
                 Player attacked = (Player) event.getEntity();
                 Player attacker = (Player) event.getDamager();
-                GameUser attackedUser = plugin.getGameData().getGameUsers().get(attacked.getName());
-                GameUser attackerUser = plugin.getGameData().getGameUsers().get(attacker.getName());
-                if(checkIfTheSameTeam(attackedUser, attackerUser)){
+                GameUser attackedUser = gameData.getGameUser(attacked.getName());
+                GameUser attackerUser = gameData.getGameUser(attacker.getName());
+                if (checkIfTheSameTeam(attackedUser, attackerUser)) {
                     event.setCancelled(true);
                 }
             }
@@ -57,9 +57,9 @@ public class PlayersDamaging implements Listener {
                 if (attackerEntity instanceof Player) {
                     Player attacker = (Player) attackerEntity;
 
-                    GameUser attackedUser = plugin.getGameData().getGameUsers().get(attacked.getName());
-                    GameUser attackerUser = plugin.getGameData().getGameUsers().get(attacker.getName());
-                    if(checkIfTheSameTeam(attackedUser, attackerUser)){
+                    GameUser attackedUser = gameData.getGameUser(attacked.getName());
+                    GameUser attackerUser = gameData.getGameUser(attacker.getName());
+                    if (checkIfTheSameTeam(attackedUser, attackerUser)) {
                         event.setCancelled(true);
                     }
                 }
@@ -71,9 +71,9 @@ public class PlayersDamaging implements Listener {
 
                 if (attackerEntity instanceof Player) {
                     Player attacker = (Player) attackerEntity;
-                    GameUser attackedUser = plugin.getGameData().getGameUsers().get(attacked.getName());
-                    GameUser attackerUser = plugin.getGameData().getGameUsers().get(attacker.getName());
-                    if(checkIfTheSameTeam(attackedUser, attackerUser)){
+                    GameUser attackedUser = gameData.getGameUser(attacked.getName());
+                    GameUser attackerUser = gameData.getGameUser(attacker.getName());
+                    if (checkIfTheSameTeam(attackedUser, attackerUser)) {
                         event.setCancelled(true);
                     }
                 }
@@ -84,9 +84,9 @@ public class PlayersDamaging implements Listener {
                 ProjectileSource attackerEntity = ((Egg) event.getDamager()).getShooter();
                 if (attackerEntity instanceof Player) {
                     Player attacker = (Player) attackerEntity;
-                    GameUser attackedUser = plugin.getGameData().getGameUsers().get(attacked.getName());
-                    GameUser attackerUser = plugin.getGameData().getGameUsers().get(attacker.getName());
-                    if(checkIfTheSameTeam(attackedUser, attackerUser)){
+                    GameUser attackedUser = gameData.getGameUser(attacked.getName());
+                    GameUser attackerUser = gameData.getGameUser(attacker.getName());
+                    if (checkIfTheSameTeam(attackedUser, attackerUser)) {
                         event.setCancelled(true);
                     }
                 }
@@ -95,14 +95,10 @@ public class PlayersDamaging implements Listener {
     }
 
     private boolean checkIfTheSameTeam(GameUser attackedUser, GameUser attackerUser) {
-        if (attackedUser.
+        return attackedUser.
                 getAssignedTeam()
                 .equals(
                         attackerUser.
-                                getAssignedTeam())) {
-            return true;
-        } else {
-            return false;
-        }
+                                getAssignedTeam());
     }
 }

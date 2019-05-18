@@ -13,14 +13,16 @@ public class ItemDrop implements Listener {
 
 
     private final TheWalls plugin;
+    private final GameData gameData;
 
     public ItemDrop(TheWalls plugin) {
         this.plugin = plugin;
+        gameData = plugin.getGameData();
     }
 
     @EventHandler
     private void onDrop(PlayerDropItemEvent e){
-        if(!plugin.getGameData().getStatus().equals(GameData.GameStatus.INGAME)){
+        if(!gameData.isStatus(GameData.GameStatus.INGAME)){
             e.setCancelled(true);
         }
     }

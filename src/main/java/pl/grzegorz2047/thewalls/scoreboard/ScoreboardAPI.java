@@ -3,11 +3,13 @@ package pl.grzegorz2047.thewalls.scoreboard;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.*;
+import pl.grzegorz2047.databaseapi.messages.MessageAPI;
 import pl.grzegorz2047.thewalls.GameData;
 import pl.grzegorz2047.thewalls.GameUser;
 import pl.grzegorz2047.thewalls.TheWalls;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by s416045 on 2016-04-19.
@@ -19,14 +21,18 @@ public class ScoreboardAPI {
     private final String team2Label;
     private final String team3Label;
     private final String team4Label;
+    private final MessageAPI messageManager;
+    private final GameData gameData;
 
 
-    public ScoreboardAPI(TheWalls plugin) {
+    public ScoreboardAPI(TheWalls plugin, MessageAPI messageManager, GameData gameData) {
         this.plugin = plugin;
-        this.team1Label = plugin.getMessageManager().getMessage("PL", "thewalls.scoreboard.ingame.TEAM1");
-        this.team2Label = plugin.getMessageManager().getMessage("PL", "thewalls.scoreboard.ingame.TEAM2");
-        this.team3Label = plugin.getMessageManager().getMessage("PL", "thewalls.scoreboard.ingame.TEAM3");
-        this.team4Label = plugin.getMessageManager().getMessage("PL", "thewalls.scoreboard.ingame.TEAM4");
+        this.team1Label = messageManager.getMessage("PL", "thewalls.scoreboard.ingame.TEAM1");
+        this.messageManager = plugin.getMessageManager();
+        this.team2Label = this.messageManager.getMessage("PL", "thewalls.scoreboard.ingame.TEAM2");
+        this.team3Label = this.messageManager.getMessage("PL", "thewalls.scoreboard.ingame.TEAM3");
+        this.team4Label = this.messageManager.getMessage("PL", "thewalls.scoreboard.ingame.TEAM4");
+        this.gameData = gameData;
     }
 
 
@@ -47,16 +53,16 @@ public class ScoreboardAPI {
         //addTabListEntry(scoreboard, p.getName(), " §7"); //color tablist?
 
         addEntry(scoreboard, objective, "§     ", "", 11);
-        addEntry(scoreboard, objective, plugin.getMessageManager().getMessage(userLanguage, "thewalls.scoreboard.money"), String.valueOf(money), 10);
+        addEntry(scoreboard, objective, this.messageManager.getMessage(userLanguage, "thewalls.scoreboard.money"), String.valueOf(money), 10);
         addEntry(scoreboard, objective, "§    ", "", 9);
-        addEntry(scoreboard, objective, plugin.getMessageManager().getMessage(userLanguage, "thewalls.scoreboard.kills"), String.valueOf(kills), 8);
-        addEntry(scoreboard, objective, plugin.getMessageManager().getMessage(userLanguage, "thewalls.scoreboard.deaths"), String.valueOf(deaths), 7);
-        addEntry(scoreboard, objective, plugin.getMessageManager().getMessage(userLanguage, "thewalls.scoreboard.wins"), String.valueOf(wins), 6);
-        addEntry(scoreboard, objective, plugin.getMessageManager().getMessage(userLanguage, "thewalls.scoreboard.lose"), String.valueOf(lose), 5);
+        addEntry(scoreboard, objective, this.messageManager.getMessage(userLanguage, "thewalls.scoreboard.kills"), String.valueOf(kills), 8);
+        addEntry(scoreboard, objective, this.messageManager.getMessage(userLanguage, "thewalls.scoreboard.deaths"), String.valueOf(deaths), 7);
+        addEntry(scoreboard, objective, this.messageManager.getMessage(userLanguage, "thewalls.scoreboard.wins"), String.valueOf(wins), 6);
+        addEntry(scoreboard, objective, this.messageManager.getMessage(userLanguage, "thewalls.scoreboard.lose"), String.valueOf(lose), 5);
         addEntry(scoreboard, objective, "§   ", "", 4);
         addEntry(scoreboard, objective, "§  ", "", 3);
         addEntry(scoreboard, objective, "§ ", "", 2);
-        String websiteInfo = plugin.getMessageManager().getMessage(userLanguage, "scoreboard.website.address");
+        String websiteInfo = this.messageManager.getMessage(userLanguage, "scoreboard.website.address");
         addEntry(scoreboard, objective, websiteInfo, "", 1);
         Team t1 = scoreboard.registerNewTeam("team1");
         t1.setPrefix("§a");
@@ -91,13 +97,13 @@ public class ScoreboardAPI {
         addEntry(scoreboard, objective, team3Label, "0", 6);
         addEntry(scoreboard, objective, team4Label, "0", 5);
         addEntry(scoreboard, objective, "§   ", "", 4);
-        addEntry(scoreboard, objective, plugin.getMessageManager().getMessage(user.getLanguage(), "thewalls.scoreboard.kills"), String.valueOf(0), 3);
-        addEntry(scoreboard, objective, plugin.getMessageManager().getMessage(user.getLanguage(), "thewalls.scoreboard.money"), String.valueOf(user.getMoney()), 2);
+        addEntry(scoreboard, objective, this.messageManager.getMessage(user.getLanguage(), "thewalls.scoreboard.kills"), String.valueOf(0), 3);
+        addEntry(scoreboard, objective, this.messageManager.getMessage(user.getLanguage(), "thewalls.scoreboard.money"), String.valueOf(user.getMoney()), 2);
         //addEntry(scoreboard, objective, "§bTEAM2§6", "0", 3);
         //addEntry(scoreboard, objective, "§cTEAM3§6", "0", 2);
         //addEntry(scoreboard, objective, "§eTEAM4§6", "0", 2);
         addEntry(scoreboard, objective, "§    ", "", 1);
-        String websiteInfo = plugin.getMessageManager().getMessage(user.getLanguage(), "scoreboard.website.address");
+        String websiteInfo = this.messageManager.getMessage(user.getLanguage(), "scoreboard.website.address");
         addEntry(scoreboard, objective, websiteInfo, "", 0);
         Team t1 = scoreboard.registerNewTeam("team1");
         t1.setPrefix("§a");
@@ -125,7 +131,7 @@ public class ScoreboardAPI {
         addEntry(scoreboard, objective, "§   ", "", 4);
         addEntry(scoreboard, objective, "§    ", "", 1);
 
-        String websiteInfo = plugin.getMessageManager().getMessage(gameUser.getLanguage(), "scoreboard.website.address");
+        String websiteInfo = this.messageManager.getMessage(gameUser.getLanguage(), "scoreboard.website.address");
         addEntry(scoreboard, objective, websiteInfo, "", 0);
 
         Objective tablistobj = scoreboard.registerNewObjective("tablist", "dummy");
@@ -155,19 +161,22 @@ public class ScoreboardAPI {
         t3.setPrefix("§c");
         Team t4 = sc.getTeam("team4");
         t4.setPrefix("§e");
-        for (Map.Entry<String, GameUser> entry : plugin.getGameData().getGameUsers().entrySet()) {
+        Set<Map.Entry<String, GameUser>> arenaUsers = gameData.getArenaUsers();
+        for (Map.Entry<String, GameUser> entry : arenaUsers) {
             GameUser user = entry.getValue();
-            if (entry.getValue().isSpectator()) {
+            if (user.isSpectator()) {
                 continue;
             }
-            if (user.getAssignedTeam().equals(GameData.GameTeam.TEAM1)) {
-                t1.addEntry(entry.getKey());
-            } else if (user.getAssignedTeam().equals(GameData.GameTeam.TEAM2)) {
-                t2.addEntry(entry.getKey());
-            } else if (user.getAssignedTeam().equals(GameData.GameTeam.TEAM3)) {
-                t3.addEntry(entry.getKey());
-            } else if (user.getAssignedTeam().equals(GameData.GameTeam.TEAM4)) {
-                t4.addEntry(entry.getKey());
+            String key = entry.getKey();
+            GameData.GameTeam assignedTeam = user.getAssignedTeam();
+            if (assignedTeam.equals(GameData.GameTeam.TEAM1)) {
+                t1.addEntry(key);
+            } else if (assignedTeam.equals(GameData.GameTeam.TEAM2)) {
+                t2.addEntry(key);
+            } else if (assignedTeam.equals(GameData.GameTeam.TEAM3)) {
+                t3.addEntry(key);
+            } else if (assignedTeam.equals(GameData.GameTeam.TEAM4)) {
+                t4.addEntry(key);
             }
         }
 
@@ -236,7 +245,13 @@ public class ScoreboardAPI {
 
     public void updateDisplayName(int time, Player p) {
         Scoreboard scoreboard = p.getScoreboard();
-        scoreboard.getObjective(DisplaySlot.SIDEBAR).setDisplayName("§a" + formatIntoHHMMSS(time) + " §6TheWalls #" + (Bukkit.getPort() % 200) + " §a" + plugin.getGameData().getGameUsers().size() + "/" + Bukkit.getMaxPlayers());
+        Objective sidebar = scoreboard.getObjective(DisplaySlot.SIDEBAR);
+        String formattedTime = formatIntoHHMMSS(time);
+        int arenaNumber = Bukkit.getPort() % 10;
+        int numberOfPlayers = this.gameData.getNumberOfPlayers();
+        int maxPlayers = Bukkit.getMaxPlayers();
+        String displayName = "§a" + formattedTime + " §6TheWalls #" + arenaNumber + " §a" + numberOfPlayers + "/" + maxPlayers;
+        sidebar.setDisplayName(displayName);
     }
 
     static String formatIntoHHMMSS(int secsIn) {
@@ -248,17 +263,5 @@ public class ScoreboardAPI {
         return ((minutes < 10 ? "0" : "") + minutes
                 + ":" + (seconds < 10 ? "0" : "") + seconds);
 
-    }
-
-    public String getTeam2Label() {
-        return team2Label;
-    }
-
-    public String getTeam3Label() {
-        return team3Label;
-    }
-
-    public String getTeam4Label() {
-        return team4Label;
     }
 }

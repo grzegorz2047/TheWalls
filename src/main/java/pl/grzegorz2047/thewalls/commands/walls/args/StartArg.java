@@ -6,7 +6,6 @@ import pl.grzegorz2047.databaseapi.messages.MessageAPI;
 import pl.grzegorz2047.thewalls.Counter;
 import pl.grzegorz2047.thewalls.GameData;
 import pl.grzegorz2047.thewalls.GameUser;
-import pl.grzegorz2047.thewalls.TheWalls;
 import pl.grzegorz2047.thewalls.api.command.Arg;
 
 import java.util.HashMap;
@@ -33,7 +32,7 @@ public class StartArg implements Arg {
         Player p = (Player) sender;
         String username = p.getName();
         GameUser user = gameUsers.get(username);
-        if (!gameData.getStatus().equals(GameData.GameStatus.WAITING)) {
+        if (!gameData.isStatus(GameData.GameStatus.WAITING)) {
             p.sendMessage(messageManager.getMessage(user.getLanguage(), "thewalls.msg.alreadystarted"));
             return;
         }

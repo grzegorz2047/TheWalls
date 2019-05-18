@@ -53,7 +53,7 @@ public class PlayerChat implements Listener {
         if (!hasStandardRank) {
             message = ChatColor.translateAlternateColorCodes('&', message);
             toGlobalChat = message.startsWith("!");
-            if(toGlobalChat){
+            if (toGlobalChat) {
                 message = message.substring(1);
             }
         }
@@ -61,8 +61,7 @@ public class PlayerChat implements Listener {
         String chatFormat = format.replace("{DISPLAYNAME}", displayName).replace("{MESSAGE}", message);
         String chatFormatLang = chatFormat.replace("{LANG}", user.getLanguage());
         e.setFormat(chatFormatLang);
-        GameData.GameStatus status = gameData.getStatus();
-        if (status.equals(GameData.GameStatus.INGAME)) {
+        if (gameData.isStatus(GameData.GameStatus.INGAME)) {
             e.setCancelled(true);
             boolean isObserver = user.getAssignedTeam() == null;
             if (isObserver) {

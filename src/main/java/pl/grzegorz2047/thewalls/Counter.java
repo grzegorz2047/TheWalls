@@ -1,6 +1,7 @@
 package pl.grzegorz2047.thewalls;
 
 import org.bukkit.Bukkit;
+import org.bukkit.plugin.PluginManager;
 
 import java.util.HashMap;
 
@@ -70,11 +71,12 @@ public class Counter {
 
     public void count() {
         if (this.running) {
+            PluginManager pluginManager = Bukkit.getPluginManager();
             if (time > 0) {
                 time--;
-                Bukkit.getPluginManager().callEvent(new CountingEvent(this.getStatus(), this));
+                pluginManager.callEvent(new CountingEvent(this.getStatus(), this));
             } else {
-                Bukkit.getPluginManager().callEvent(new CounterEndEvent(this.getStatus(), this));
+                pluginManager.callEvent(new CounterEndEvent(this.getStatus(), this));
             }
         }
     }

@@ -34,18 +34,18 @@ public class BlockPlace implements Listener {
         if (plugin.getGameData().getCounter().getStatus().equals(Counter.CounterStatus.COUNTINGTODROPWALLS)) {
 
             if (list.contains(e.getBlock().getType())) {
-                GameUser user = plugin.getGameData().getGameUsers().get(p.getName());
+                GameUser user = plugin.getGameData().getGameUser(p.getName());
                 e.getPlayer().sendMessage(plugin.getMessageManager().getMessage(user.getLanguage(), "thewalls.msg.cantuseitnow"));
                 e.setCancelled(true);
                 return;
             }
             if (e.getBlock().getType().equals(Material.FURNACE)) {
-                GameUser user = plugin.getGameData().getGameUsers().get(p.getName());
+                GameUser user = plugin.getGameData().getGameUser(p.getName());
                 if (user.getProtectedFurnaces() >= 3) {
                     e.getPlayer().sendMessage(plugin.getMessageManager().getMessage(user.getLanguage(), "thewalls.msg.furnacenotprotected"));
                     return;
                 } else {
-                    plugin.getGameData().getProtectedFurnace().put(e.getBlock().getLocation(), p.getName());
+                    plugin.getGameData().getProtectedFurnaces().put(e.getBlock().getLocation(), p.getName());
                     e.getPlayer().sendMessage(plugin.getMessageManager().getMessage(user.getLanguage(), "thewalls.msg.furnacenowprotected"));
                     user.setProtectedFurnaces(user.getProtectedFurnaces() + 1);
                     return;

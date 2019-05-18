@@ -30,12 +30,12 @@ public class BlockBreak implements Listener {
         gameData = this.plugin.getGameData();
         messageManager = plugin.getMessageManager();
         gameUsers = gameData.getGameUsers();
-        protectedFurnace = gameData.getProtectedFurnace();
+        protectedFurnace = gameData.getProtectedFurnaces();
     }
 
     @EventHandler
     public void onBreak(BlockBreakEvent e) {
-        if (!gameData.getStatus().equals(GameData.GameStatus.INGAME)) {
+        if (!gameData.isStatus(GameData.GameStatus.INGAME)) {
             e.setCancelled(true);
             return;
         }

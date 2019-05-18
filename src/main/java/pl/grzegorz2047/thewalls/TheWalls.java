@@ -63,8 +63,8 @@ public class TheWalls extends JavaPlugin {
         moneyManager.setMoneyTable("TheWallsMoney");
         setSettings(playerManager.getSettings());
         Bukkit.getScheduler().runTaskTimer(this, new GeneralTask(this), 0, 20l);
-        scoreboardAPI = new ScoreboardAPI(this);
         gameData = new GameData(this);
+        scoreboardAPI = new ScoreboardAPI(this, messageManager, gameData);
         registerListeners(gameData);
         this.getCommand("team").setExecutor(new TeamCommand("team", new String[]{"team", "druzyna", "t", "d"}, this));
         this.getCommand("wyjdz").setExecutor(new SurfaceCommand("wyjdz", new String[]{"wyjdz", "surface"}, this));

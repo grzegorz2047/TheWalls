@@ -34,13 +34,13 @@ public class TepCommand implements CommandExecutor {
             if (toPlayer != null) {
                 GameUser toPlayerUser = plugin.getGameData().getGameUsers().get(teammate);
                 if (toPlayerUser == null) {
-                    GameUser gameUser = plugin.getGameData().getGameUsers().get(p.getName());
+                    GameUser gameUser = plugin.getGameData().getGameUser(p.getName());
                     p.sendMessage(plugin.getMessageManager().getMessage(gameUser.getLanguage(), "thewalls.cantteptothisperson"));
                     return true;
                 }
                 GameData.GameTeam toPlayerTeam = toPlayerUser.getAssignedTeam();
                 if (toPlayerTeam != null) {
-                    GameUser gameUser = plugin.getGameData().getGameUsers().get(p.getName());
+                    GameUser gameUser = plugin.getGameData().getGameUser(p.getName());
                     if (gameUser.getRank().equals("Gracz")) {
                         p.sendMessage(plugin.getMessageManager().getMessage(gameUser.getLanguage(), "thewalls.notavailableforplayers"));
                         return true;

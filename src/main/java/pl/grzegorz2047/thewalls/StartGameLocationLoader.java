@@ -4,58 +4,47 @@ import org.bukkit.Location;
 import pl.grzegorz2047.thewalls.api.exception.IncorrectDataStringException;
 import pl.grzegorz2047.thewalls.api.util.LocationUtil;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by grzeg on 04.11.2016.
  */
 public class StartGameLocationLoader {
 
 
-    private final TheWalls plugin;
+    private Map<GameData.GameTeam, Location> teamSpawnLocations = new HashMap<>();
+    private final HashMap<String, String> settings;
 
+    public StartGameLocationLoader(HashMap<String, String> settings) {
 
-    private Location locteam1;
-    private Location locteam2;
-    private Location locteam3;
-    private Location locteam4;
-
-    public StartGameLocationLoader(TheWalls plugin) {
-        this.plugin = plugin;
+        this.settings = settings;
     }
 
-    public Location getLocteam1() {
-        return locteam1;
+    public Location getStartLocation(GameData.GameTeam team) {
+        return teamSpawnLocations.get(team);
     }
 
-    public Location getLocteam2() {
-        return locteam2;
-    }
-
-    public Location getLocteam3() {
-        return locteam3;
-    }
-
-    public Location getLocteam4() {
-        return locteam4;
-    }
-
-    public StartGameLocationLoader invoke(WorldManagement worldManagement) {
+    public StartGameLocationLoader loadSpawns(WorldManagement worldManagement) {
         try {
-            locteam1 = LocationUtil.entityStringToLocation(
-                    worldManagement.getLoadedWorld().getName(),
-                    plugin.getSettings().get("thewalls.spawns.team." + 1));
-            locteam2 = LocationUtil.entityStringToLocation(
-                    worldManagement.getLoadedWorld().getName(),
-                    plugin.getSettings().get("thewalls.spawns.team." + 2));
-            locteam3 = LocationUtil.entityStringToLocation(
-                    worldManagement.getLoadedWorld().getName(),
-                    plugin.getSettings().get("thewalls.spawns.team." + 3));
+            String worldName = worldManagement.getLoadedWorldName();
+            teamSpawnLocations.put(GameData.GameTeam.TEAM1, LocationUtil.entityStringToLocation(
+                    worldName,
+                    settings.get("thewalls.spawns.team." + 1)));
+            teamSpawnLocations.put(GameData.GameTeam.TEAM2, LocationUtil.entityStringToLocation(
+                    worldName,
+                    settings.get("thewalls.spawns.team." + 2)));
+            teamSpawnLocations.put(GameData.GameTeam.TEAM3, LocationUtil.entityStringToLocation(
+                    worldName,
+                    settings.get("thewalls.spawns.team." + 3)));
 
-            locteam4 = LocationUtil.entityStringToLocation(
-                    worldManagement.getLoadedWorld().getName(),
-                    plugin.getSettings().get("thewalls.spawns.team." + 4));
+            teamSpawnLocations.put(GameData.GameTeam.TEAM4, LocationUtil.entityStringToLocation(
+                    worldName,
+                    settings.get("thewalls.spawns.team." + 4)));
         } catch (IncorrectDataStringException e) {
             e.printStackTrace();
         }
         return this;
     }
+
 }

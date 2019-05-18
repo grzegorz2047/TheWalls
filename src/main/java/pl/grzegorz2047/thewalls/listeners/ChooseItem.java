@@ -47,7 +47,7 @@ public class ChooseItem implements Listener {
             }
             if (title.equals("Kits")) {
                 e.setCancelled(true);
-                GameUser user = plugin.getGameData().getGameUsers().get(p.getName());
+                GameUser user = plugin.getGameData().getGameUser(p.getName());
                 ClassManager.CLASS kit = null;
                 if (e.getClicked().getType().equals(Material.IRON_SWORD)) {
                     plugin.getGameData().getClassManager().getPlayerClasses().put(p.getName(), ClassManager.CLASS.WOJOWNIK);
@@ -82,18 +82,18 @@ public class ChooseItem implements Listener {
             if (title.equals("Main")) {
                 e.setCancelled(true);
                 if (e.getClicked().getType().equals(Material.QUARTZ)) {
-                    GameUser user = plugin.getGameData().getGameUsers().get(p.getName());
+                    GameUser user = plugin.getGameData().getGameUser(p.getName());
                     plugin.getShopMenuManager().openTempItems(p, user, plugin.getMessageManager());
                 }
                 if (e.getClicked().getType().equals(Material.MAGMA_CREAM)) {
-                    GameUser user = plugin.getGameData().getGameUsers().get(p.getName());
+                    GameUser user = plugin.getGameData().getGameUser(p.getName());
                     plugin.getShopMenuManager().openPermItems(p, user, plugin.getMessageManager());
                 }
                 return;
             }
             //System.out.println("D");
             if (title.equals("Perm items")) {
-                GameUser user = plugin.getGameData().getGameUsers().get(p.getName());
+                GameUser user = plugin.getGameData().getGameUser(p.getName());
                 e.setCancelled(true);
 
                 int slot = e.getSlot();
@@ -129,7 +129,7 @@ public class ChooseItem implements Listener {
                 }
             }
             if (title.equals("Temp items")) {
-                GameUser user = plugin.getGameData().getGameUsers().get(p.getName());
+                GameUser user = plugin.getGameData().getGameUser(p.getName());
                 e.setCancelled(true);
 
                 int slot = e.getSlot();

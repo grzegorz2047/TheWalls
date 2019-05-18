@@ -6,13 +6,12 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.scheduler.BukkitScheduler;
-import pl.grzegorz2047.databaseapi.DatabaseAPI;
-import pl.grzegorz2047.databaseapi.MoneyAPI;
-import pl.grzegorz2047.databaseapi.SQLUser;
-import pl.grzegorz2047.databaseapi.StatsAPI;
+import pl.grzegorz2047.databaseapi.*;
 import pl.grzegorz2047.databaseapi.messages.MessageAPI;
 import pl.grzegorz2047.databaseapi.shop.Item;
+import pl.grzegorz2047.databaseapi.shop.ShopAPI;
 import pl.grzegorz2047.databaseapi.shop.Transaction;
 import pl.grzegorz2047.thewalls.api.exception.IncorrectDataStringException;
 import pl.grzegorz2047.thewalls.api.util.*;
@@ -33,12 +32,12 @@ public class GameData {
     private final MessageAPI messageManager;
     private final HashMap<String, String> settings;
     private final Shop shopMenuManager;
-    private final GameData gameData;
     private final ScoreboardAPI scoreboardAPI;
     private final HashMap<String, GameUser> gameUsers = new HashMap<>();
+    private final ShopAPI shopManager;
     private Counter counter;
     private HashMap<GameTeam, ArrayList<String>> teams = new HashMap<GameTeam, ArrayList<String>>();
-    private HashMap<Location, String> protectedFurnace = new HashMap<Location, String>();
+    private HashMap<Location, String> protectedFurnaces = new HashMap<Location, String>();
     private ClassManager classManager;
     private int minPlayers;
     private int maxTeamSize;
@@ -69,7 +68,7 @@ public class GameData {
         worldManagement.loadWorld(numberOfMaps);
         worldManagement.disableSaving();
         classManager = new ClassManager(plugin);
-        startGameLocationLoader = new StartGameLocationLoader(plugin).invoke(worldManagement);
+        startGameLocationLoader = new StartGameLocationLoader(plugin.getSettings()).loadSpawns(worldManagement);
 
         moneyManager = plugin.getMoneyManager();
         playerManager = plugin.getPlayerManager();
@@ -77,14 +76,15 @@ public class GameData {
         this.settings = plugin.getSettings();
         shopMenuManager = plugin.getShopMenuManager();
         statsManager = plugin.getStatsManager();
-        gameData = plugin.getGameData();
+
         scoreboardAPI = plugin.getScoreboardAPI();
+        shopManager = plugin.getShopManager();
     }
 
     private GameStatus status = GameStatus.WAITING;
 
-    public GameStatus getStatus() {
-        return status;
+    public boolean isStatus(GameStatus gameStatus) {
+        return status.equals(gameStatus);
     }
 
     public void setStatus(GameStatus status) {
@@ -119,15 +119,86 @@ public class GameData {
         return expForWin;
     }
 
-    public HashMap<Location, String> getProtectedFurnace() {
-        return protectedFurnace;
+    public HashMap<Location, String> getProtectedFurnaces() {
+        return protectedFurnaces;
+    }
+
+    public GameUser getGameUser(String username) {
+        return gameUsers.get(username);
+    }
+
+    public ArrayList<String> getTeam(GameTeam team) {
+        return teams.get(team);
+    }
+
+    public void removeFromTeam(String username, GameTeam assignedTeam) {
+        teams.get(assignedTeam).remove(username);
+    }
+
+    public void addPlayerToTeam(String username, GameTeam team) {
+        teams.get(team).add(username);
+    }
+
+    public int getTeamSize(GameTeam team) {
+        return teams.get(team).size();
+    }
+
+    public String getPlayerProtectedFurnace(Location location) {
+        return protectedFurnaces.get(location);
+    }
+
+    public GameUser addGameUser(String playerName) {
+        moneyManager.insertPlayer(playerName);
+        statsManager.insertPlayer(playerName);
+        int money = moneyManager.getPlayer(playerName);
+        //plugin.getPlayerManager().changePlayerExp(p.getName(), 100);
+        SQLUser user = playerManager.getPlayer(playerName);
+        StatsUser statsUser = statsManager.getPlayer(playerName);
+        List<Transaction> transactions = shopManager.getPlayerItems(playerName);
+        GameUser gameUser = new GameUser(user, statsUser, transactions, money);
+        gameUsers.put(playerName, gameUser);
+        return gameUser;
+    }
+
+    public boolean isArenaEmpty() {
+        return gameUsers.size() == 0;
+    }
+
+    public String getLoadedWorldName() {
+        return worldManagement.getLoadedWorld().getName();
+    }
+
+    public GameUser removePlayerFromGame(Player p) {
+        return gameUsers.remove(p.getName());
+    }
+
+    public String getCurrentStatusLabel() {
+        return status.toString();
+    }
+
+    public Set<Map.Entry<String, GameUser>> getArenaUsers() {
+        return gameUsers.entrySet();
+    }
+
+    public int getNumberOfPlayers() {
+        return gameUsers.size();
     }
 
     public enum GameTeam {
-        TEAM1,
-        TEAM2,
-        TEAM3,
-        TEAM4
+        TEAM1("§a"),
+        TEAM2("§b"),
+        TEAM3("§c"),
+        TEAM4("§e");
+
+        private String color = "§7";
+
+        GameTeam(String teamColor) {
+            this.color = teamColor;
+        }
+
+        public String getColor() {
+            return color;
+        }
     }
 
     public enum GameStatus {
@@ -138,12 +209,11 @@ public class GameData {
     }
 
     public void restartGame() {
-        HashMap<String, String> settings = this.settings;
         for (Player p : Bukkit.getOnlinePlayers()) {
             p.kickPlayer("Arena przygotowuje sie do nowej gry!");
         }
-        this.getWorldManagement().reloadLoadedWorld(settings.get("thewalls.numberofmaps"));
-        startGameLocationLoader = new StartGameLocationLoader(plugin).invoke(worldManagement);
+        worldManagement.reloadLoadedWorld(settings.get("thewalls.numberofmaps"));
+        startGameLocationLoader = new StartGameLocationLoader(settings).loadSpawns(worldManagement);
         initializeArrays();
         status = GameStatus.WAITING;
         this.counter.cancel();
@@ -161,23 +231,24 @@ public class GameData {
     }
 
     public void checkToStart() {
-        if (this.getStatus().equals(GameStatus.WAITING)) {
+        int numberOfPlayers = Bukkit.getOnlinePlayers().size();
+        if (this.isStatus(GameStatus.WAITING)) {
             Calendar cal = Calendar.getInstance();
-            int godzina = cal.get(Calendar.HOUR_OF_DAY);
-            System.out.println("Godzina jest " + godzina);
-            if (godzina < 13 || godzina > 21) {
+            int hour = cal.get(Calendar.HOUR_OF_DAY);
+            System.out.println("Godzina jest " + hour);
+            if (hour < 13 || hour > 21) {
                 this.minPlayers = Integer.parseInt(settings.get("thewalls.minplayersearly"));
             } else {
                 this.minPlayers = Integer.parseInt(settings.get("thewalls.minplayers"));
             }
-            if (Bukkit.getOnlinePlayers().size() >= this.minPlayers) {
-                gameData.getCounter().start(Counter.CounterStatus.COUNTINGTOSTART);
+            if (numberOfPlayers >= this.minPlayers) {
+                getCounter().start(Counter.CounterStatus.COUNTINGTOSTART);
                 this.setStatus(GameStatus.STARTING);
                 broadcastToAllPlayers("thewalls.countingstarted");
                 //ArenaStatus.setStatus(//ArenaStatus.Status.STARTING);
             }
-        } else if (this.getStatus().equals(GameStatus.STARTING)) {
-            if (Bukkit.getOnlinePlayers().size() < this.minPlayers) {
+        } else if (this.isStatus(GameStatus.STARTING)) {
+            if (numberOfPlayers < this.minPlayers) {
                 this.setStatus(GameStatus.WAITING);
                 broadcastToAllPlayers("thewalls.countingcancelled");
                 this.counter.cancel();
@@ -197,7 +268,8 @@ public class GameData {
         p.sendMessage(message);
     }
 
-    public static String TeamtoColor(GameTeam t) {
+
+    public static String getTeamColor(GameTeam t) {
         if (t.equals(GameTeam.TEAM1)) {
             return "§a";
         }
@@ -216,34 +288,34 @@ public class GameData {
     public void startGame() {
         //ArenaStatus.setStatus(//ArenaStatus.Status.INGAME);
         this.getWorldManagement().setProtected(true);
-        Location locteam1 = startGameLocationLoader.getLocteam1();
-        Location locteam2 = startGameLocationLoader.getLocteam2();
-        Location locteam3 = startGameLocationLoader.getLocteam3();
-        Location locteam4 = startGameLocationLoader.getLocteam4();
 
         String expGiveMsgPL = messageManager.getMessage("PL", "thewalls.exp.giveinfo");
         String expGiveMsgEN = messageManager.getMessage("EN", "thewalls.exp.giveinfo");
 
         for (Player p : Bukkit.getOnlinePlayers()) {
-            p.getInventory().clear();
-            GameUser user = gameUsers.get(p.getName());
+            PlayerInventory userInventory = p.getInventory();
+            userInventory.clear();
+            String username = p.getName();
+            GameUser user = gameUsers.get(username);
+            String userRank = user.getRank();
 
-            assignUnassiged(p, user);
+            assignUnassigedToTeams(p, user);
 
-            teleportToArenaTeamSpawns(locteam1, locteam2, locteam3, locteam4, p, user);
-            if (!user.getRank().equals("Gracz")) {
+            p.teleport(startGameLocationLoader.getStartLocation(user.getAssignedTeam()));
+            if (!userRank.equals("Gracz")) {
                 p.setLevel(5);
-                if (user.getLanguage().equals("PL")) {
+                String userLanguage = user.getLanguage();
+                if (userLanguage.equals("PL")) {
                     p.sendMessage(expGiveMsgPL);
-                } else if (user.getLanguage().equals("EN")) {
+                } else if (userLanguage.equals("EN")) {
                     p.sendMessage(expGiveMsgEN);
                 } else {
-                    p.sendMessage(messageManager.getMessage(user.getLanguage(), "thewalls.exp.giveinfo"));
+                    p.sendMessage(messageManager.getMessage(userLanguage, "thewalls.exp.giveinfo"));
                 }
             }
-            p.getInventory().addItem(new ItemStack(Material.LAPIS_ORE, 1));
+            userInventory.addItem(new ItemStack(Material.LAPIS_ORE, 1));
             ItemStack netherStar = CreateItemUtil.createItem(Material.NETHER_STAR, "§6Sklep");
-            p.getInventory().setItem(8, netherStar);
+            userInventory.setItem(8, netherStar);
             scoreboardAPI.createIngameScoreboard(p, user);
             this.setStatus(GameStatus.INGAME);
             //ArenaStatus.setStatus(//ArenaStatus.Status.INGAME);
@@ -260,21 +332,10 @@ public class GameData {
         }
     }
 
-    private void teleportToArenaTeamSpawns(Location locteam1, Location locteam2, Location locteam3, Location locteam4, Player p, GameUser user) {
-        GameTeam assignedTeam = user.getAssignedTeam();
-        if (assignedTeam.equals(GameTeam.TEAM1)) {
-            p.teleport(locteam1);
-        } else if (assignedTeam.equals(GameTeam.TEAM2)) {
-            p.teleport(locteam2);
-        } else if (assignedTeam.equals(GameTeam.TEAM3)) {
-            p.teleport(locteam3);
-        } else if (assignedTeam.equals(GameTeam.TEAM4)) {
-            p.teleport(locteam4);
-        }
-    }
 
-    private void assignUnassiged(Player p, GameUser user) {
-        if (user.getAssignedTeam() == null) {
+    private void assignUnassigedToTeams(Player p, GameUser user) {
+        GameTeam assignedTeam = user.getAssignedTeam();
+        if (assignedTeam == null) {
             boolean found = false;
             if (Bukkit.getOnlinePlayers().size() >= 20) {
                 for (Map.Entry<GameTeam, ArrayList<String>> entry : getTeams().entrySet()) {
@@ -298,7 +359,7 @@ public class GameData {
                     user.setAssignedTeam(GameTeam.TEAM2);
                 }
             }
-            ColoringUtil.colorPlayerTab(p, GameData.TeamtoColor(user.getAssignedTeam()));
+            ColoringUtil.colorPlayerTab(p, assignedTeam.getColor());
         }
     }
 
@@ -432,7 +493,7 @@ public class GameData {
             scheduler.runTaskLater(plugin, new Runnable() {
                 @Override
                 public void run() {
-                    for (Map.Entry<String, GameUser> user : GameData.this.getGameUsers().entrySet()) {
+                    for (Map.Entry<String, GameUser> user : getGameUsers().entrySet()) {
                         Player p = Bukkit.getPlayer(user.getKey());
                         GameUser gameUser = user.getValue();
                         String teamName = finalTeam.name().toLowerCase();
@@ -449,7 +510,7 @@ public class GameData {
             scheduler.runTaskLater(plugin, new Runnable() {
                 @Override
                 public void run() {
-                    gameData.restartGame();
+                    restartGame();
                 }
             }, restartCooldown);
 
@@ -465,7 +526,7 @@ public class GameData {
             } else {
                 moneyManager.changePlayerMoney(username, 2 * Integer.parseInt(settings.get("thewalls.moneyforwin")));//TODO
             }
-            playerManager.changePlayerExp(username, gameData.getExpForWin());
+            playerManager.changePlayerExp(username, getExpForWin());
         }
     }
 

@@ -62,15 +62,14 @@ public class PlayerJoin implements Listener {
         // int money = 5;
         //plugin.getPlayerManager().insertPlayer(p);
         String playerName = p.getName();
-        GameUser gameUser = getGameUser(playerName);
+        GameUser gameUser = gameData.addGameUser(playerName);
         assignUserPermission(p, loadedWorldName, gameUser);
 
-        GameData.GameStatus status = gameData.getStatus();
-        if (!status.equals(GameData.GameStatus.INGAME)) {
+        if (!gameData.isStatus(GameData.GameStatus.INGAME)) {
             gameData.checkToStart();
             Counter counter = gameData.getCounter();
             Counter.CounterStatus counterStatus = counter.getStatus();
-            preparePlayer(p, gameData, scoreboardAPI, gameUser.getLanguage(), gameUser.getMoney(), gameUser.getKills(), gameUser.getDeaths(), gameUser.getWins(), gameUser.getLose(), counterStatus);
+            preparePlayer(p, scoreboardAPI, gameUser.getLanguage(), gameUser.getMoney(), gameUser.getKills(), gameUser.getDeaths(), gameUser.getWins(), gameUser.getLose(), counterStatus);
             if (counterStatus.equals(Counter.CounterStatus.IDLE)) {
                 for (Player pl : Bukkit.getOnlinePlayers()) {
                     scoreboardAPI.updateDisplayName(0, pl);
@@ -88,19 +87,7 @@ public class PlayerJoin implements Listener {
     }
 
 
-    private GameUser getGameUser(String playerName) {
-        moneyManager.insertPlayer(playerName);
-        statsManager.insertPlayer(playerName);
-        int money = moneyManager.getPlayer(playerName);
-        //plugin.getPlayerManager().changePlayerExp(p.getName(), 100);
-        SQLUser user = playerManager.getPlayer(playerName);
-        StatsUser statsUser = statsManager.getPlayer(playerName);
-        List<Transaction> transactions = shopManager.getPlayerItems(playerName);
-        GameUser gameUser = new GameUser(user, statsUser, transactions, money);
-        HashMap<String, GameUser> gameUsers = gameData.getGameUsers();
-        gameUsers.put(playerName, gameUser);
-        return gameUser;
-    }
+
 
     private void assignUserPermission(Player p, String loadedWorldName, GameUser gameUser) {
         String userRank = gameUser.getRank();
@@ -117,12 +104,13 @@ public class PlayerJoin implements Listener {
     }
 
     private void prepareSpectator(Player p, GameData gameData, GameUser gameUser, ScoreboardAPI scoreboardAPI) {
-        gameData.makePlayerSpectator(gameUser, p, loadedWorld.getName());
-        gameData.makePlayerSpectator(gameUser, p, loadedWorld.getName());
+        String loadedWorldName = loadedWorld.getName();
+        gameData.makePlayerSpectator(gameUser, p, loadedWorldName);
+        gameData.makePlayerSpectator(gameUser, p, loadedWorldName);
         scoreboardAPI.createJoinSpectatorScoreboard(p, gameUser);
     }
 
-    private void preparePlayer(Player p, GameData gameData, ScoreboardAPI scoreboardAPI, String userLanguage, int userMoney, int userKills, int userDeaths, int userWins, int userLose, Counter.CounterStatus counterStatus) {
+    private void preparePlayer(Player p, ScoreboardAPI scoreboardAPI, String userLanguage, int userMoney, int userKills, int userDeaths, int userWins, int userLose, Counter.CounterStatus counterStatus) {
         scoreboardAPI.createWaitingScoreboard(p, userMoney, userKills, userDeaths, userWins, userLose, userLanguage);
         String message = messageManager.getMessage(userLanguage, "thewalls.joininfo");
         p.sendMessage(message);

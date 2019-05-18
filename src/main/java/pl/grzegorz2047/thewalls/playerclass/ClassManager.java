@@ -189,31 +189,35 @@ public class ClassManager {
     }
 
     public void addAlchemikItems() {
-        classInventory.get(CLASS.ALCHEMIK).get("Gracz").getInventory().addItem(CreateItemUtil.createItem(Material.getMaterial(379), 1));
-        classInventory.get(CLASS.ALCHEMIK).get("Gracz").getInventory().addItem(CreateItemUtil.createItem(Material.getMaterial(380), 1));
-        classInventory.get(CLASS.ALCHEMIK).get("Gracz").getInventory().addItem(CreateItemUtil.createItem(Material.getMaterial(326), 1));
-        classInventory.get(CLASS.ALCHEMIK).get("Gracz").getInventory().addItem(CreateItemUtil.createItem(Material.getMaterial(374), 6));
-        classInventory.get(CLASS.ALCHEMIK).get("Gracz").getInventory().addItem(CreateItemUtil.createItem(Material.getMaterial(372), 3));
-        classInventory.get(CLASS.ALCHEMIK).get("Gracz").getInventory().addItem(CreateItemUtil.createItem(Material.getMaterial(378), 1));
-        classInventory.get(CLASS.ALCHEMIK).get("Gracz").getInventory().addItem(CreateItemUtil.createItem(Material.getMaterial(353), 1));
-        classInventory.get(CLASS.ALCHEMIK).get("Gracz").getInventory().addItem(CreateItemUtil.createItem(Material.getMaterial(348), 1));
-        classInventory.get(CLASS.ALCHEMIK).get("Gracz").getInventory().addItem(CreateItemUtil.createItem(Material.getMaterial(382), 1));
-        classInventory.get(CLASS.ALCHEMIK).get("Gracz").getInventory().addItem(CreateItemUtil.createItem(Material.getMaterial(370), 1));
-        classInventory.get(CLASS.ALCHEMIK).get("Gracz").getInventory().addItem(CreateItemUtil.createItem(Material.getMaterial(289), 3));
-        classInventory.get(CLASS.ALCHEMIK).get("Gracz").getInventory().addItem(CreateItemUtil.createItem(Material.getMaterial(364), 12));
+        HashMap<String, CustomInventory> alchemyInventories = classInventory.get(CLASS.ALCHEMIK);
+        Inventory standardPlayerAlchemyInventory = alchemyInventories.get("Gracz").getInventory();
+        Inventory vipAlchemyInventory = alchemyInventories.get("Vip").getInventory();
 
-        classInventory.get(CLASS.ALCHEMIK).get("Vip").getInventory().addItem(CreateItemUtil.createItem(Material.getMaterial(379), 1));
-        classInventory.get(CLASS.ALCHEMIK).get("Vip").getInventory().addItem(CreateItemUtil.createItem(Material.getMaterial(380), 1));
-        classInventory.get(CLASS.ALCHEMIK).get("Vip").getInventory().addItem(CreateItemUtil.createItem(Material.getMaterial(326), 1));
-        classInventory.get(CLASS.ALCHEMIK).get("Vip").getInventory().addItem(CreateItemUtil.createItem(Material.getMaterial(374), 6));
-        classInventory.get(CLASS.ALCHEMIK).get("Vip").getInventory().addItem(CreateItemUtil.createItem(Material.getMaterial(372), 3));
-        classInventory.get(CLASS.ALCHEMIK).get("Vip").getInventory().addItem(CreateItemUtil.createItem(Material.getMaterial(378), 1));
-        classInventory.get(CLASS.ALCHEMIK).get("Vip").getInventory().addItem(CreateItemUtil.createItem(Material.getMaterial(353), 1));
-        classInventory.get(CLASS.ALCHEMIK).get("Vip").getInventory().addItem(CreateItemUtil.createItem(Material.getMaterial(348), 1));
-        classInventory.get(CLASS.ALCHEMIK).get("Vip").getInventory().addItem(CreateItemUtil.createItem(Material.getMaterial(382), 1));
-        classInventory.get(CLASS.ALCHEMIK).get("Vip").getInventory().addItem(CreateItemUtil.createItem(Material.getMaterial(370), 1));
-        classInventory.get(CLASS.ALCHEMIK).get("Vip").getInventory().addItem(CreateItemUtil.createItem(Material.getMaterial(289), 3));
-        classInventory.get(CLASS.ALCHEMIK).get("Vip").getInventory().addItem(CreateItemUtil.createItem(Material.getMaterial(364), 12));
+        standardPlayerAlchemyInventory.addItem(CreateItemUtil.createItem(Material.getMaterial(379), 1));
+        standardPlayerAlchemyInventory.addItem(CreateItemUtil.createItem(Material.getMaterial(380), 1));
+        standardPlayerAlchemyInventory.addItem(CreateItemUtil.createItem(Material.getMaterial(326), 1));
+        standardPlayerAlchemyInventory.addItem(CreateItemUtil.createItem(Material.getMaterial(374), 6));
+        standardPlayerAlchemyInventory.addItem(CreateItemUtil.createItem(Material.getMaterial(372), 3));
+        standardPlayerAlchemyInventory.addItem(CreateItemUtil.createItem(Material.getMaterial(378), 1));
+        standardPlayerAlchemyInventory.addItem(CreateItemUtil.createItem(Material.getMaterial(353), 1));
+        standardPlayerAlchemyInventory.addItem(CreateItemUtil.createItem(Material.getMaterial(348), 1));
+        standardPlayerAlchemyInventory.addItem(CreateItemUtil.createItem(Material.getMaterial(382), 1));
+        standardPlayerAlchemyInventory.addItem(CreateItemUtil.createItem(Material.getMaterial(370), 1));
+        standardPlayerAlchemyInventory.addItem(CreateItemUtil.createItem(Material.getMaterial(289), 3));
+        standardPlayerAlchemyInventory.addItem(CreateItemUtil.createItem(Material.getMaterial(364), 12));
+
+        vipAlchemyInventory.addItem(CreateItemUtil.createItem(Material.getMaterial(379), 1));
+        vipAlchemyInventory.addItem(CreateItemUtil.createItem(Material.getMaterial(380), 1));
+        vipAlchemyInventory.addItem(CreateItemUtil.createItem(Material.getMaterial(326), 1));
+        vipAlchemyInventory.addItem(CreateItemUtil.createItem(Material.getMaterial(374), 6));
+        vipAlchemyInventory.addItem(CreateItemUtil.createItem(Material.getMaterial(372), 3));
+        vipAlchemyInventory.addItem(CreateItemUtil.createItem(Material.getMaterial(378), 1));
+        vipAlchemyInventory.addItem(CreateItemUtil.createItem(Material.getMaterial(353), 1));
+        vipAlchemyInventory.addItem(CreateItemUtil.createItem(Material.getMaterial(348), 1));
+        vipAlchemyInventory.addItem(CreateItemUtil.createItem(Material.getMaterial(382), 1));
+        vipAlchemyInventory.addItem(CreateItemUtil.createItem(Material.getMaterial(370), 1));
+        vipAlchemyInventory.addItem(CreateItemUtil.createItem(Material.getMaterial(289), 3));
+        vipAlchemyInventory.addItem(CreateItemUtil.createItem(Material.getMaterial(364), 12));
 
     }
 

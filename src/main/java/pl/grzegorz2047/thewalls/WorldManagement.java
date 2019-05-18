@@ -158,4 +158,7 @@ public class WorldManagement {
         this.setProtected(false);
     }
 
+    public String getLoadedWorldName() {
+        return loadedWorld.getName();
+    }
 }

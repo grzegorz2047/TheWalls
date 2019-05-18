@@ -11,7 +11,7 @@ public class ServerMotd implements Listener {
 
     private final GameData gameData;
     private Counter counter;
-    private String motd = "§7§l> Czas: §a%TIME%                         §6§l1.8 - 1.14.1\n§7§l> Status: §a%STATUS%";
+    private final String motd = "§7§l> Czas: §a%TIME%                         §6§l1.8 - 1.14.1\n§7§l> Status: §a%STATUS%";
 
     public ServerMotd(GameData gameData) {
         this.gameData = gameData;
@@ -21,8 +21,6 @@ public class ServerMotd implements Listener {
     @EventHandler
     public void onServerPing(ServerListPingEvent serverListPingEvent) {
         String time = TimeUtil.formatHHMMSS(counter.getTime());
-        String status = gameData.getStatus().toString();
-        motd = motd.replaceAll("%TIME%", time).replaceAll("%STATUS%", status);
-        serverListPingEvent.setMotd(motd);
+        serverListPingEvent.setMotd(motd.replace("%TIME%", time).replace("%STATUS%", gameData.getCurrentStatusLabel()));
     }
 }

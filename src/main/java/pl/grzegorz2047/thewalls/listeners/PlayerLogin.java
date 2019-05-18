@@ -36,19 +36,19 @@ public class PlayerLogin implements Listener {
             e.allow();
             return;
         }
-        GameData.GameStatus status = gameData.getStatus();
         String userLanguage = user.getLanguage();
-        if (status.equals(GameData.GameStatus.INGAME)) {
+        PlayerLoginEvent.Result kickOtherResult = PlayerLoginEvent.Result.KICK_OTHER;
+        if (gameData.isStatus(GameData.GameStatus.INGAME)) {
             if (userRank.equals("Gracz")) {
-                e.disallow(PlayerLoginEvent.Result.KICK_OTHER, messageManager.getMessage(userLanguage, "thewalls.login.notspectator"));
+                e.disallow(kickOtherResult, messageManager.getMessage(userLanguage, "thewalls.login.notspectator"));
                 return;
             }
-        } else if (status.equals(GameData.GameStatus.RESTARTING)) {
-            e.disallow(PlayerLoginEvent.Result.KICK_OTHER, messageManager.getMessage(userLanguage, "thewalls.login.restarting"));
+        } else if (gameData.isStatus(GameData.GameStatus.RESTARTING)) {
+            e.disallow(kickOtherResult, messageManager.getMessage(userLanguage, "thewalls.login.restarting"));
         } else {
             if (userRank.equals("Gracz")) {
                 if ((Bukkit.getMaxPlayers() - Bukkit.getOnlinePlayers().size()) < 5) {
-                    e.disallow(PlayerLoginEvent.Result.KICK_OTHER, messageManager.getMessage(userLanguage, "thewalls.login.vipslots"));
+                    e.disallow(kickOtherResult, messageManager.getMessage(userLanguage, "thewalls.login.vipslots"));
                     return;
                 }
             }

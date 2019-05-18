@@ -1,7 +1,9 @@
 package pl.grzegorz2047.thewalls.listeners;
 
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -10,12 +12,14 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import pl.grzegorz2047.databaseapi.messages.MessageAPI;
 import pl.grzegorz2047.thewalls.Counter;
 import pl.grzegorz2047.thewalls.GameData;
 import pl.grzegorz2047.thewalls.GameUser;
 import pl.grzegorz2047.thewalls.TheWalls;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
@@ -25,63 +29,75 @@ import java.util.Random;
 public class PlayerInteract implements Listener {
 
     private final TheWalls plugin;
+    private final GameData gameData;
+    private final MessageAPI messageManager;
+    private final Counter counter;
 
     public PlayerInteract(TheWalls plugin) {
         this.plugin = plugin;
+        gameData = plugin.getGameData();
+        messageManager = plugin.getMessageManager();
+        counter = gameData.getCounter();
     }
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
         Player player = event.getPlayer();
         Action action = event.getAction();
-        if (player.getItemInHand() == null) {
+        ItemStack itemInHand = player.getItemInHand();
+        if (itemInHand == null) {
             return;
         }
-        if (player.getGameMode().equals(GameMode.SPECTATOR)) {
+        GameMode playerGameMode = player.getGameMode();
+        if (playerGameMode.equals(GameMode.SPECTATOR)) {
             event.setCancelled(true);
             return;
         }
-        if (player.getItemInHand().getType().equals(Material.BOOK)) {
-            if (!plugin.getGameData().getStatus().equals(GameData.GameStatus.INGAME)) {
-                player.openInventory(plugin.getGameData().getClassManager().getClassMenu());
+        Material itemInHandType = itemInHand.getType();
+        if (itemInHandType.equals(Material.BOOK)) {
+            if (!gameData.isStatus(GameData.GameStatus.INGAME)) {
+                player.openInventory(gameData.getClassManager().getClassMenu());
                 return;
             }
         }
-        if (player.getItemInHand().getType().equals(Material.NETHER_STAR)) {
-            GameUser user = plugin.getGameData().getGameUsers().get(player.getName());
-            if (!plugin.getGameData().getStatus().equals(GameData.GameStatus.INGAME)) {
-                player.sendMessage(plugin.getMessageManager().getMessage(user.getLanguage(), "thewalls.shoponlyingame"));
+        String playerName = player.getName();
+        if (itemInHandType.equals(Material.NETHER_STAR)) {
+            GameUser user = gameData.getGameUser(playerName);
+            if (!gameData.isStatus(GameData.GameStatus.INGAME)) {
+                player.sendMessage(messageManager.getMessage(user.getLanguage(), "thewalls.shoponlyingame"));
                 return;
             }
             if (user.getAssignedTeam() == null) {
                 return;
             }
-            plugin.getShopMenuManager().openMainMenu(player, user, plugin.getMessageManager());
+            plugin.getShopMenuManager().openMainMenu(player, user, messageManager);
         }
-        if (player.getItemInHand().getType().equals(Material.ENDER_PEARL)) {
-            if (plugin.getGameData().getCounter().getStatus().equals(Counter.CounterStatus.COUNTINGTODROPWALLS)) {
-                GameUser user = plugin.getGameData().getGameUsers().get(player.getName());
-                player.sendMessage(plugin.getMessageManager().getMessage(user.getLanguage(), "thewalls.msg.cantplacelava"));
+        if (itemInHandType.equals(Material.ENDER_PEARL)) {
+            if (counter.getStatus().equals(Counter.CounterStatus.COUNTINGTODROPWALLS)) {
+                GameUser user = gameData.getGameUser(playerName);
+                player.sendMessage(messageManager.getMessage(user.getLanguage(), "thewalls.msg.cantplacelava"));
                 event.setCancelled(true);
                 return;
             }
         }
-        if (event.getClickedBlock() == null) {
+        Block clickedBlock = event.getClickedBlock();
+        if (clickedBlock == null) {
             return;
         }
-        String protectedFurnacePlayer = plugin.getGameData().getProtectedFurnace().get(event.getClickedBlock().getLocation());
+        String protectedFurnacePlayer = gameData.getPlayerProtectedFurnace(clickedBlock.getLocation());
         if (protectedFurnacePlayer != null) {
-            if (!protectedFurnacePlayer.equals(player.getName())) {
-                GameUser user = plugin.getGameData().getGameUsers().get(player.getName());
-                player.sendMessage(plugin.getMessageManager().getMessage(user.getLanguage(), "thewalls.msg.someonesprotectedfurnace"));
+            if (!protectedFurnacePlayer.equals(playerName)) {
+                GameUser user = gameData.getGameUser(playerName);
+                String userLanguage = user.getLanguage();
+                player.sendMessage(messageManager.getMessage(userLanguage, "thewalls.msg.someonesprotectedfurnace"));
                 event.setCancelled(true);
                 return;
             }
         }
-        if (!(event.getClickedBlock().getState() instanceof Chest)) {
+        if (!(clickedBlock.getState() instanceof Chest)) {
             return;
         }
-        Chest cb = (Chest) event.getClickedBlock().getState();
+        Chest cb = (Chest) clickedBlock.getState();
 
         if (!cb.getInventory().contains(Material.BEDROCK)) {
             return;
@@ -110,7 +126,11 @@ public class PlayerInteract implements Listener {
             player.updateInventory();
         }
         cb.getInventory().clear();
-        event.getClickedBlock().setType(Material.AIR);
+        clickedBlock.setType(Material.AIR);
+    }
+
+    private String getPlayerProtectedFurnace(HashMap<Location, String> protectedFurnaces, Location location) {
+        return protectedFurnaces.get(location);
     }
 
 }

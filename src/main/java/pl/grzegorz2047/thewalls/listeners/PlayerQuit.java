@@ -5,14 +5,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
-import pl.grzegorz2047.databaseapi.SQLUser;
-import pl.grzegorz2047.serversmanagement.ArenaStatus;
 import pl.grzegorz2047.thewalls.GameData;
 import pl.grzegorz2047.thewalls.GameUser;
 import pl.grzegorz2047.thewalls.TheWalls;
-import pl.grzegorz2047.thewalls.permissions.PermissionAttacher;
-
-import java.util.HashMap;
+import pl.grzegorz2047.thewalls.scoreboard.ScoreboardAPI;
 
 /**
  * Created by grzeg on 11.05.2016.
@@ -20,32 +16,38 @@ import java.util.HashMap;
 public class PlayerQuit implements Listener {
 
     private final TheWalls plugin;
+    private final GameData gameData;
+    private final ScoreboardAPI scoreboardAPI;
 
     public PlayerQuit(TheWalls plugin) {
         this.plugin = plugin;
+        gameData = this.plugin.getGameData();
+        scoreboardAPI = plugin.getScoreboardAPI();
     }
 
     @EventHandler
     public void onQuit(PlayerQuitEvent e) {
         Player p = e.getPlayer();
-        GameUser user = plugin.getGameData().getGameUsers().get(p.getName());
+        GameUser user = gameData.getGameUser(p.getName());
         //e.setQuitMessage(plugin.getMessageManager().getMessage(user.getLanguage(),"thewalls.msg.quit"));
-        plugin.getGameData().makePlayerSpectator(user, p, plugin.getGameData().getWorldManagement().getLoadedWorld().getName());
-        plugin.getGameData().getGameUsers().remove(p.getName());
-        if (plugin.getGameData().getStatus().equals(GameData.GameStatus.WAITING)) {
-            plugin.getGameData().checkToStart();
+        gameData.makePlayerSpectator(user, p, gameData.getLoadedWorldName());
+        gameData.removePlayerFromGame(p);
+        if (gameData.isStatus(GameData.GameStatus.WAITING)) {
+            gameData.checkToStart();
             for (Player pl : Bukkit.getOnlinePlayers()) {
-                plugin.getScoreboardAPI().updateDisplayName(0, pl);
+                scoreboardAPI.updateDisplayName(0, pl);
             }
-        } else if (plugin.getGameData().getStatus().equals(GameData.GameStatus.INGAME)) {
-            if (plugin.getGameData().getGameUsers().size() == 0) {
-                plugin.getGameData().restartGame();
+        } else if (gameData.isStatus(GameData.GameStatus.INGAME)) {
+            if (gameData.isArenaEmpty()) {
+                gameData.restartGame();
             }
-            plugin.getGameData().checkWinners();
+            gameData.checkWinners();
         }
         //ArenaStatus.setPlayers(Bukkit.getOnlinePlayers().size() - 1);
         e.setQuitMessage("");
     }
+
+
 
 
 }

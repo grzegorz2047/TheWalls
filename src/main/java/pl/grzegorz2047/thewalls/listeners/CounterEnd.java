@@ -49,7 +49,7 @@ public class CounterEnd implements Listener {
 
     private void setNobodyWin() {
         for (Player p : Bukkit.getOnlinePlayers()) {
-            GameUser user = plugin.getGameData().getGameUsers().get(p.getName());
+            GameUser user = plugin.getGameData().getGameUser(p.getName());
             p.sendMessage(plugin.getMessageManager().getMessage(user.getLanguage(), "thewalls.nowinners"));
         }
         Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {

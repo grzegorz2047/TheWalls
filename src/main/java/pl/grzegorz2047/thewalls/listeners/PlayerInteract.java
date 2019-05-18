@@ -43,7 +43,6 @@ public class PlayerInteract implements Listener {
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
         Player player = event.getPlayer();
-        Action action = event.getAction();
         ItemStack itemInHand = player.getItemInHand();
         if (itemInHand == null) {
             return;
@@ -84,19 +83,19 @@ public class PlayerInteract implements Listener {
         if (clickedBlock == null) {
             return;
         }
-        String protectedFurnacePlayer = gameData.getPlayerProtectedFurnace(clickedBlock.getLocation());
-        if (protectedFurnacePlayer != null) {
-            if (!protectedFurnacePlayer.equals(playerName)) {
-                GameUser user = gameData.getGameUser(playerName);
-                String userLanguage = user.getLanguage();
-                player.sendMessage(messageManager.getMessage(userLanguage, "thewalls.msg.someonesprotectedfurnace"));
-                event.setCancelled(true);
-                return;
-            }
+        boolean isChestOwner = gameData.isChestOwner(player, playerName, clickedBlock);
+        if (!isChestOwner) {
+            event.setCancelled(true);
+            return;
         }
+
         if (!(clickedBlock.getState() instanceof Chest)) {
             return;
         }
+        handleChestOpen(player, clickedBlock);
+    }
+
+    private void handleChestOpen(Player player, Block clickedBlock) {
         Chest cb = (Chest) clickedBlock.getState();
 
         if (!cb.getInventory().contains(Material.BEDROCK)) {
@@ -129,8 +128,5 @@ public class PlayerInteract implements Listener {
         clickedBlock.setType(Material.AIR);
     }
 
-    private String getPlayerProtectedFurnace(HashMap<Location, String> protectedFurnaces, Location location) {
-        return protectedFurnaces.get(location);
-    }
 
 }

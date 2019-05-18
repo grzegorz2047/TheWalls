@@ -264,4 +264,17 @@ public class ScoreboardAPI {
                 + ":" + (seconds < 10 ? "0" : "") + seconds);
 
     }
+
+    public void addKillForTeam(GameData.GameTeam killerTeam) {
+        System.out.print("killer user ma " + killerTeam);
+        if (killerTeam.equals(GameData.GameTeam.TEAM1)) {
+            refreshIngameScoreboard(1, 0, 0, 0);
+        } else if (killerTeam.equals(GameData.GameTeam.TEAM2)) {
+            refreshIngameScoreboard(0, 1, 0, 0);
+        } else if (killerTeam.equals(GameData.GameTeam.TEAM3)) {
+            refreshIngameScoreboard(0, 0, 1, 0);
+        } else if (killerTeam.equals(GameData.GameTeam.TEAM4)) {
+            refreshIngameScoreboard(0, 0, 0, 1);
+        }
+    }
 }

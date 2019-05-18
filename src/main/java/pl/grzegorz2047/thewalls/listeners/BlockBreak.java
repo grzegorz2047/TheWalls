@@ -45,16 +45,16 @@ public class BlockBreak implements Listener {
         if (type.equals(Material.FURNACE)) {
             String playerFurnace = protectedFurnace.get(block.getLocation());
             String username = p.getName();
+            GameUser user = gameUsers.get(username);
+            String language = user.getLanguage();
             if (!username.equals(playerFurnace)) {
-                GameUser user = gameUsers.get(username);
-                p.sendMessage(messageManager.getMessage(user.getLanguage(), "thewalls.msg.furnacenotyours"));
+                p.sendMessage(messageManager.getMessage(language, "thewalls.msg.furnacenotyours"));
                 e.setCancelled(true);
                 return;
             } else {
-                GameUser user = gameUsers.get(username);
                 protectedFurnace.remove(block.getLocation());
                 user.setProtectedFurnaces(user.getProtectedFurnaces() - 1);
-                p.sendMessage(messageManager.getMessage(user.getLanguage(), "thewalls.msg.furnacenolongerprotected"));
+                p.sendMessage(messageManager.getMessage(language, "thewalls.msg.furnacenolongerprotected"));
             }
 
 

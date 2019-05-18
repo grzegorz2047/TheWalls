@@ -25,28 +25,12 @@ import java.util.List;
  */
 public class PlayerJoin implements Listener {
 
-    private final TheWalls plugin;
     private final GameData gameData;
-    private final MoneyAPI moneyManager;
-    private final StatsAPI statsManager;
-    private final ScoreboardAPI scoreboardAPI;
-    private final MessageAPI messageManager;
-    private final DatabaseAPI playerManager;
-    private final ShopAPI shopManager;
-    private final World loadedWorld;
     private final Location spawn;
 
-    public PlayerJoin(TheWalls plugin, World loadedWorld) {
-        this.plugin = plugin;
-        this.gameData = plugin.getGameData();
-        this.moneyManager = plugin.getMoneyManager();
-        this.statsManager = plugin.getStatsManager();
-        this.scoreboardAPI = plugin.getScoreboardAPI();
-        this.messageManager = plugin.getMessageManager();
-        this.playerManager = plugin.getPlayerManager();
-        this.shopManager = plugin.getShopManager();
-        this.loadedWorld = loadedWorld;
-        spawn = new Location(this.loadedWorld, 0, 147, 0);
+    public PlayerJoin(GameData gameData, World loadedWorld) {
+        this.gameData = gameData;
+        spawn = new Location(loadedWorld, 0, 147, 0);
     }
 
     @EventHandler
@@ -56,73 +40,10 @@ public class PlayerJoin implements Listener {
         }
         e.setJoinMessage(null);
         Player p = e.getPlayer();
-        //Location spawn = WorldManagement.getLoadedWorld().getSpawnLocation();
-        String loadedWorldName = loadedWorld.getName();
         p.teleport(spawn);
-        // int money = 5;
-        //plugin.getPlayerManager().insertPlayer(p);
         String playerName = p.getName();
-        GameUser gameUser = gameData.addGameUser(playerName);
-        assignUserPermission(p, loadedWorldName, gameUser);
-
-        if (!gameData.isStatus(GameData.GameStatus.INGAME)) {
-            gameData.checkToStart();
-            Counter counter = gameData.getCounter();
-            Counter.CounterStatus counterStatus = counter.getStatus();
-            preparePlayer(p, scoreboardAPI, gameUser.getLanguage(), gameUser.getMoney(), gameUser.getKills(), gameUser.getDeaths(), gameUser.getWins(), gameUser.getLose(), counterStatus);
-            if (counterStatus.equals(Counter.CounterStatus.IDLE)) {
-                for (Player pl : Bukkit.getOnlinePlayers()) {
-                    scoreboardAPI.updateDisplayName(0, pl);
-                }
-            }
-        } else {
-            prepareSpectator(p, gameData, gameUser, scoreboardAPI);
-        }
-        p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 1, 1, true, true), true);
-        for (PotionEffect effect : p.getActivePotionEffects()) {
-            p.removePotionEffect(effect.getType());
-        }
-        //ArenaStatus.setPlayers(Bukkit.getOnlinePlayers().size());
-
+        gameData.addPlayerToArena(p, playerName);
     }
 
-
-
-
-    private void assignUserPermission(Player p, String loadedWorldName, GameUser gameUser) {
-        String userRank = gameUser.getRank();
-        if (userRank.equals("HeadAdmin")
-                || userRank.equals("Admin")) {
-            PermissionAttacher.attachAdminsPermissions(p, loadedWorldName);
-        } else if (userRank.equals("GlobalMod")
-                || userRank.equals("Mod")
-                || userRank.equals("KidMod")
-                || userRank.equals("Helper")) {
-            PermissionAttacher.attachModsPermissions(p, loadedWorldName);
-        }
-        PermissionAttacher.attachPlayersPermissions(p, loadedWorldName);
-    }
-
-    private void prepareSpectator(Player p, GameData gameData, GameUser gameUser, ScoreboardAPI scoreboardAPI) {
-        String loadedWorldName = loadedWorld.getName();
-        gameData.makePlayerSpectator(gameUser, p, loadedWorldName);
-        gameData.makePlayerSpectator(gameUser, p, loadedWorldName);
-        scoreboardAPI.createJoinSpectatorScoreboard(p, gameUser);
-    }
-
-    private void preparePlayer(Player p, ScoreboardAPI scoreboardAPI, String userLanguage, int userMoney, int userKills, int userDeaths, int userWins, int userLose, Counter.CounterStatus counterStatus) {
-        scoreboardAPI.createWaitingScoreboard(p, userMoney, userKills, userDeaths, userWins, userLose, userLanguage);
-        String message = messageManager.getMessage(userLanguage, "thewalls.joininfo");
-        p.sendMessage(message);
-        p.getInventory().clear();
-        p.getInventory().setArmorContents(new ItemStack[4]);
-        p.setGameMode(GameMode.SURVIVAL);
-        p.setHealth(20);
-        p.setFoodLevel(20);
-        p.setLevel(0);
-        p.setFlying(false);
-        p.setAllowFlight(false);
-        p.getInventory().setItem(0, CreateItemUtil.createItem(Material.BOOK, 1, "§7Klasy"));
-    }
 
 }

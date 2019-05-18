@@ -1,13 +1,14 @@
 package pl.grzegorz2047.thewalls;
 
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.*;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitScheduler;
+import org.bukkit.scoreboard.Scoreboard;
 import pl.grzegorz2047.databaseapi.*;
 import pl.grzegorz2047.databaseapi.messages.MessageAPI;
 import pl.grzegorz2047.databaseapi.shop.Item;
@@ -32,7 +33,6 @@ public class GameData {
     private final MessageAPI messageManager;
     private final HashMap<String, String> settings;
     private final Shop shopMenuManager;
-    private final ScoreboardAPI scoreboardAPI;
     private final HashMap<String, GameUser> gameUsers = new HashMap<>();
     private final ShopAPI shopManager;
     private Counter counter;
@@ -76,8 +76,6 @@ public class GameData {
         this.settings = plugin.getSettings();
         shopMenuManager = plugin.getShopMenuManager();
         statsManager = plugin.getStatsManager();
-
-        scoreboardAPI = plugin.getScoreboardAPI();
         shopManager = plugin.getShopManager();
     }
 
@@ -184,6 +182,198 @@ public class GameData {
         return gameUsers.size();
     }
 
+
+    public void addPlayerToArena(Player p, String playerName) {
+        GameUser gameUser = addGameUser(playerName);
+        assignUserPermission(p, getLoadedWorldName(), gameUser);
+
+        ScoreboardAPI scoreboardAPI = plugin.getScoreboardAPI();
+        if (!isStatus(GameData.GameStatus.INGAME)) {
+            checkToStart();
+            Counter.CounterStatus counterStatus = counter.getStatus();
+            preparePlayer(p, scoreboardAPI, gameUser.getLanguage(), gameUser.getMoney(), gameUser.getKills(), gameUser.getDeaths(), gameUser.getWins(), gameUser.getLose(), counterStatus);
+            if (counterStatus.equals(Counter.CounterStatus.IDLE)) {
+                for (Player pl : Bukkit.getOnlinePlayers()) {
+                    scoreboardAPI.updateDisplayName(0, pl);
+                }
+            }
+        } else {
+            prepareSpectator(p, gameUser, scoreboardAPI);
+        }
+        p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 1, 1, true, true), true);
+        for (PotionEffect effect : p.getActivePotionEffects()) {
+            p.removePotionEffect(effect.getType());
+        }
+    }
+
+
+    private void assignUserPermission(Player p, String loadedWorldName, GameUser gameUser) {
+        String userRank = gameUser.getRank();
+        if (userRank.equals("HeadAdmin")
+                || userRank.equals("Admin")) {
+            PermissionAttacher.attachAdminsPermissions(p, loadedWorldName);
+        } else if (userRank.equals("GlobalMod")
+                || userRank.equals("Mod")
+                || userRank.equals("KidMod")
+                || userRank.equals("Helper")) {
+            PermissionAttacher.attachModsPermissions(p, loadedWorldName);
+        }
+        PermissionAttacher.attachPlayersPermissions(p, loadedWorldName);
+    }
+
+    private void prepareSpectator(Player p, GameUser gameUser, ScoreboardAPI scoreboardAPI) {
+        String loadedWorldName = worldManagement.getLoadedWorldName();
+        makePlayerSpectator(gameUser, p, loadedWorldName);
+        makePlayerSpectator(gameUser, p, loadedWorldName);
+        scoreboardAPI.createJoinSpectatorScoreboard(p, gameUser);
+    }
+
+    private void preparePlayer(Player p, ScoreboardAPI scoreboardAPI, String userLanguage, int userMoney, int userKills, int userDeaths, int userWins, int userLose, Counter.CounterStatus counterStatus) {
+        scoreboardAPI.createWaitingScoreboard(p, userMoney, userKills, userDeaths, userWins, userLose, userLanguage);
+        String message = messageManager.getMessage(userLanguage, "thewalls.joininfo");
+        p.sendMessage(message);
+        p.getInventory().clear();
+        p.getInventory().setArmorContents(new ItemStack[4]);
+        p.setGameMode(GameMode.SURVIVAL);
+        p.setHealth(20);
+        p.setFoodLevel(20);
+        p.setLevel(0);
+        p.setFlying(false);
+        p.setAllowFlight(false);
+        p.getInventory().setItem(0, CreateItemUtil.createItem(Material.BOOK, 1, "§7Klasy"));
+    }
+
+    public boolean isChestOwner(Player player, String playerName, Block clickedBlock) {
+        boolean isChestOwner = false;
+        String protectedFurnacePlayer = getPlayerProtectedFurnace(clickedBlock.getLocation());
+        if (protectedFurnacePlayer != null) {
+            if (!protectedFurnacePlayer.equals(playerName)) {
+                GameUser user = getGameUser(playerName);
+                String userLanguage = user.getLanguage();
+                player.sendMessage(messageManager.getMessage(userLanguage, "thewalls.msg.someonesprotectedfurnace"));
+                isChestOwner = false;
+            } else {
+                isChestOwner = true;
+            }
+        }
+        return isChestOwner;
+    }
+
+    public void handlePlayerQuit(Player p) {
+        GameUser user = getGameUser(p.getName());
+        //e.setQuitMessage(plugin.getMessageManager().getMessage(user.getLanguage(),"thewalls.msg.quit"));
+        makePlayerSpectator(user, p, getLoadedWorldName());
+        removePlayerFromGame(p);
+        if (isStatus(GameData.GameStatus.WAITING)) {
+            checkToStart();
+            for (Player pl : Bukkit.getOnlinePlayers()) {
+                plugin.getScoreboardAPI().updateDisplayName(0, pl);
+            }
+        } else if (isStatus(GameData.GameStatus.INGAME)) {
+            if (isArenaEmpty()) {
+                restartGame();
+            }
+            checkWinners();
+        }
+    }
+
+    public String handleKilledPerson(Player killed) {
+        World loadedWorld = worldManagement.getLoadedWorld();
+        final String killedPlayerName = killed.getName();
+        statsManager.increaseValueBy(killedPlayerName, "deaths", 1);
+        statsManager.increaseValueBy(killedPlayerName, "lose", 1);
+        killed.setHealth(20);
+        Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
+            @Override
+            public void run() {
+                killed.setHealth(20);
+                GameUser user = getGameUser(killedPlayerName);
+                ColoringUtil.colorPlayerTab(killed, "§7");
+                makePlayerSpectator(user, killed, loadedWorld.getName());
+                checkWinners();
+            }
+        }, 1l);
+        return killedPlayerName;
+    }
+
+    public void handleKiller(Player killer) {
+        String killerName = killer.getName();
+        GameUser killerUser = getGameUser(killerName);
+        String killerLanguage = killerUser.getLanguage();
+        killer.sendMessage(messageManager.getMessage(killerLanguage, "thewalls.msg.givediamondforkill"));
+
+        PlayerInventory inventory = killer.getInventory();
+        inventory.addItem(new ItemStack(Material.DIAMOND, 1));
+        killerUser.increaseIngameKills(1);
+        statsManager.increaseValueBy(killerName, "kills", 1);
+        Scoreboard killerScoreboard = killer.getScoreboard();
+        ScoreboardAPI scoreboardAPI = plugin.getScoreboardAPI();
+        scoreboardAPI.updateEntry(killerScoreboard, messageManager.getMessage(killerLanguage, "thewalls.scoreboard.kills"), killerUser.getIngameKills());
+
+        try {
+            GameData.GameTeam killerTeam = killerUser.getAssignedTeam();
+            scoreboardAPI.addKillForTeam(killerTeam);
+        } catch (NullPointerException ex) {
+            System.out.print(ex.getMessage());
+        }
+
+        String killerRank = killerUser.getRank();
+        int moneyForKill = getMoneyForKill();
+        if (!killerRank.equals("Gracz")) {
+            moneyManager.changePlayerMoney(killerName, moneyForKill * 2);
+            killer.sendMessage(messageManager.getMessage(killerLanguage, "thewalls.msg.moneyforkill").replace("{MONEY}", String.valueOf(moneyForKill * 2)));
+            scoreboardAPI.updateEntry(killerScoreboard, messageManager.getMessage(killerLanguage, "thewalls.scoreboard.money"), moneyForKill * 2);
+
+        } else {
+            moneyManager.changePlayerMoney(killerName, moneyForKill);
+            killer.sendMessage(messageManager.getMessage(killerLanguage, "thewalls.msg.moneyforkill").replace("{MONEY}", String.valueOf(moneyForKill)));
+            scoreboardAPI.updateEntry(killerScoreboard, messageManager.getMessage(killerLanguage, "thewalls.scoreboard.money"), moneyForKill);
+
+        }
+        moneyManager.changePlayerMoney(killerName, moneyForKill);
+        int expForKill = getExpForKill();
+        playerManager.changePlayerExp(killerName, expForKill);
+
+    }
+
+    public void handleWeirdDeath(Player killed) {
+        Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
+            @Override
+            public void run() {
+                if (killed != null) {
+                    killed.setHealth(20);
+                    World loadedWorld = worldManagement.getLoadedWorld();
+                    Location spawn = new Location(loadedWorld, 0, 147, 0);
+                    killed.teleport(spawn);
+                }
+            }
+        }, 1l);
+    }
+
+    public void setNobodyWin() {
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            GameUser user = getGameUser(p.getName());
+            p.sendMessage(messageManager.getMessage(user.getLanguage(), "thewalls.nowinners"));
+        }
+        Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
+            @Override
+            public void run() {
+                for (Player p : Bukkit.getOnlinePlayers()) {
+                    //nikt nie wygral
+                    BungeeUtil.changeServer(plugin, p, "Lobby1");
+                }
+                restartGame();
+            }
+        }, 20 * 4);
+        Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
+            @Override
+            public void run() {
+                restartGame();
+            }
+        }, 20 * 8);
+        return;
+    }
+
     public enum GameTeam {
         TEAM1("§a"),
         TEAM2("§b"),
@@ -285,7 +475,7 @@ public class GameData {
         return "§7";
     }
 
-    public void startGame() {
+    public void startGame(ScoreboardAPI scoreboardAPI) {
         //ArenaStatus.setStatus(//ArenaStatus.Status.INGAME);
         this.getWorldManagement().setProtected(true);
 
@@ -322,11 +512,11 @@ public class GameData {
             givePermItems(p, user);
             classManager.givePlayerClass(p, user);
         }
-        refreshScoreboardToAll();
+        refreshScoreboardToAll(scoreboardAPI);
         this.counter.start(Counter.CounterStatus.COUNTINGTODROPWALLS);
     }
 
-    private void refreshScoreboardToAll() {
+    private void refreshScoreboardToAll(ScoreboardAPI scoreboardAPI) {
         for (Player pl : Bukkit.getOnlinePlayers()) {
             scoreboardAPI.refreshTags(pl);
         }

@@ -21,18 +21,13 @@ import java.util.List;
 public class PlayerChat implements Listener {
 
 
-    private final TheWalls plugin;
     private final HashMap<String, String> settings;
     private final GameData gameData;
-    private final HashMap<GameData.GameTeam, ArrayList<String>> teams;
-    private final HashMap<String, GameUser> gameUsers;
 
-    public PlayerChat(TheWalls plugin) {
-        this.plugin = plugin;
-        settings = this.plugin.getSettings();
-        gameData = this.plugin.getGameData();
-        teams = gameData.getTeams();
-        gameUsers = gameData.getGameUsers();
+
+    public PlayerChat(HashMap<String, String> settings, GameData gameData) {
+        this.settings = settings;
+        this.gameData = gameData;
     }
 
     @EventHandler
@@ -42,7 +37,7 @@ public class PlayerChat implements Listener {
         }
         Player p = e.getPlayer();
         String playerName = p.getName();
-        GameUser user = gameUsers.get(playerName);
+        GameUser user = gameData.getGameUser(playerName);
         String userRank = user.getRank();
         String displayName = p.getDisplayName();
 
@@ -75,7 +70,7 @@ public class PlayerChat implements Listener {
                 return;
             }
 
-            List<String> recipent = teams.get(user.getAssignedTeam());
+            List<String> recipent = gameData.getTeam(user.getAssignedTeam());
             for (Player pl : Bukkit.getOnlinePlayers()) {
                 if (recipent.contains(pl.getName()) || toGlobalChat) {
                     if (toGlobalChat) {

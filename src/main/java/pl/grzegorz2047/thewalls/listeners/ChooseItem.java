@@ -6,18 +6,28 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
+import pl.grzegorz2047.databaseapi.MoneyAPI;
+import pl.grzegorz2047.databaseapi.messages.MessageAPI;
 import pl.grzegorz2047.databaseapi.shop.Item;
+import pl.grzegorz2047.databaseapi.shop.ShopAPI;
 import pl.grzegorz2047.databaseapi.shop.Transaction;
+import pl.grzegorz2047.thewalls.GameData;
 import pl.grzegorz2047.thewalls.GameUser;
 import pl.grzegorz2047.thewalls.TheWalls;
 import pl.grzegorz2047.thewalls.api.itemmenu.event.ChooseItemEvent;
 import pl.grzegorz2047.thewalls.playerclass.ClassManager;
+import pl.grzegorz2047.thewalls.shop.Shop;
 
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by grzeg on 21.05.2016.
@@ -25,9 +35,15 @@ import java.util.Map;
 public class ChooseItem implements Listener {
 
     private final TheWalls plugin;
+    private final GameData gameData;
+    private final MessageAPI messageManager;
+    private final Shop shopMenuManager;
 
     public ChooseItem(TheWalls plugin) {
         this.plugin = plugin;
+        gameData = plugin.getGameData();
+        messageManager = plugin.getMessageManager();
+        shopMenuManager = plugin.getShopMenuManager();
     }
 
 
@@ -38,124 +54,136 @@ public class ChooseItem implements Listener {
         // System.out.println("A");
         if (title != null) {
             //System.out.println("B");
-            if (e.getClicked() == null) {
+            ItemStack clicked = e.getClicked();
+            if (clicked == null) {
                 return;
             }
             //  System.out.println("C");
-            if (e.getClicked().getType() == null) {
+            Material clickedType = clicked.getType();
+            if (clickedType == null) {
                 return;
             }
+            String playerName = p.getName();
             if (title.equals("Kits")) {
                 e.setCancelled(true);
-                GameUser user = plugin.getGameData().getGameUser(p.getName());
+                GameUser user = gameData.getGameUser(playerName);
                 ClassManager.CLASS kit = null;
-                if (e.getClicked().getType().equals(Material.IRON_SWORD)) {
-                    plugin.getGameData().getClassManager().getPlayerClasses().put(p.getName(), ClassManager.CLASS.WOJOWNIK);
+                ClassManager classManager = gameData.getClassManager();
+                HashMap<String, ClassManager.CLASS> playerClasses = classManager.getPlayerClasses();
+                if (clickedType.equals(Material.IRON_SWORD)) {
+                    playerClasses.put(playerName, ClassManager.CLASS.WOJOWNIK);
                     kit = ClassManager.CLASS.WOJOWNIK;
-                } else if (e.getClicked().getType().equals(Material.IRON_PICKAXE)) {
-                    plugin.getGameData().getClassManager().getPlayerClasses().put(p.getName(), ClassManager.CLASS.GORNIK);
+                } else if (clickedType.equals(Material.IRON_PICKAXE)) {
+                    playerClasses.put(playerName, ClassManager.CLASS.GORNIK);
                     kit = ClassManager.CLASS.GORNIK;
 
-                } else if (e.getClicked().getType().equals(Material.IRON_AXE)) {
-                    plugin.getGameData().getClassManager().getPlayerClasses().put(p.getName(), ClassManager.CLASS.DRWAL);
+                } else if (clickedType.equals(Material.IRON_AXE)) {
+                    playerClasses.put(playerName, ClassManager.CLASS.DRWAL);
                     kit = ClassManager.CLASS.DRWAL;
 
-                } else if (e.getClicked().getType().equals(Material.GRILLED_PORK)) {
-                    plugin.getGameData().getClassManager().getPlayerClasses().put(p.getName(), ClassManager.CLASS.KUCHARZ);
+                } else if (clickedType.equals(Material.GRILLED_PORK)) {
+                    playerClasses.put(playerName, ClassManager.CLASS.KUCHARZ);
                     kit = ClassManager.CLASS.KUCHARZ;
 
-                } else if (e.getClicked().getType().equals(Material.POTION)) {
-                    plugin.getGameData().getClassManager().getPlayerClasses().put(p.getName(), ClassManager.CLASS.ALCHEMIK);
+                } else if (clickedType.equals(Material.POTION)) {
+                    playerClasses.put(playerName, ClassManager.CLASS.ALCHEMIK);
                     kit = ClassManager.CLASS.ALCHEMIK;
 
-                } else if (e.getClicked().getType().equals(Material.BOW)) {
-                    plugin.getGameData().getClassManager().getPlayerClasses().put(p.getName(), ClassManager.CLASS.LUCZNIK);
+                } else if (clickedType.equals(Material.BOW)) {
+                    playerClasses.put(playerName, ClassManager.CLASS.LUCZNIK);
                     kit = ClassManager.CLASS.LUCZNIK;
 
                 }
                 if (kit == null) {
                     return;
                 }
-                p.sendMessage(plugin.getMessageManager().getMessage(user.getLanguage(), "thewalls.msg.kitgiven").replace("{KIT}", kit.name()));
+                String userLanguage = user.getLanguage();
+                p.sendMessage(messageManager.getMessage(userLanguage, "thewalls.msg.kitgiven").replace("{KIT}", kit.name()));
                 p.closeInventory();
             }
             if (title.equals("Main")) {
                 e.setCancelled(true);
-                if (e.getClicked().getType().equals(Material.QUARTZ)) {
-                    GameUser user = plugin.getGameData().getGameUser(p.getName());
-                    plugin.getShopMenuManager().openTempItems(p, user, plugin.getMessageManager());
+                if (clickedType.equals(Material.QUARTZ)) {
+                    GameUser user = gameData.getGameUser(playerName);
+                    shopMenuManager.openTempItems(p, user, messageManager);
                 }
-                if (e.getClicked().getType().equals(Material.MAGMA_CREAM)) {
-                    GameUser user = plugin.getGameData().getGameUser(p.getName());
-                    plugin.getShopMenuManager().openPermItems(p, user, plugin.getMessageManager());
+                if (clickedType.equals(Material.MAGMA_CREAM)) {
+                    GameUser user = gameData.getGameUser(playerName);
+                    shopMenuManager.openPermItems(p, user, messageManager);
                 }
                 return;
             }
             //System.out.println("D");
+            MoneyAPI moneyManager = plugin.getMoneyManager();
+            PlayerInventory playerInventory = p.getInventory();
             if (title.equals("Perm items")) {
-                GameUser user = plugin.getGameData().getGameUser(p.getName());
+                GameUser user = gameData.getGameUser(playerName);
                 e.setCancelled(true);
 
                 int slot = e.getSlot();
-                for (Map.Entry<Integer, Item> entry : plugin.getShopMenuManager().getNormalItems().entrySet()) {
+                for (Map.Entry<Integer, Item> entry : getListOfItems(shopMenuManager.getNormalItems())) {
                     Item item = entry.getValue();
                     if (item.getSlot() == slot) {
+                        String userLanguage = user.getLanguage();
                         for (Transaction t : user.getTransactions()) {
                             if (t.getItemid() == item.getItemid()) {
-                                p.sendMessage(plugin.getMessageManager().getMessage(user.getLanguage(), "shop.alreadybought"));
+                                p.sendMessage(messageManager.getMessage(userLanguage, "shop.alreadybought"));
                                 return;
                             }
                         }
                         if (user.getMoney() >= item.getPrice()) {
-                            if (p.getInventory().firstEmpty() != -1) {
-                                plugin.getShopManager().buyItem(p.getName(), String.valueOf(item.getItemid()), Instant.EPOCH.getEpochSecond());
+                            if (playerInventory.firstEmpty() != -1) {
+                                ShopAPI shopManager = plugin.getShopManager();
+                                shopManager.buyItem(playerName, String.valueOf(item.getItemid()), Instant.EPOCH.getEpochSecond());
                                 user.changeMoney(-item.getPrice());
-                                plugin.getMoneyManager().changePlayerMoney(p.getName(), -item.getPrice());
+                                moneyManager.changePlayerMoney(playerName, -item.getPrice());
                                 Scoreboard scoreboard = p.getScoreboard();
-                                plugin.getScoreboardAPI().updateIncreaseEntry(scoreboard, plugin.getMessageManager().getMessage(user.getLanguage(), "thewalls.scoreboard.money"), -item.getPrice());
+                                plugin.getScoreboardAPI().updateIncreaseEntry(scoreboard, messageManager.getMessage(userLanguage, "thewalls.scoreboard.money"), -item.getPrice());
                                 user.getTransactions().add(new Transaction(user.getUserid(), item.getItemid(), 0));
-                                p.getInventory().addItem(item.toItemStack());
-                                p.sendMessage(plugin.getMessageManager().getMessage(user.getLanguage(), "shop.success"));
+                                playerInventory.addItem(item.toItemStack());
+                                p.sendMessage(messageManager.getMessage(userLanguage, "shop.success"));
                                 return;
                             } else {
-                                p.sendMessage(plugin.getMessageManager().getMessage(user.getLanguage(), "shop.emptyinventoryfirst"));
+                                p.sendMessage(messageManager.getMessage(userLanguage, "shop.emptyinventoryfirst"));
                                 return;
                             }
                         } else {
-                            p.sendMessage(plugin.getMessageManager().getMessage(user.getLanguage(), "shop.insufficientmoney"));
+                            p.sendMessage(messageManager.getMessage(userLanguage, "shop.insufficientmoney"));
                             return;
                         }
                     }
                 }
             }
             if (title.equals("Temp items")) {
-                GameUser user = plugin.getGameData().getGameUser(p.getName());
+                GameUser user = gameData.getGameUser(playerName);
                 e.setCancelled(true);
 
                 int slot = e.getSlot();
-                for (Map.Entry<Integer, Item> entry : plugin.getShopMenuManager().getTempItems().entrySet()) {
+                for (Map.Entry<Integer, Item> entry : getListOfItems(shopMenuManager.getTempItems())) {
                     Item item = entry.getValue();
                     if (item.getSlot() == slot) {
-                        if (user.getBoughtTempItems().contains(item.getMaterial())) {
-                            p.sendMessage(plugin.getMessageManager().getMessage(user.getLanguage(), "shop.alreadyboughtinthisround"));
+                        String userLanguage = user.getLanguage();
+                        List<Material> userBoughtTempItems = user.getBoughtTempItems();
+                        if (userBoughtTempItems.contains(item.getMaterial())) {
+                            p.sendMessage(messageManager.getMessage(userLanguage, "shop.alreadyboughtinthisround"));
                             return;
                         }
                         if (user.getMoney() >= item.getPrice()) {
-                            if (p.getInventory().firstEmpty() != -1) {
+                            if (playerInventory.firstEmpty() != -1) {
                                 user.changeMoney(-item.getPrice());
-                                plugin.getMoneyManager().changePlayerMoney(p.getName(), -item.getPrice());
-                                user.getBoughtTempItems().add(item.getMaterial());
-                                p.getInventory().addItem(item.toItemStack());
+                                moneyManager.changePlayerMoney(playerName, -item.getPrice());
+                                userBoughtTempItems.add(item.getMaterial());
+                                playerInventory.addItem(item.toItemStack());
                                 Scoreboard scoreboard = p.getScoreboard();
-                                plugin.getScoreboardAPI().updateIncreaseEntry(scoreboard, plugin.getMessageManager().getMessage(user.getLanguage(), "thewalls.scoreboard.money"), -item.getPrice());
-                                p.sendMessage(plugin.getMessageManager().getMessage(user.getLanguage(), "shop.success"));
+                                plugin.getScoreboardAPI().updateIncreaseEntry(scoreboard, messageManager.getMessage(userLanguage, "thewalls.scoreboard.money"), -item.getPrice());
+                                p.sendMessage(messageManager.getMessage(userLanguage, "shop.success"));
                                 return;
                             } else {
-                                p.sendMessage(plugin.getMessageManager().getMessage(user.getLanguage(), "shop.emptyinventoryfirst"));
+                                p.sendMessage(messageManager.getMessage(userLanguage, "shop.emptyinventoryfirst"));
                                 return;
                             }
                         } else {
-                            p.sendMessage(plugin.getMessageManager().getMessage(user.getLanguage(), "shop.insufficientmoney"));
+                            p.sendMessage(messageManager.getMessage(userLanguage, "shop.insufficientmoney"));
                             return;
                         }
                     }
@@ -163,5 +191,9 @@ public class ChooseItem implements Listener {
 
             }
         }
+    }
+
+    private Set<Map.Entry<Integer, Item>> getListOfItems(HashMap<Integer, Item> tempItems) {
+        return tempItems.entrySet();
     }
 }

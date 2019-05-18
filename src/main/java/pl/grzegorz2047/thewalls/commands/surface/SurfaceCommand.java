@@ -1,10 +1,10 @@
 package pl.grzegorz2047.thewalls.commands.surface;
 
-import org.bukkit.plugin.Plugin;
+import pl.grzegorz2047.databaseapi.messages.MessageAPI;
+import pl.grzegorz2047.thewalls.GameData;
 import pl.grzegorz2047.thewalls.TheWalls;
 import pl.grzegorz2047.thewalls.api.command.BaseWithAliasCommand;
 import pl.grzegorz2047.thewalls.commands.surface.args.SurfaceArg;
-import pl.grzegorz2047.thewalls.commands.team.args.TeamArg;
 
 
 /**
@@ -12,10 +12,8 @@ import pl.grzegorz2047.thewalls.commands.team.args.TeamArg;
  */
 public class SurfaceCommand extends BaseWithAliasCommand {
 
-    private TheWalls plugin;
-
-    public SurfaceCommand(String baseCmd, String[] aliases, Plugin plugin) {
+    public SurfaceCommand(String baseCmd, String[] aliases, TheWalls plugin, GameData gameData, MessageAPI messageManager) {
         super(baseCmd, aliases, plugin);
-        this.commands.put(new String[]{""}, new SurfaceArg(plugin));
+        this.commands.put(new String[]{""}, new SurfaceArg(gameData, messageManager));
     }
 }

@@ -67,7 +67,7 @@ public class TheWalls extends JavaPlugin {
         scoreboardAPI = new ScoreboardAPI(this, messageManager, gameData);
         registerListeners(gameData);
         this.getCommand("team").setExecutor(new TeamCommand("team", new String[]{"team", "druzyna", "t", "d"}, this));
-        this.getCommand("wyjdz").setExecutor(new SurfaceCommand("wyjdz", new String[]{"wyjdz", "surface"}, this));
+        this.getCommand("wyjdz").setExecutor(new SurfaceCommand("wyjdz", new String[]{"wyjdz", "surface"}, this, this.getGameData(), this.getMessageManager()));
         this.getCommand("walls").setExecutor(new WallsCommand("walls", new String[]{"walls", "thewalls"}, this));
         this.getCommand("tep").setExecutor(new TepCommand(this));
         //ArenaStatus.initStatus(Bukkit.getMaxPlayers());
@@ -80,12 +80,12 @@ public class TheWalls extends JavaPlugin {
     }
 
     private void registerListeners(GameData gameData) {
-        Bukkit.getPluginManager().registerEvents(new PlayerJoin(this, this.getGameData().getWorldManagement().getLoadedWorld()), this);
+        Bukkit.getPluginManager().registerEvents(new PlayerJoin(this.gameData, gameData.getWorldManagement().getLoadedWorld()), this);
         Bukkit.getPluginManager().registerEvents(new PlayerQuit(this), this);
         Bukkit.getPluginManager().registerEvents(new PlayerLogin(this.getPlayerManager(), this.getGameData(), this.getMessageManager()), this);
         Bukkit.getPluginManager().registerEvents(new EntityExplode(this), this);
-        Bukkit.getPluginManager().registerEvents(new PlayerChat(this), this);
-        Bukkit.getPluginManager().registerEvents(new PlayerDead(this), this);
+        Bukkit.getPluginManager().registerEvents(new PlayerChat(this.settings, this.gameData), this);
+        Bukkit.getPluginManager().registerEvents(new PlayerDead(gameData), this);
         Bukkit.getPluginManager().registerEvents(new CounterEnd(this), this);
         Bukkit.getPluginManager().registerEvents(new GeneralBlocking(this), this);
         Bukkit.getPluginManager().registerEvents(new BlockPlace(this), this);

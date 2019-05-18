@@ -15,10 +15,7 @@ import pl.grzegorz2047.thewalls.api.itemmenu.event.ChooseItemEvent;
 public class InventoryClick implements Listener {
 
 
-    private final TheWalls plugin;
-
-    public InventoryClick(TheWalls plugin) {
-        this.plugin = plugin;
+    public InventoryClick() {
     }
 
     @EventHandler

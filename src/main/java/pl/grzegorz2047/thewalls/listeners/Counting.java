@@ -5,21 +5,20 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import pl.grzegorz2047.serversmanagement.ArenaStatus;
 import pl.grzegorz2047.thewalls.Counter;
 import pl.grzegorz2047.thewalls.CountingEvent;
 import pl.grzegorz2047.thewalls.TheWalls;
-import pl.grzegorz2047.thewalls.api.util.TimeUtil;
+import pl.grzegorz2047.thewalls.scoreboard.ScoreboardAPI;
 
 /**
  * Created by grzeg on 17.05.2016.
  */
 public class Counting implements Listener {
 
-    private final TheWalls plugin;
+    private final ScoreboardAPI scoreboardAPI;
 
-    public Counting(TheWalls plugin) {
-        this.plugin = plugin;
+    public Counting(ScoreboardAPI scoreboardAPI) {
+        this.scoreboardAPI = scoreboardAPI;
     }
 
     @EventHandler
@@ -90,8 +89,9 @@ public class Counting implements Listener {
                 }
             }
         }
+
         for (Player p : Bukkit.getOnlinePlayers()) {
-            plugin.getScoreboardAPI().updateDisplayName(time, p);
+            scoreboardAPI.updateDisplayName(time, p);
         }
     }
 

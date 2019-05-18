@@ -2,6 +2,7 @@ package pl.grzegorz2047.thewalls;
 
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import pl.grzegorz2047.databaseapi.DatabaseAPI;
 import pl.grzegorz2047.databaseapi.MoneyAPI;
@@ -64,8 +65,8 @@ public class TheWalls extends JavaPlugin {
         setSettings(playerManager.getSettings());
         Bukkit.getScheduler().runTaskTimer(this, new GeneralTask(this), 0, 20l);
         gameData = new GameData(this);
-        scoreboardAPI = new ScoreboardAPI(this, messageManager, gameData);
-        registerListeners(gameData);
+        scoreboardAPI = new ScoreboardAPI(messageManager, gameData);
+        registerListeners();
         this.getCommand("team").setExecutor(new TeamCommand("team", new String[]{"team", "druzyna", "t", "d"}, this));
         this.getCommand("wyjdz").setExecutor(new SurfaceCommand("wyjdz", new String[]{"wyjdz", "surface"}, this, this.getGameData(), this.getMessageManager()));
         this.getCommand("walls").setExecutor(new WallsCommand("walls", new String[]{"walls", "thewalls"}, this));
@@ -79,24 +80,26 @@ public class TheWalls extends JavaPlugin {
 
     }
 
-    private void registerListeners(GameData gameData) {
-        Bukkit.getPluginManager().registerEvents(new PlayerJoin(this.gameData, gameData.getWorldManagement().getLoadedWorld()), this);
-        Bukkit.getPluginManager().registerEvents(new PlayerQuit(this), this);
-        Bukkit.getPluginManager().registerEvents(new PlayerLogin(this.getPlayerManager(), this.getGameData(), this.getMessageManager()), this);
-        Bukkit.getPluginManager().registerEvents(new EntityExplode(this), this);
-        Bukkit.getPluginManager().registerEvents(new PlayerChat(this.settings, this.gameData), this);
-        Bukkit.getPluginManager().registerEvents(new PlayerDead(gameData), this);
-        Bukkit.getPluginManager().registerEvents(new CounterEnd(this), this);
-        Bukkit.getPluginManager().registerEvents(new GeneralBlocking(this), this);
-        Bukkit.getPluginManager().registerEvents(new BlockPlace(this), this);
-        Bukkit.getPluginManager().registerEvents(new PlayersDamaging(this), this);
-        Bukkit.getPluginManager().registerEvents(new BlockBreak(this), this);
-        Bukkit.getPluginManager().registerEvents(new Counting(this), this);
-        Bukkit.getPluginManager().registerEvents(new InventoryClick(this), this);
-        Bukkit.getPluginManager().registerEvents(new ChooseItem(this), this);
-        Bukkit.getPluginManager().registerEvents(new PlayerInteract(this), this);
-        Bukkit.getPluginManager().registerEvents(new ItemDrop(this), this);
-        Bukkit.getPluginManager().registerEvents(new ServerMotd(gameData), this);
+    private void registerListeners() {
+        PluginManager pluginManager = Bukkit.getPluginManager();
+        pluginManager.registerEvents(new PlayerJoin(gameData, gameData.getWorldManagement().getLoadedWorld()), this);
+        pluginManager.registerEvents(new PlayerQuit(this), this);
+        pluginManager.registerEvents(new PlayerLogin(playerManager, gameData, messageManager), this);
+        pluginManager.registerEvents(new EntityExplode(this), this);
+        pluginManager.registerEvents(new PlayerChat(settings, gameData), this);
+        pluginManager.registerEvents(new PlayerDead(gameData), this);
+        pluginManager.registerEvents(new CounterEnd(this), this);
+
+        pluginManager.registerEvents(new GeneralBlocking(gameData, messageManager), this);
+        pluginManager.registerEvents(new BlockPlace(gameData, messageManager), this);
+        pluginManager.registerEvents(new PlayersDamaging(gameData), this);
+        pluginManager.registerEvents(new BlockBreak(gameData, messageManager), this);
+        pluginManager.registerEvents(new Counting(scoreboardAPI), this);
+        pluginManager.registerEvents(new InventoryClick(), this);
+        pluginManager.registerEvents(new ChooseItem(messageManager, gameData, shopMenuManager, scoreboardAPI, moneyManager, this.getShopManager()), this);
+        pluginManager.registerEvents(new PlayerInteract(gameData, messageManager, shopMenuManager), this);
+        pluginManager.registerEvents(new ItemDrop(gameData), this);
+        pluginManager.registerEvents(new ServerMotd(gameData), this);
 
         this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
     }

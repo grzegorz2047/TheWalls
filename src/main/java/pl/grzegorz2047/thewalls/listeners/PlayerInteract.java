@@ -1,14 +1,12 @@
 package pl.grzegorz2047.thewalls.listeners;
 
 import org.bukkit.GameMode;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -16,10 +14,9 @@ import pl.grzegorz2047.databaseapi.messages.MessageAPI;
 import pl.grzegorz2047.thewalls.Counter;
 import pl.grzegorz2047.thewalls.GameData;
 import pl.grzegorz2047.thewalls.GameUser;
-import pl.grzegorz2047.thewalls.TheWalls;
+import pl.grzegorz2047.thewalls.shop.Shop;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
@@ -28,16 +25,16 @@ import java.util.Random;
  */
 public class PlayerInteract implements Listener {
 
-    private final TheWalls plugin;
     private final GameData gameData;
     private final MessageAPI messageManager;
     private final Counter counter;
+    private final Shop shopMenuManager;
 
-    public PlayerInteract(TheWalls plugin) {
-        this.plugin = plugin;
-        gameData = plugin.getGameData();
-        messageManager = plugin.getMessageManager();
-        counter = gameData.getCounter();
+    public PlayerInteract(GameData gameData, MessageAPI messageManager, Shop shopMenuManager) {
+        this.gameData = gameData;
+        this.messageManager = messageManager;
+        counter = this.gameData.getCounter();
+        this.shopMenuManager = shopMenuManager;
     }
 
     @EventHandler
@@ -69,7 +66,7 @@ public class PlayerInteract implements Listener {
             if (user.getAssignedTeam() == null) {
                 return;
             }
-            plugin.getShopMenuManager().openMainMenu(player, user, messageManager);
+            shopMenuManager.openMainMenu(player, user, messageManager);
         }
         if (itemInHandType.equals(Material.ENDER_PEARL)) {
             if (counter.getStatus().equals(Counter.CounterStatus.COUNTINGTODROPWALLS)) {

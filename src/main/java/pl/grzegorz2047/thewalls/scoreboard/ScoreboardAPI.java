@@ -16,7 +16,6 @@ import java.util.Set;
  */
 public class ScoreboardAPI {
 
-    private final TheWalls plugin;
     private final String team1Label;
     private final String team2Label;
     private final String team3Label;
@@ -25,10 +24,9 @@ public class ScoreboardAPI {
     private final GameData gameData;
 
 
-    public ScoreboardAPI(TheWalls plugin, MessageAPI messageManager, GameData gameData) {
-        this.plugin = plugin;
+    public ScoreboardAPI(MessageAPI messageManager, GameData gameData) {
+        this.messageManager = messageManager;
         this.team1Label = messageManager.getMessage("PL", "thewalls.scoreboard.ingame.TEAM1");
-        this.messageManager = plugin.getMessageManager();
         this.team2Label = this.messageManager.getMessage("PL", "thewalls.scoreboard.ingame.TEAM2");
         this.team3Label = this.messageManager.getMessage("PL", "thewalls.scoreboard.ingame.TEAM3");
         this.team4Label = this.messageManager.getMessage("PL", "thewalls.scoreboard.ingame.TEAM4");
@@ -148,7 +146,7 @@ public class ScoreboardAPI {
         System.out.print(
                 "DDDD spect"
         );
-        plugin.getScoreboardAPI().refreshTags(p);
+        refreshTags(p);
     }
 
     public void refreshTags(Player p) {

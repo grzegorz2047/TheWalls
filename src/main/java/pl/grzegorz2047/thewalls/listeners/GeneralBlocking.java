@@ -13,7 +13,6 @@ import pl.grzegorz2047.databaseapi.messages.MessageAPI;
 import pl.grzegorz2047.thewalls.Counter;
 import pl.grzegorz2047.thewalls.GameData;
 import pl.grzegorz2047.thewalls.GameUser;
-import pl.grzegorz2047.thewalls.TheWalls;
 
 /**
  * Created by grzeg on 17.05.2016.
@@ -21,16 +20,14 @@ import pl.grzegorz2047.thewalls.TheWalls;
 public class GeneralBlocking implements Listener {
 
 
-    private final TheWalls plugin;
-    private final GameData gameData;
+     private final GameData gameData;
     private final MessageAPI messageManager;
     private final Counter counter;
 
-    public GeneralBlocking(TheWalls plugin) {
-        this.plugin = plugin;
-        gameData = plugin.getGameData();
-        messageManager = plugin.getMessageManager();
-        counter = gameData.getCounter();
+    public GeneralBlocking(GameData gameData, MessageAPI messageManager) {
+        this.gameData = gameData;
+        this.messageManager = messageManager;
+        this.counter = this.gameData.getCounter();
     }
 
     @EventHandler
@@ -41,7 +38,7 @@ public class GeneralBlocking implements Listener {
     }
 
     @EventHandler
-    public void wylewanie(PlayerBucketEmptyEvent e) {
+    public void onBucketEmpty(PlayerBucketEmptyEvent e) {
         if (e.getBucket() == Material.LAVA_BUCKET) {
             Player p = e.getPlayer();
             GameUser user = gameData.getGameUser(p.getName());

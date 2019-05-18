@@ -1,15 +1,11 @@
 package pl.grzegorz2047.thewalls.listeners;
 
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.scoreboard.DisplaySlot;
-import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Scoreboard;
 import pl.grzegorz2047.databaseapi.MoneyAPI;
 import pl.grzegorz2047.databaseapi.messages.MessageAPI;
@@ -21,6 +17,7 @@ import pl.grzegorz2047.thewalls.GameUser;
 import pl.grzegorz2047.thewalls.TheWalls;
 import pl.grzegorz2047.thewalls.api.itemmenu.event.ChooseItemEvent;
 import pl.grzegorz2047.thewalls.playerclass.ClassManager;
+import pl.grzegorz2047.thewalls.scoreboard.ScoreboardAPI;
 import pl.grzegorz2047.thewalls.shop.Shop;
 
 import java.time.Instant;
@@ -34,16 +31,20 @@ import java.util.Set;
  */
 public class ChooseItem implements Listener {
 
-    private final TheWalls plugin;
     private final GameData gameData;
     private final MessageAPI messageManager;
     private final Shop shopMenuManager;
+    private final MoneyAPI moneyManager;
+    private final ShopAPI shopManager;
+    private final ScoreboardAPI scoreboardAPI;
 
-    public ChooseItem(TheWalls plugin) {
-        this.plugin = plugin;
-        gameData = plugin.getGameData();
-        messageManager = plugin.getMessageManager();
-        shopMenuManager = plugin.getShopMenuManager();
+    public ChooseItem(MessageAPI messageManager, GameData gameData, Shop shopMenuManager, ScoreboardAPI scoreboardAPI, MoneyAPI moneyManager, ShopAPI shopManager) {
+        this.gameData = gameData;
+        this.messageManager = messageManager;
+        this.shopMenuManager = shopMenuManager;
+        this.moneyManager = moneyManager;
+        this.shopManager = shopManager;
+        this.scoreboardAPI = scoreboardAPI;
     }
 
 
@@ -114,7 +115,6 @@ public class ChooseItem implements Listener {
                 return;
             }
             //System.out.println("D");
-            MoneyAPI moneyManager = plugin.getMoneyManager();
             PlayerInventory playerInventory = p.getInventory();
             if (title.equals("Perm items")) {
                 GameUser user = gameData.getGameUser(playerName);
@@ -133,12 +133,11 @@ public class ChooseItem implements Listener {
                         }
                         if (user.getMoney() >= item.getPrice()) {
                             if (playerInventory.firstEmpty() != -1) {
-                                ShopAPI shopManager = plugin.getShopManager();
                                 shopManager.buyItem(playerName, String.valueOf(item.getItemid()), Instant.EPOCH.getEpochSecond());
                                 user.changeMoney(-item.getPrice());
                                 moneyManager.changePlayerMoney(playerName, -item.getPrice());
                                 Scoreboard scoreboard = p.getScoreboard();
-                                plugin.getScoreboardAPI().updateIncreaseEntry(scoreboard, messageManager.getMessage(userLanguage, "thewalls.scoreboard.money"), -item.getPrice());
+                                scoreboardAPI.updateIncreaseEntry(scoreboard, messageManager.getMessage(userLanguage, "thewalls.scoreboard.money"), -item.getPrice());
                                 user.getTransactions().add(new Transaction(user.getUserid(), item.getItemid(), 0));
                                 playerInventory.addItem(item.toItemStack());
                                 p.sendMessage(messageManager.getMessage(userLanguage, "shop.success"));
@@ -175,7 +174,7 @@ public class ChooseItem implements Listener {
                                 userBoughtTempItems.add(item.getMaterial());
                                 playerInventory.addItem(item.toItemStack());
                                 Scoreboard scoreboard = p.getScoreboard();
-                                plugin.getScoreboardAPI().updateIncreaseEntry(scoreboard, messageManager.getMessage(userLanguage, "thewalls.scoreboard.money"), -item.getPrice());
+                                scoreboardAPI.updateIncreaseEntry(scoreboard, messageManager.getMessage(userLanguage, "thewalls.scoreboard.money"), -item.getPrice());
                                 p.sendMessage(messageManager.getMessage(userLanguage, "shop.success"));
                                 return;
                             } else {

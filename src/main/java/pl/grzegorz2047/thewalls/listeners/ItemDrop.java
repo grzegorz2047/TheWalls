@@ -4,7 +4,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import pl.grzegorz2047.thewalls.GameData;
-import pl.grzegorz2047.thewalls.TheWalls;
 
 /**
  * Created by grzeg on 22.05.2016.
@@ -12,12 +11,10 @@ import pl.grzegorz2047.thewalls.TheWalls;
 public class ItemDrop implements Listener {
 
 
-    private final TheWalls plugin;
     private final GameData gameData;
 
-    public ItemDrop(TheWalls plugin) {
-        this.plugin = plugin;
-        gameData = plugin.getGameData();
+    public ItemDrop(GameData gameData) {
+        this.gameData = gameData;
     }
 
     @EventHandler

@@ -232,15 +232,16 @@ public class GameData {
         scoreboardAPI.createWaitingScoreboard(p, userMoney, userKills, userDeaths, userWins, userLose, userLanguage);
         String message = messageManager.getMessage(userLanguage, "thewalls.joininfo");
         p.sendMessage(message);
-        p.getInventory().clear();
-        p.getInventory().setArmorContents(new ItemStack[4]);
+        PlayerInventory inventory = p.getInventory();
+        inventory.clear();
+        inventory.setArmorContents(new ItemStack[4]);
         p.setGameMode(GameMode.SURVIVAL);
         p.setHealth(20);
         p.setFoodLevel(20);
         p.setLevel(0);
         p.setFlying(false);
         p.setAllowFlight(false);
-        p.getInventory().setItem(0, CreateItemUtil.createItem(Material.BOOK, 1, "§7Klasy"));
+        inventory.setItem(0, CreateItemUtil.createItem(Material.BOOK, 1, "§7Klasy"));
     }
 
     public boolean isChestOwner(Player player, String playerName, Block clickedBlock) {
@@ -372,6 +373,11 @@ public class GameData {
             }
         }, 20 * 8);
         return;
+    }
+
+    public void removeFurnaceProtection(GameUser user, Location location) {
+        protectedFurnaces.remove(location);
+        user.setProtectedFurnaces(user.getProtectedFurnaces() - 1);
     }
 
     public enum GameTeam {

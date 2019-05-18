@@ -60,13 +60,6 @@
             <systemPath>${project.basedir}/libs/ServersManager-1.0-SNAPSHOT.jar</systemPath>
         </dependency>
         <dependency>
-            <groupId>NoCheatPlus</groupId>
-            <artifactId>fr.neatmonster.nocheatplus</artifactId>
-            <version>1.0</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/libs/NoCheatPlus.jar</systemPath>
-        </dependency>
-        <dependency>
             <groupId>com.sk89q</groupId>
             <artifactId>worldguard</artifactId>
             <version>6.1</version>

@@ -19,12 +19,12 @@ import pl.grzegorz2047.thewalls.TheWalls;
 public class PlayersDamaging implements Listener {
 
 
-    private final TheWalls plugin;
+
     private final GameData gameData;
 
-    public PlayersDamaging(TheWalls plugin) {
-        this.plugin = plugin;
-        gameData = plugin.getGameData();
+    public PlayersDamaging(GameData gameData) {
+
+        this.gameData = gameData;
     }
 
     @EventHandler

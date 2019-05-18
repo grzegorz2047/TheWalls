@@ -19,18 +19,12 @@ import java.util.HashMap;
  */
 public class BlockBreak implements Listener {
 
-    private final TheWalls plugin;
     private final GameData gameData;
     private final MessageAPI messageManager;
-    private final HashMap<String, GameUser> gameUsers;
-    private final HashMap<Location, String> protectedFurnace;
 
-    public BlockBreak(TheWalls plugin) {
-        this.plugin = plugin;
-        gameData = this.plugin.getGameData();
-        messageManager = plugin.getMessageManager();
-        gameUsers = gameData.getGameUsers();
-        protectedFurnace = gameData.getProtectedFurnaces();
+    public BlockBreak(GameData gameData, MessageAPI messageManager) {
+        this.gameData = gameData;
+        this.messageManager = messageManager;
     }
 
     @EventHandler
@@ -43,22 +37,23 @@ public class BlockBreak implements Listener {
         Block block = e.getBlock();
         Material type = block.getType();
         if (type.equals(Material.FURNACE)) {
-            String playerFurnace = protectedFurnace.get(block.getLocation());
             String username = p.getName();
-            GameUser user = gameUsers.get(username);
+            GameUser user = gameData.getGameUser(username);
             String language = user.getLanguage();
-            if (!username.equals(playerFurnace)) {
+            Location blockLocation = block.getLocation();
+            if (!isFurnaceOwner(username, blockLocation)) {
                 p.sendMessage(messageManager.getMessage(language, "thewalls.msg.furnacenotyours"));
                 e.setCancelled(true);
-                return;
             } else {
-                protectedFurnace.remove(block.getLocation());
-                user.setProtectedFurnaces(user.getProtectedFurnaces() - 1);
+                gameData.removeFurnaceProtection(user, blockLocation);
                 p.sendMessage(messageManager.getMessage(language, "thewalls.msg.furnacenolongerprotected"));
             }
-
-
         }
     }
+
+    private boolean isFurnaceOwner(String username, Location blockLocation) {
+        return gameData.getPlayerProtectedFurnace(blockLocation).equals(username);
+    }
+
 
 }

@@ -47,8 +47,6 @@ public class TheWalls extends JavaPlugin {
         YmlFileHandler ymlFileHandler = new YmlFileHandler(this, "plugins/TheWalls", "config.yml");
         ymlFileHandler.load();
         FileConfiguration config = ymlFileHandler.getConfig();
-        String msg = config.getString("msg");
-        System.out.println(msg);
 
         String dbUrl = config.getString("tw.url");
         int dbPort = config.getInt("tw.port");
@@ -56,15 +54,21 @@ public class TheWalls extends JavaPlugin {
         String dbUser = config.getString("tw.user");
         String dbPassword = config.getString("tw.password");
 
+        String theWallsStatsTableName = "TheWallsStats";
+        String theWallsShopItemsTableName = "TheWallsShopItems";
+        String theWallsShopItemsPurchasedTableName = "TheWallsShopItemsPurchased";
+        String theWallsMoneyTableName = "TheWallsMoney";
+
         String loadedMotd = config.getString("motd");
+        String minigameName = "TheWalls";
 
         moneyManager = new MoneyAPI(dbUrl, dbPort, dbName, dbUser, dbPassword);
-        statsAPI = new StatsAPI(dbUrl, dbPort, dbName, dbUser, dbPassword, "TheWallsStats");
+        moneyManager.setMoneyTable(theWallsMoneyTableName);
+        statsAPI = new StatsAPI(dbUrl, dbPort, dbName, dbUser, dbPassword, theWallsStatsTableName);
         playerManager = new DatabaseAPI(dbUrl, dbPort, dbName, dbUser, dbPassword);
-        shopManager = new ShopAPI(dbUrl, dbPort, dbName, dbUser, dbPassword, "TheWallsShopItems", "TheWallsShopItemsPurchased");
+        shopManager = new ShopAPI(dbUrl, dbPort, dbName, dbUser, dbPassword, theWallsShopItemsTableName, theWallsShopItemsPurchasedTableName);
         shopMenuManager = new Shop(shopManager);
-        messageManager = new MessageAPI(dbUrl, dbPort, dbName, dbUser, dbPassword, "TheWalls");
-        moneyManager.setMoneyTable("TheWallsMoney");
+        messageManager = new MessageAPI(dbUrl, dbPort, dbName, dbUser, dbPassword, minigameName);
         setSettings(playerManager.getSettings());
         Bukkit.getScheduler().runTaskTimer(this, new GeneralTask(this), 0, 20l);
         gameData = new GameData(this);

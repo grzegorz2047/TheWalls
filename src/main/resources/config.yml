@@ -1,4 +1,4 @@
-msg: 'Test wiadomosci!'
+motd: '§7§l> Czas: §a%TIME%                         §6§l1.8 - 1.14.2\n§7§l> Status: §a%STATUS%'
 tw:
   url: 'localhost'
   port: 3306

@@ -1,6 +1,7 @@
 package pl.grzegorz2047.thewalls;
 
 import org.bukkit.Bukkit;
+import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -55,6 +56,8 @@ public class TheWalls extends JavaPlugin {
         String dbUser = config.getString("tw.user");
         String dbPassword = config.getString("tw.password");
 
+        String loadedMotd = config.getString("motd");
+
         moneyManager = new MoneyAPI(dbUrl, dbPort, dbName, dbUser, dbPassword);
         statsAPI = new StatsAPI(dbUrl, dbPort, dbName, dbUser, dbPassword, "TheWallsStats");
         playerManager = new DatabaseAPI(dbUrl, dbPort, dbName, dbUser, dbPassword);
@@ -66,9 +69,10 @@ public class TheWalls extends JavaPlugin {
         Bukkit.getScheduler().runTaskTimer(this, new GeneralTask(this), 0, 20l);
         gameData = new GameData(this);
         scoreboardAPI = new ScoreboardAPI(messageManager, gameData);
-        registerListeners();
+        World loadedWorld = gameData.getWorldManagement().getLoadedWorld();
+        registerListeners(Bukkit.getPluginManager(), loadedMotd, loadedWorld);
         this.getCommand("team").setExecutor(new TeamCommand("team", new String[]{"team", "druzyna", "t", "d"}, this));
-        this.getCommand("wyjdz").setExecutor(new SurfaceCommand("wyjdz", new String[]{"wyjdz", "surface"}, this, this.getGameData(), this.getMessageManager()));
+        this.getCommand("wyjdz").setExecutor(new SurfaceCommand("wyjdz", new String[]{"wyjdz", "surface"}, this, gameData, messageManager));
         this.getCommand("walls").setExecutor(new WallsCommand("walls", new String[]{"walls", "thewalls"}, this));
         this.getCommand("tep").setExecutor(new TepCommand(this));
         //ArenaStatus.initStatus(Bukkit.getMaxPlayers());
@@ -80,9 +84,9 @@ public class TheWalls extends JavaPlugin {
 
     }
 
-    private void registerListeners() {
-        PluginManager pluginManager = Bukkit.getPluginManager();
-        pluginManager.registerEvents(new PlayerJoin(gameData, gameData.getWorldManagement().getLoadedWorld()), this);
+    private void registerListeners(PluginManager pluginManager, String loadedMotd, World loadedWorld) {
+
+        pluginManager.registerEvents(new PlayerJoin(gameData, loadedWorld), this);
         pluginManager.registerEvents(new PlayerQuit(this), this);
         pluginManager.registerEvents(new PlayerLogin(playerManager, gameData, messageManager), this);
         pluginManager.registerEvents(new EntityExplode(this), this);
@@ -99,7 +103,7 @@ public class TheWalls extends JavaPlugin {
         pluginManager.registerEvents(new ChooseItem(messageManager, gameData, shopMenuManager, scoreboardAPI, moneyManager, this.getShopManager()), this);
         pluginManager.registerEvents(new PlayerInteract(gameData, messageManager, shopMenuManager), this);
         pluginManager.registerEvents(new ItemDrop(gameData), this);
-        pluginManager.registerEvents(new ServerMotd(gameData), this);
+        pluginManager.registerEvents(new ServerMotd(gameData, loadedMotd), this);
 
         this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
     }

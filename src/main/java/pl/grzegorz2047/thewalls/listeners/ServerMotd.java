@@ -11,11 +11,12 @@ public class ServerMotd implements Listener {
 
     private final GameData gameData;
     private Counter counter;
-    private final String motd = "§7§l> Czas: §a%TIME%                         §6§l1.8 - 1.14.1\n§7§l> Status: §a%STATUS%";
+    private final String motd;
 
-    public ServerMotd(GameData gameData) {
+    public ServerMotd(GameData gameData, String motd) {
         this.gameData = gameData;
-        counter = gameData.getCounter();
+        this.counter = gameData.getCounter();
+        this.motd = motd;
     }
 
     @EventHandler

@@ -2,6 +2,7 @@ name: TheWalls
 version: 1.0
 main: pl.grzegorz2047.thewalls.TheWalls
 depend: [Database]
+softdepend: [AuthMe]
 commands:
     team:
         description: Dolacza do druzyny

@@ -1,5 +1,6 @@
 package pl.grzegorz2047.thewalls;
 
+import fr.xephi.authme.api.v3.AuthMeApi;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -49,6 +50,8 @@ public class GameData {
     private int expForWin;
     private StartGameLocationLoader startGameLocationLoader;
     private final StatsAPI statsManager;
+    private boolean isCrackersAuthme = true;
+
 
     public GameData(TheWalls plugin) {
         this.plugin = plugin;
@@ -245,19 +248,18 @@ public class GameData {
     }
 
     public boolean isChestOwner(Player player, String playerName, Block clickedBlock) {
-        boolean isChestOwner = false;
         String protectedFurnacePlayer = getPlayerProtectedFurnace(clickedBlock.getLocation());
         if (protectedFurnacePlayer != null) {
             if (!protectedFurnacePlayer.equals(playerName)) {
                 GameUser user = getGameUser(playerName);
                 String userLanguage = user.getLanguage();
                 player.sendMessage(messageManager.getMessage(userLanguage, "thewalls.msg.someonesprotectedfurnace"));
-                isChestOwner = false;
+                return false;
             } else {
-                isChestOwner = true;
+                return true;
             }
         }
-        return isChestOwner;
+        return true;
     }
 
     public void handlePlayerQuit(Player p) {
@@ -446,11 +448,24 @@ public class GameData {
             } else {
                 this.minPlayers = Integer.parseInt(settings.get("thewalls.minplayers"));
             }
-            if (numberOfPlayers >= this.minPlayers) {
-                getCounter().start(Counter.CounterStatus.COUNTINGTOSTART);
-                this.setStatus(GameStatus.STARTING);
-                broadcastToAllPlayers("thewalls.countingstarted");
-                //ArenaStatus.setStatus(//ArenaStatus.Status.STARTING);
+            if (isCrackersAuthme) {
+                int authedPlayers = 0;
+                for (Player player : Bukkit.getOnlinePlayers()) {
+                    boolean authenticated = AuthMeApi.getInstance().isAuthenticated(player);
+                    if (authenticated){
+                        authedPlayers++;
+                    }
+
+                }
+                if(authedPlayers >= this.minPlayers){
+                    startCountingDown();
+                }
+            }
+            else{
+                if (numberOfPlayers >= this.minPlayers) {
+                    startCountingDown();
+                    //ArenaStatus.setStatus(//ArenaStatus.Status.STARTING);
+                }
             }
         } else if (this.isStatus(GameStatus.STARTING)) {
             if (numberOfPlayers < this.minPlayers) {
@@ -459,6 +474,12 @@ public class GameData {
                 this.counter.cancel();
             }
         }
+    }
+
+    private void startCountingDown() {
+        getCounter().start(Counter.CounterStatus.COUNTINGTOSTART);
+        this.setStatus(GameStatus.STARTING);
+        broadcastToAllPlayers("thewalls.countingstarted");
     }
 
     private void broadcastToAllPlayers(String path) {
@@ -564,6 +585,7 @@ public class GameData {
                     user.setAssignedTeam(GameTeam.TEAM2);
                 }
             }
+            assignedTeam = user.getAssignedTeam();
             ColoringUtil.colorPlayerTab(p, assignedTeam.getColor());
         }
     }

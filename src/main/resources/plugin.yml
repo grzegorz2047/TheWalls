@@ -3,6 +3,7 @@ version: 1.0
 main: pl.grzegorz2047.thewalls.TheWalls
 depend: [Database]
 softdepend: [AuthMe]
+api-version: 1.15
 commands:
     team:
         description: Dolacza do druzyny

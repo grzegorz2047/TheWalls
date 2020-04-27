@@ -36,7 +36,7 @@ public class BlockPlace implements Listener {
     public void onPlace(BlockPlaceEvent e) {
         Player player = e.getPlayer();
 
-        List<Material> list = Arrays.asList(Material.FIRE, Material.TNT, Material.PISTON_BASE, Material.BEDROCK);
+        List<Material> list = Arrays.asList(Material.FIRE, Material.TNT, Material.PISTON_HEAD, Material.BEDROCK);
         Counter.CounterStatus counterStatus = counter.getStatus();
         Block block = e.getBlock();
         Material blockType = block.getType();

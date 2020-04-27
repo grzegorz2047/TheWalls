@@ -15,7 +15,9 @@ import org.bukkit.util.Vector;
 import pl.grzegorz2047.thewalls.Counter;
 import pl.grzegorz2047.thewalls.GameData;
 import pl.grzegorz2047.thewalls.TheWalls;
+import pl.grzegorz2047.thewalls.drop.BlockDrop;
 
+import java.util.Map;
 import java.util.Random;
 
 /**
@@ -24,10 +26,12 @@ import java.util.Random;
 public class EntityExplode implements Listener {
 
 
+    private final Map<Material, BlockDrop> dropsMap;
     private TheWalls plugin;
 
-    public EntityExplode(TheWalls plugin) {
+    public EntityExplode(TheWalls plugin, Map<Material, BlockDrop> dropsMap) {
         this.plugin = plugin;
+        this.dropsMap = dropsMap;
     }
 
     @EventHandler(priority = EventPriority.LOW)
@@ -35,7 +39,7 @@ public class EntityExplode implements Listener {
         if (event.isCancelled()) {
             return;
         }
-        if(plugin.getGameData().getCounter().getStatus().equals(Counter.CounterStatus.COUNTINGTODROPWALLS)){
+        if (plugin.getGameData().getCounter().getStatus().equals(Counter.CounterStatus.COUNTINGTODROPWALLS)) {
             event.setCancelled(true);
             return;
         }
@@ -54,11 +58,11 @@ public class EntityExplode implements Listener {
             int riz = r.nextBoolean() ? -1 : 1;
 
             Material m = b.getType();
-            if (m.equals(Material.GRASS) || m.equals(Material.MYCEL)) {
+            if (m.equals(Material.GRASS) || m.equals(Material.MYCELIUM)) {
                 b.setType(Material.DIRT);
             }
 
-            if (!m.isSolid() || m.equals(Material.LEAVES) || m.equals(Material.GLASS) | m.equals(Material.TNT)) {
+            if (!m.isSolid() || m.name().contains("LEAVES") || m.equals(Material.GLASS) | m.equals(Material.TNT)) {
                 b.setType(Material.AIR);
             }
 
@@ -75,7 +79,7 @@ public class EntityExplode implements Listener {
 
                 ent.setFallDistance(0);
                 ent.setVelocity(new Vector(r.nextBoolean() ? (rix * (0.25D + (r.nextInt(3) / 5))) : 0.0D, 0.6D + (r.nextInt(2) / 4.5D), r.nextBoolean() ? (riz * (0.25D + (r.nextInt(3) / 5))) : 0.0D));
-                b.setTypeId(0, false);
+                b.setType(Material.AIR, false);
             }
         }
 

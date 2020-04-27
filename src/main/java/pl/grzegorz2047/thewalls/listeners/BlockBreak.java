@@ -11,8 +11,10 @@ import pl.grzegorz2047.databaseapi.messages.MessageAPI;
 import pl.grzegorz2047.thewalls.GameData;
 import pl.grzegorz2047.thewalls.GameUser;
 import pl.grzegorz2047.thewalls.TheWalls;
+import pl.grzegorz2047.thewalls.drop.BlockDrop;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by grzeg on 17.05.2016.
@@ -21,10 +23,12 @@ public class BlockBreak implements Listener {
 
     private final GameData gameData;
     private final MessageAPI messageManager;
+    private final Map<Material, BlockDrop> dropsMap;
 
-    public BlockBreak(GameData gameData, MessageAPI messageManager) {
+    public BlockBreak(GameData gameData, MessageAPI messageManager, Map<Material, BlockDrop> dropsMap) {
         this.gameData = gameData;
         this.messageManager = messageManager;
+        this.dropsMap = dropsMap;
     }
 
     @EventHandler
@@ -48,10 +52,12 @@ public class BlockBreak implements Listener {
                 gameData.removeFurnaceProtection(user, blockLocation);
                 p.sendMessage(messageManager.getMessage(language, "thewalls.msg.furnacenolongerprotected"));
             }
+        } else {
+            BlockDrop blockDrop = dropsMap.get(type);
+            if (blockDrop != null)
+                blockDrop.dropItems(e);
         }
     }
-
-
 
 
 }

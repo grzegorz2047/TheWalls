@@ -9,6 +9,7 @@ import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.weather.WeatherChangeEvent;
+import org.bukkit.event.world.WorldSaveEvent;
 import pl.grzegorz2047.databaseapi.messages.MessageAPI;
 import pl.grzegorz2047.thewalls.Counter;
 import pl.grzegorz2047.thewalls.GameData;
@@ -73,5 +74,8 @@ public class GeneralBlocking implements Listener {
         e.setCancelled(true);
     }
 
-
+    @EventHandler
+    public void onWOrld(WorldSaveEvent e) {
+        System.out.println("Ktos zapisje? >:<");
+    }
 }

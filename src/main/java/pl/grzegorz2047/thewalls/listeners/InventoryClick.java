@@ -21,7 +21,7 @@ public class InventoryClick implements Listener {
     @EventHandler
     void clickEkwipunek(InventoryClickEvent e) {
         Inventory inventory = e.getInventory();
-        ChooseItemEvent event = new ChooseItemEvent(inventory.getTitle(), inventory.getSize(), inventory, e.getCurrentItem(), (Player) e.getWhoClicked(), e.getSlot());
+        ChooseItemEvent event = new ChooseItemEvent(e.getView().getTitle(), inventory.getSize(), inventory, e.getCurrentItem(), (Player) e.getWhoClicked(), e.getSlot(), e.getView());
         Bukkit.getServer().getPluginManager().callEvent(event);
         if (event.isCancelled()) {
             e.setCancelled(true);

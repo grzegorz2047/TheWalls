@@ -98,7 +98,7 @@ public class PlayerInteract implements Listener {
         if (!cb.getInventory().contains(Material.BEDROCK)) {
             return;
         }
-        List<Material> materialList = Arrays.asList(Material.ENDER_PEARL, Material.EXP_BOTTLE, Material.GOLDEN_APPLE, Material.APPLE, Material.GOLD_INGOT, Material.IRON_INGOT, Material.WOOD);
+        List<Material> materialList = Arrays.asList(Material.ENDER_PEARL, Material.EXPERIENCE_BOTTLE, Material.GOLDEN_APPLE, Material.APPLE, Material.GOLD_INGOT, Material.IRON_INGOT, Material.OAK_WOOD);
         int pearl = 0;
         for (int i = 0; i < 4; i++) {
             //System.out.println("Losuje skrzynke!");

@@ -1,13 +1,20 @@
 package pl.grzegorz2047.thewalls;
 
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
-import com.sk89q.worldguard.protection.flags.DefaultFlag;
+ import com.sk89q.worldguard.protection.flags.Flag;
+import com.sk89q.worldguard.protection.flags.Flags;
 import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.managers.RegionManager;
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
+import com.sk89q.worldguard.protection.regions.RegionContainer;
 import org.bukkit.*;
 import org.bukkit.entity.Entity;
 import org.bukkit.plugin.Plugin;
 
+import java.util.Map;
 import java.util.Random;
 
 /**
@@ -22,9 +29,10 @@ public class WorldManagement {
 
         loadedWorld = Bukkit.createWorld(new WorldCreator("Walls_Mapa_" + randomised));
         loadedWorld.setAutoSave(false);
-        loadedWorld.setGameRuleValue("doMobGriefing", "false");
-        loadedWorld.setGameRuleValue("doDayCycle", "false");
-        loadedWorld.setGameRuleValue("doMobSpawning", "false");
+        loadedWorld.setGameRule(GameRule.DO_INSOMNIA, false);
+        loadedWorld.setGameRule(GameRule.DO_WEATHER_CYCLE, false);
+        loadedWorld.setGameRule(GameRule.DO_MOB_SPAWNING, false);
+        loadedWorld.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
         loadedWorld.setTime(0);
         loadedWorld.setKeepSpawnInMemory(true);
         loadedWorld.setStorm(false);
@@ -33,8 +41,6 @@ public class WorldManagement {
         for (Entity e : loadedWorld.getEntities()) {
             e.remove();
         }
-
-
     }
 
     public void disableSaving() {
@@ -59,25 +65,28 @@ public class WorldManagement {
     }
 
     public void setProtected(boolean protect) {
-        WorldGuardPlugin wg = getWorldGuard();
+        RegionManager rm = getRegionManager();
 
-
-        RegionManager rm = wg.getRegionManager(loadedWorld);
-
+        ProtectedRegion pomiedzywalls1Region = rm.getRegion("pomiedzywalls1");
+        Map<Flag<?>, Object> pomiedzywalls1RegionFlags = pomiedzywalls1Region.getFlags();
+        ProtectedRegion pomiedzywalls2Region = rm.getRegion("pomiedzywalls2");
+        Map<Flag<?>, Object> pomiedzywalls2RegionFlags = pomiedzywalls2Region.getFlags();
         if (protect) {
             try {
                 for (int i = 1; i <= 8; i++) {
-                    rm.getRegion("wall" + i).getFlags().put(DefaultFlag.ENTRY, StateFlag.State.DENY);
-                    rm.getRegion("wall" + i).getFlags().put(DefaultFlag.BUILD, StateFlag.State.DENY);
-                    rm.getRegion("wall" + i).getFlags().put(DefaultFlag.CREEPER_EXPLOSION, StateFlag.State.DENY);
-                    rm.getRegion("wall" + i).getFlags().put(DefaultFlag.TNT, StateFlag.State.DENY);
+                    ProtectedRegion region = rm.getRegion("wall" + i);
+                    Map<Flag<?>, Object> regionFlags = region.getFlags();
+                    regionFlags.put(Flags.ENTRY, StateFlag.State.DENY);
+                    regionFlags.put(Flags.BUILD, StateFlag.State.DENY);
+                    regionFlags.put(Flags.CREEPER_EXPLOSION, StateFlag.State.DENY);
+                    regionFlags.put(Flags.TNT, StateFlag.State.DENY);
                 }
-                rm.getRegion("pomiedzywalls1").getFlags().put(DefaultFlag.ENDERPEARL, StateFlag.State.DENY);
-                rm.getRegion("pomiedzywalls1").getFlags().put(DefaultFlag.BUILD, StateFlag.State.DENY);
-                rm.getRegion("pomiedzywalls1").getFlags().put(DefaultFlag.ENTRY, StateFlag.State.DENY);
-                rm.getRegion("pomiedzywalls2").getFlags().put(DefaultFlag.ENDERPEARL, StateFlag.State.DENY);
-                rm.getRegion("pomiedzywalls2").getFlags().put(DefaultFlag.BUILD, StateFlag.State.DENY);
-                rm.getRegion("pomiedzywalls2").getFlags().put(DefaultFlag.ENTRY, StateFlag.State.DENY);
+                pomiedzywalls1RegionFlags.put(Flags.ENDERPEARL, StateFlag.State.DENY);
+                pomiedzywalls1RegionFlags.put(Flags.BUILD, StateFlag.State.DENY);
+                pomiedzywalls1RegionFlags.put(Flags.ENTRY, StateFlag.State.DENY);
+                pomiedzywalls2RegionFlags.put(Flags.ENDERPEARL, StateFlag.State.DENY);
+                pomiedzywalls2RegionFlags.put(Flags.BUILD, StateFlag.State.DENY);
+                pomiedzywalls2RegionFlags.put(Flags.ENTRY, StateFlag.State.DENY);
 
             } catch (NullPointerException e) {
                 System.out.println("Brakuje regionow do muru!");
@@ -85,17 +94,19 @@ public class WorldManagement {
         } else {
             try {
                 for (int i = 1; i <= 8; i++) {
-                    rm.getRegion("wall" + i).getFlags().put(DefaultFlag.ENTRY, StateFlag.State.ALLOW);
-                    rm.getRegion("wall" + i).getFlags().put(DefaultFlag.BUILD, StateFlag.State.ALLOW);
-                    rm.getRegion("wall" + i).getFlags().put(DefaultFlag.CREEPER_EXPLOSION, StateFlag.State.ALLOW);
-                    rm.getRegion("wall" + i).getFlags().put(DefaultFlag.TNT, StateFlag.State.ALLOW);
+                    ProtectedRegion region = rm.getRegion("wall" + i);
+                    Map<Flag<?>, Object> regionFlags = region.getFlags();
+                    regionFlags.put(Flags.ENTRY, StateFlag.State.ALLOW);
+                    regionFlags.put(Flags.BUILD, StateFlag.State.ALLOW);
+                    regionFlags.put(Flags.CREEPER_EXPLOSION, StateFlag.State.ALLOW);
+                    regionFlags.put(Flags.TNT, StateFlag.State.ALLOW);
                 }
-                rm.getRegion("pomiedzywalls1").getFlags().put(DefaultFlag.ENDERPEARL, StateFlag.State.ALLOW);
-                rm.getRegion("pomiedzywalls1").getFlags().put(DefaultFlag.BUILD, StateFlag.State.ALLOW);
-                rm.getRegion("pomiedzywalls1").getFlags().put(DefaultFlag.ENTRY, StateFlag.State.ALLOW);
-                rm.getRegion("pomiedzywalls2").getFlags().put(DefaultFlag.ENDERPEARL, StateFlag.State.ALLOW);
-                rm.getRegion("pomiedzywalls2").getFlags().put(DefaultFlag.BUILD, StateFlag.State.ALLOW);
-                rm.getRegion("pomiedzywalls2").getFlags().put(DefaultFlag.ENTRY, StateFlag.State.ALLOW);
+                pomiedzywalls1RegionFlags.put(Flags.ENDERPEARL, StateFlag.State.ALLOW);
+                pomiedzywalls1RegionFlags.put(Flags.BUILD, StateFlag.State.ALLOW);
+                pomiedzywalls1RegionFlags.put(Flags.ENTRY, StateFlag.State.ALLOW);
+                pomiedzywalls2RegionFlags.put(Flags.ENDERPEARL, StateFlag.State.ALLOW);
+                pomiedzywalls2RegionFlags.put(Flags.BUILD, StateFlag.State.ALLOW);
+                pomiedzywalls2RegionFlags.put(Flags.ENTRY, StateFlag.State.ALLOW);
                 System.out.println("Zmieniono region!");
             } catch (NullPointerException e) {
                 System.out.println("Brakuje regionow do muru wall8 albo pomiedzywalls !");
@@ -110,32 +121,29 @@ public class WorldManagement {
         }
     }
 
-    private static WorldGuardPlugin getWorldGuard() {
-        Plugin plugin = Bukkit.getServer().getPluginManager().getPlugin("WorldGuard");
+    private RegionManager getRegionManager() {
+        WorldGuard wg = WorldGuard.getInstance();
+        RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
 
-        // WorldGuard may not be loaded
-        if (plugin == null || !(plugin instanceof WorldGuardPlugin)) {
-            System.out.println("Nie ma pluginu WorldGuard!");
-        }
-
-        return (WorldGuardPlugin) plugin;
+        return container.get(BukkitAdapter.adapt(loadedWorld));
     }
 
     public void removeWalls() {
-        WorldGuardPlugin wg = getWorldGuard();
-
-        RegionManager rm = wg.getRegionManager(loadedWorld);
+        RegionManager rm = getRegionManager();
         //Bukkit.broadcastMessage("Swiat to "+swiat);
 
         try {
             for (int i = 1; i <= 8; i++) {
-                int minx = rm.getRegion("wall" + i).getMinimumPoint().getBlockX();
-                int miny = rm.getRegion("wall" + i).getMinimumPoint().getBlockY();
-                int minz = rm.getRegion("wall" + i).getMinimumPoint().getBlockZ();
+                ProtectedRegion protectedRegion = rm.getRegion("wall" + i);
+                BlockVector3 minimumPoint = protectedRegion.getMinimumPoint();
+                int minx = minimumPoint.getBlockX();
+                int miny = minimumPoint.getBlockY();
+                int minz = minimumPoint.getBlockZ();
 
-                int maxx = rm.getRegion("wall" + i).getMaximumPoint().getBlockX();
-                int maxy = rm.getRegion("wall" + i).getMaximumPoint().getBlockY();
-                int maxz = rm.getRegion("wall" + i).getMaximumPoint().getBlockZ();
+                BlockVector3 maximumPoint = protectedRegion.getMaximumPoint();
+                int maxx = maximumPoint.getBlockX();
+                int maxy = maximumPoint.getBlockY();
+                int maxz = maximumPoint.getBlockZ();
                 for (int x = minx; x <= maxx; x = x + 1) {
                     for (int y = miny; y <= maxy; y = y + 1) {
                         for (int z = minz; z <= maxz; z = z + 1) {

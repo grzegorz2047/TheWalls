@@ -442,7 +442,7 @@ public class GameData {
         if (this.isStatus(GameStatus.WAITING)) {
             Calendar cal = Calendar.getInstance();
             int hour = cal.get(Calendar.HOUR_OF_DAY);
-            System.out.println("Godzina jest " + hour);
+//            System.out.println("Godzina jest " + hour);
             if (hour < 13 || hour > 21) {
                 this.minPlayers = Integer.parseInt(settings.get("thewalls.minplayersearly"));
             } else {
@@ -452,16 +452,15 @@ public class GameData {
                 int authedPlayers = 0;
                 for (Player player : Bukkit.getOnlinePlayers()) {
                     boolean authenticated = AuthMeApi.getInstance().isAuthenticated(player);
-                    if (authenticated){
+                    if (authenticated) {
                         authedPlayers++;
                     }
 
                 }
-                if(authedPlayers >= this.minPlayers){
+                if (authedPlayers >= this.minPlayers) {
                     startCountingDown();
                 }
-            }
-            else{
+            } else {
                 if (numberOfPlayers >= this.minPlayers) {
                     startCountingDown();
                     //ArenaStatus.setStatus(//ArenaStatus.Status.STARTING);
@@ -563,25 +562,26 @@ public class GameData {
         GameTeam assignedTeam = user.getAssignedTeam();
         if (assignedTeam == null) {
             boolean found = false;
+            String playerName = p.getName();
             if (Bukkit.getOnlinePlayers().size() >= 20) {
                 for (Map.Entry<GameTeam, ArrayList<String>> entry : getTeams().entrySet()) {
                     if (entry.getValue().size() < this.maxTeamSize) {
                         user.setAssignedTeam(entry.getKey());
-                        entry.getValue().add(p.getName());
+                        entry.getValue().add(playerName);
                         found = true;
                         break;
                     }
                 }
                 if (!found) {
-                    getTeams().get(GameTeam.TEAM4).add(p.getName());
+                    getTeams().get(GameTeam.TEAM4).add(playerName);
                     user.setAssignedTeam(GameTeam.TEAM4);
                 }
             } else {
                 if (teams.get(GameTeam.TEAM1).size() < this.maxTeamSize) {
-                    teams.get(GameTeam.TEAM1).add(p.getName());
+                    teams.get(GameTeam.TEAM1).add(playerName);
                     user.setAssignedTeam(GameTeam.TEAM1);
                 } else {
-                    teams.get(GameTeam.TEAM2).add(p.getName());
+                    teams.get(GameTeam.TEAM2).add(playerName);
                     user.setAssignedTeam(GameTeam.TEAM2);
                 }
             }
@@ -602,7 +602,6 @@ public class GameData {
     }
 
     public void startFight() {
-
         this.getWorldManagement().removeWalls();
         this.counter.start(Counter.CounterStatus.COUNTINGTODM);
         fixInvisiblePlayers();
@@ -696,50 +695,35 @@ public class GameData {
         }
         BukkitScheduler scheduler = Bukkit.getScheduler();
         if (alive == 0) {
-            scheduler.runTaskLater(plugin, new Runnable() {
-                @Override
-                public void run() {
-                    for (Player p : Bukkit.getOnlinePlayers()) {
-                        //nikt nie wygral
-                        BungeeUtil.changeServer(plugin, p, "Lobby1");
-                    }
-                    status = GameStatus.RESTARTING;
+            scheduler.runTaskLater(plugin, () -> {
+                for (Player p : Bukkit.getOnlinePlayers()) {
+                    //nikt nie wygral
+                    BungeeUtil.changeServer(plugin, p, "Lobby1");
                 }
+                status = GameStatus.RESTARTING;
             }, 20 * 3);
 
-            scheduler.runTaskLater(plugin, new Runnable() {
-                @Override
-                public void run() {
-                    restartGame();
-                }
-            }, 20 * 10);
+            scheduler.runTaskLater(plugin, this::restartGame, 20 * 10);
 
         } else if (alive == 1) {
             final GameTeam finalTeam = team;
             int moveEndPlCooldown = 20 * 3;
-            scheduler.runTaskLater(plugin, new Runnable() {
-                @Override
-                public void run() {
-                    for (Map.Entry<String, GameUser> user : getGameUsers().entrySet()) {
-                        Player p = Bukkit.getPlayer(user.getKey());
-                        GameUser gameUser = user.getValue();
-                        String teamName = finalTeam.name().toLowerCase();
-                        p.sendMessage(messageManager.getMessage(gameUser.getLanguage(), "thewalls.game.win." + teamName));
-                        giveMoneyToWinners(user.getValue(), user.getKey());
-                        BungeeUtil.changeServer(plugin, p, "Lobby1");
-                    }
-                    status = GameStatus.RESTARTING;
+            scheduler.runTaskLater(plugin, () -> {
+                for (Map.Entry<String, GameUser> user : getGameUsers().entrySet()) {
+                    String playerName = user.getKey();
+                    Player p = Bukkit.getPlayer(playerName);
+                    GameUser gameUser = user.getValue();
+                    String teamName = finalTeam.name().toLowerCase();
+                    p.sendMessage(messageManager.getMessage(gameUser.getLanguage(), "thewalls.game.win." + teamName));
+                    giveMoneyToWinners(user.getValue(), playerName);
+                    BungeeUtil.changeServer(plugin, p, "Lobby1");
                 }
+                status = GameStatus.RESTARTING;
             }, moveEndPlCooldown);
 
 
             int restartCooldown = 20 * 6;
-            scheduler.runTaskLater(plugin, new Runnable() {
-                @Override
-                public void run() {
-                    restartGame();
-                }
-            }, restartCooldown);
+            scheduler.runTaskLater(plugin, this::restartGame, restartCooldown);
 
         }
     }

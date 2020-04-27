@@ -5,6 +5,7 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 
 /**
@@ -15,14 +16,16 @@ public class ChooseItemEvent extends Event implements Cancellable {
     private final int slot;
     private Player player;
     private ItemStack clicked;
+    private InventoryView view;
 
-    public ChooseItemEvent(String title, int size, Inventory inventory, ItemStack clicked, Player p, int slot){
-        this.title = title;
+    public ChooseItemEvent(String title, int size, Inventory inventory, ItemStack clicked, Player p, int slot, InventoryView view) {
+        this.title = view.getTitle();
         this.size = size;
         this.inventory = inventory;
         this.clicked = clicked;
         this.player = p;
         this.slot = slot;
+        this.view = view;
     }
 
     private static final HandlerList handlers = new HandlerList();
@@ -72,6 +75,10 @@ public class ChooseItemEvent extends Event implements Cancellable {
 
     public int getSlot() {
         return slot;
+    }
+
+    public InventoryView getView() {
+        return this.view;
     }
 }
 

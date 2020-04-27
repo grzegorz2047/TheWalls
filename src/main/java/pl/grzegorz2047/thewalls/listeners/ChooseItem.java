@@ -51,7 +51,7 @@ public class ChooseItem implements Listener {
     @EventHandler
     public void onChoose(ChooseItemEvent e) {
         Player p = e.getPlayer();
-        String title = e.getInventory().getTitle();
+        String title = e.getTitle();
         // System.out.println("A");
         if (title != null) {
             //System.out.println("B");
@@ -82,7 +82,7 @@ public class ChooseItem implements Listener {
                     playerClasses.put(playerName, ClassManager.CLASS.DRWAL);
                     kit = ClassManager.CLASS.DRWAL;
 
-                } else if (clickedType.equals(Material.GRILLED_PORK)) {
+                } else if (clickedType.equals(Material.COOKED_PORKCHOP)) {
                     playerClasses.put(playerName, ClassManager.CLASS.KUCHARZ);
                     kit = ClassManager.CLASS.KUCHARZ;
 

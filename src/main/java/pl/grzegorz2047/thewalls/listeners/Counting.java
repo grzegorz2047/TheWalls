@@ -37,7 +37,7 @@ public class Counting implements Listener {
             }
             if (time > 0 && time < 11) {
                 for (Player p : Bukkit.getOnlinePlayers()) {
-                    p.playSound(p.getLocation(), Sound.ORB_PICKUP, 2, 1);
+                    p.playSound(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 2, 1);
                 }
             }
             if (time < 6) {
@@ -61,7 +61,7 @@ public class Counting implements Listener {
             }
             if (time > 0 && time < 11) {
                 for (Player p : Bukkit.getOnlinePlayers()) {
-                    p.playSound(p.getLocation(), Sound.CLICK, 2, 1);
+                    p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 2, 1);
                     p.sendMessage("§7" + time + "...");
                 }
             }
@@ -75,7 +75,7 @@ public class Counting implements Listener {
             }
             if (time > 0 && time < 11) {
                 for (Player p : Bukkit.getOnlinePlayers()) {
-                    p.playSound(p.getLocation(), Sound.CLICK, 2, 1);
+                    p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 2, 1);
                 }
             }
         }
@@ -85,7 +85,7 @@ public class Counting implements Listener {
             }
             if (time > 0 && time < 11) {
                 for (Player p : Bukkit.getOnlinePlayers()) {
-                    p.playSound(p.getLocation(), Sound.CLICK, 2, 1);
+                    p.playSound(p.getLocation(), Sound.UI_BUTTON_CLICK, 2, 1);
                 }
             }
         }

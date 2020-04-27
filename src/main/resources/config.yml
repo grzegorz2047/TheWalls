@@ -5,3 +5,96 @@ tw:
   dbName: 'thewalls'
   user: 'thewalls'
   password: 'thewalls'
+drops:
+  DIAMOND_ORE:
+    - drop: COBBLESTONE
+      quantity: 1
+      tool: [ANY, EXPLOSION_TNT, EXPLOSION_CREEPER]
+      message: '&cResources drop only from the stone!'
+  GOLD_ORE:
+    - drop: COBBLESTONE
+      quantity: 1
+      tool: [ANY, EXPLOSION_TNT, EXPLOSION_CREEPER]
+      message: '&cResources drop only from the stone!'
+  IRON_ORE:
+    - drop: COBBLESTONE
+      quantity: 1
+      tool: [ANY, EXPLOSION_TNT, EXPLOSION_CREEPER]
+      message: '&cResources drop only from the stone!'
+  EMERALD_ORE:
+    - drop: COBBLESTONE
+      quantity: 1
+      tool: [ANY, EXPLOSION_TNT, EXPLOSION_CREEPER]
+      message: '&cResources drop only from the stone!'
+  COAL_ORE:
+    - drop: COBBLESTONE
+      quantity: 1
+      tool: [ANY, EXPLOSION_TNT, EXPLOSION_CREEPER]
+      message: '&cResources drop only from the stone!'
+  REDSTONE_ORE:
+    - drop: COBBLESTONE
+      quantity: 1
+      tool: [ANY, EXPLOSION_TNT, EXPLOSION_CREEPER]
+      message: '&cResources drop only from the stone!'
+  COBBLESTONE:
+    - drop: COBBLESTONE
+    - drop: DIAMOND
+      tool: [IRON_PICKAXE, DIAMOND_PICKAXE]
+      chance: 1
+      quantity: 1
+      message: '&6&l+ &bDiamond'
+    - drop: REDSTONE
+      tool: [STONE_PICKAXE, IRON_PICKAXE, DIAMOND_PICKAXE]
+      chance: 4
+      quantity: 1
+      message: '&6&l+ &cRedstone'
+    - drop: GOLD_ORE
+      tool: [STONE_PICKAXE, IRON_PICKAXE, DIAMOND_PICKAXE]
+      chance: 6
+      quantity: 1
+      message: '&6&l+ &eZloto'
+    - drop: IRON_ORE
+      tool: [STONE_PICKAXE, IRON_PICKAXE, DIAMOND_PICKAXE]
+      chance: 7
+      quantity: 1
+      message: '&6&l+ &7Zelazo'
+    - drop: xp
+      tool: [STONE_PICKAXE, IRON_PICKAXE, DIAMOND_PICKAXE]
+      chance: 20
+      quantity: 2
+    - drop: COAL
+      tool: [STONE_PICKAXE, IRON_PICKAXE, DIAMOND_PICKAXE]
+      chance: 8
+      quantity: 2
+      message: '&6&l+ &8Wegiel'
+  STONE:
+    - drop: STONE
+    - drop: DIAMOND
+      tool: [IRON_PICKAXE, DIAMOND_PICKAXE]
+      chance: 1
+      quantity: 1
+      message: '&6&l+ &bDiamond'
+    - drop: REDSTONE_ORE
+      tool: [STONE_PICKAXE, IRON_PICKAXE, DIAMOND_PICKAXE]
+      chance: 4
+      quantity: 1
+      message: '&6&l+ &cRedstone'
+    - drop: GOLD_ORE
+      tool: [STONE_PICKAXE, IRON_PICKAXE, DIAMOND_PICKAXE]
+      chance: 6
+      quantity: 1
+      message: '&6&l+ &eZloto'
+    - drop: IRON_ORE
+      tool: [STONE_PICKAXE, IRON_PICKAXE, DIAMOND_PICKAXE]
+      chance: 7
+      quantity: 1
+      message: '&6&l+ &7Zelazo'
+    - drop: xp
+      tool: [STONE_PICKAXE, IRON_PICKAXE, DIAMOND_PICKAXE]
+      chance: 20
+      quantity: 2
+    - drop: COAL
+      tool: [STONE_PICKAXE, IRON_PICKAXE, DIAMOND_PICKAXE]
+      chance: 8
+      quantity: 2
+      message: '&6&l+ &8Wegiel'

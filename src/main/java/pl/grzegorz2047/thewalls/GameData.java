@@ -363,7 +363,7 @@ public class GameData {
         }
         for (Player p : Bukkit.getOnlinePlayers()) {
             //nikt nie wygral
-             p.sendMessage(endMessage);
+             p.sendMessage(messageManager.getMessage(gameUsers.getGameUser(p.getName()).getLanguage(),endMessage));
         }
         status = GameStatus.RESTARTING;
         Bukkit.getScheduler().runTaskLater(plugin, () -> {

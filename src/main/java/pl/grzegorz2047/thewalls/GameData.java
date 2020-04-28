@@ -202,11 +202,12 @@ public class GameData {
         p.setLevel(0);
         p.setFlying(false);
         p.setAllowFlight(false);
-        inventory.setItem(0, CreateItemUtil.createItem(Material.BOOK, 1, "§7Klasy"));
-        inventory.setItem(2, CreateItemUtil.createItem(Material.GREEN_WOOL, 1, "§aZieloni"));
-        inventory.setItem(3, CreateItemUtil.createItem(Material.LIGHT_BLUE_WOOL, 1, "§bNiebiescy"));
-        inventory.setItem(4, CreateItemUtil.createItem(Material.RED_WOOL, 1, "§cCzerwoni"));
-        inventory.setItem(5, CreateItemUtil.createItem(Material.YELLOW_WOOL, 1, "§eŻółci"));
+        inventory.setItem(0, CreateItemUtil.createItem(Material.GREEN_WOOL, 1, "§aZieloni"));
+        inventory.setItem(1, CreateItemUtil.createItem(Material.LIGHT_BLUE_WOOL, 1, "§bNiebiescy"));
+        inventory.setItem(2, CreateItemUtil.createItem(Material.RED_WOOL, 1, "§cCzerwoni"));
+        inventory.setItem(3, CreateItemUtil.createItem(Material.YELLOW_WOOL, 1, "§eŻółci"));
+        inventory.setItem(5, CreateItemUtil.createItem(Material.BOOK, 1, "§7Klasy"));
+
         inventory.setItem(8, CreateItemUtil.createItem(Material.FEATHER, 1, "§cZmień Język/Language"));
     }
 

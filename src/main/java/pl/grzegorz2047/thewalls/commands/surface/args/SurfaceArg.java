@@ -4,10 +4,7 @@ import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import pl.grzegorz2047.databaseapi.messages.MessageAPI;
-import pl.grzegorz2047.thewalls.Counter;
-import pl.grzegorz2047.thewalls.GameData;
-import pl.grzegorz2047.thewalls.GameUser;
-import pl.grzegorz2047.thewalls.TheWalls;
+import pl.grzegorz2047.thewalls.*;
 import pl.grzegorz2047.thewalls.api.command.Arg;
 
 /**
@@ -17,16 +14,18 @@ public class SurfaceArg implements Arg {
 
     private final GameData gameData;
     private final MessageAPI messageManager;
+    private GameUsers gameUsers;
 
-    public SurfaceArg(GameData gameData, MessageAPI messageManager) {
+    public SurfaceArg(GameData gameData, MessageAPI messageManager, GameUsers gameUsers) {
         this.gameData = gameData;
         this.messageManager = messageManager;
+        this.gameUsers = gameUsers;
     }
 
     @Override
     public void execute(CommandSender sender, String[] args) {
         Player p = (Player) sender;
-        GameUser user = gameData.getGameUser(p.getName());
+        GameUser user = gameUsers.getGameUser(p.getName());
         String language = user.getLanguage();
         if (!gameData.isStatus(GameData.GameStatus.INGAME)) {
             p.sendMessage(messageManager.getMessage(language, "thewalls.msg.surfacenotavailableyet"));

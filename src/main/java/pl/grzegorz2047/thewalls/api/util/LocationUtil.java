@@ -60,6 +60,7 @@ public class LocationUtil {
     }
 
     public static Location entityStringToLocation(String world, String loc) throws IncorrectDataStringException {
+        System.out.println(world + " loc " + loc);
         String[] split = loc.split(":");
         if (split.length != 5) {
             throw new IncorrectDataStringException("Podales niepoprawy ciag znakow dlugosc  5 !=" + split.length);

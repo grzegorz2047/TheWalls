@@ -6,9 +6,8 @@ import pl.grzegorz2047.databaseapi.messages.MessageAPI;
 import pl.grzegorz2047.thewalls.Counter;
 import pl.grzegorz2047.thewalls.GameData;
 import pl.grzegorz2047.thewalls.GameUser;
+import pl.grzegorz2047.thewalls.GameUsers;
 import pl.grzegorz2047.thewalls.api.command.Arg;
-
-import java.util.HashMap;
 
 /**
  * Created by grzeg on 17.05.2016.
@@ -16,22 +15,22 @@ import java.util.HashMap;
 public class StartArg implements Arg {
 
     private final GameData gameData;
-    private final HashMap<String, GameUser> gameUsers;
     private final MessageAPI messageManager;
     private final Counter counter;
+    private GameUsers gameUsers;
 
-    public StartArg(GameData gameData, MessageAPI messageManager) {
+    public StartArg(GameData gameData, MessageAPI messageManager, GameUsers gameUsers) {
         this.messageManager = messageManager;
         this.gameData = gameData;
-        gameUsers = gameData.getGameUsers();
         counter = gameData.getCounter();
+        this.gameUsers = gameUsers;
     }
 
     @Override
     public void execute(CommandSender sender, String[] args) {
         Player p = (Player) sender;
         String username = p.getName();
-        GameUser user = gameUsers.get(username);
+        GameUser user = gameUsers.getGameUser(username);
         if (!gameData.isStatus(GameData.GameStatus.WAITING)) {
             p.sendMessage(messageManager.getMessage(user.getLanguage(), "thewalls.msg.alreadystarted"));
             return;

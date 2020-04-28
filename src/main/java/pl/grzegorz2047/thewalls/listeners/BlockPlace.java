@@ -13,6 +13,7 @@ import pl.grzegorz2047.databaseapi.messages.MessageAPI;
 import pl.grzegorz2047.thewalls.Counter;
 import pl.grzegorz2047.thewalls.GameData;
 import pl.grzegorz2047.thewalls.GameUser;
+import pl.grzegorz2047.thewalls.GameUsers;
 
 import java.util.Arrays;
 import java.util.List;
@@ -25,9 +26,13 @@ public class BlockPlace implements Listener {
     private final GameData gameData;
     private final Counter counter;
     private final MessageAPI messageManager;
+    private GameUsers gameUsers;
+    private StorageProtection storageProtection;
 
-    public BlockPlace(GameData gameData, MessageAPI messageManager) {
+    public BlockPlace(GameData gameData, MessageAPI messageManager, GameUsers gameUsers, StorageProtection storageProtection) {
         this.gameData = gameData;
+        this.gameUsers = gameUsers;
+        this.storageProtection = storageProtection;
         counter = this.gameData.getCounter();
         this.messageManager = messageManager;
     }
@@ -45,19 +50,19 @@ public class BlockPlace implements Listener {
 
             String username = player.getName();
             if (list.contains(blockType)) {
-                GameUser user = gameData.getGameUser(username);
+                GameUser user = gameUsers.getGameUser(username);
                 player.sendMessage(messageManager.getMessage(user.getLanguage(), "thewalls.msg.cantuseitnow"));
                 e.setCancelled(true);
                 return;
             }
             if (blockType.equals(Material.FURNACE)) {
-                GameUser user = gameData.getGameUser(username);
+                GameUser user = gameUsers.getGameUser(username);
                 String language = user.getLanguage();
                 if (exceedsNumberOfProtectedFurnaces(user)) {
                     player.sendMessage(messageManager.getMessage(language, "thewalls.msg.furnacenotprotected"));
                     return;
                 } else {
-                    gameData.protectNewFurnace(blockLocation, username, user);
+                    storageProtection.protectNewFurnace(blockLocation, username, user);
                     player.sendMessage(messageManager.getMessage(language, "thewalls.msg.furnacenowprotected"));
                     return;
                 }

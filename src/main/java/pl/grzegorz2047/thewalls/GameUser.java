@@ -14,6 +14,7 @@ import java.util.List;
  */
 public class GameUser extends SQLUser {
 
+    private final GameUsers gameUsers;
     private int money;
     private boolean spectator;
     private GameTeam assignedTeam;
@@ -24,16 +25,18 @@ public class GameUser extends SQLUser {
     private List<Material> boughtTempItems = new ArrayList<Material>();
     private int protectedFurnaces = 0;
 
-    public GameUser(int userid, String username, String language, String lastip, int exp, boolean pets, boolean effects, boolean disguise, String rank, long rankto) {
+    public GameUser(int userid, String username, String language, String lastip, int exp, boolean pets, boolean effects, boolean disguise, String rank, long rankto, GameUsers gameUsers) {
         super(userid, username, language, lastip, exp, pets, effects, disguise, rank, rankto);
+        this.gameUsers = gameUsers;
     }
 
-    public GameUser(SQLUser user, StatsUser statsUser, List<Transaction> transactions, int money) {
+    public GameUser(SQLUser user, StatsUser statsUser, List<Transaction> transactions, int money, GameUsers gameUsers) {
         super(user.getUserid(), user.getUsername(), user.getLanguage(),
-                user.getLastip(), user.getExp(), user.hasPets(), user.hasEffects(),user.hasDisguise(), user.getRank(), user.getRankto());
+                user.getLastip(), user.getExp(), user.hasPets(), user.hasEffects(), user.hasDisguise(), user.getRank(), user.getRankto());
         this.money = money;
         this.statsUser = statsUser;
         this.transactions = transactions;
+        this.gameUsers = gameUsers;
     }
 
     public int getMoney() {
@@ -42,6 +45,7 @@ public class GameUser extends SQLUser {
 
     public void changeMoney(int change) {
         this.money += change;
+        gameUsers.changePlayerMoney(getUsername(), change);
     }
 
     public boolean isSpectator() {
@@ -72,12 +76,9 @@ public class GameUser extends SQLUser {
         return ingameKills;
     }
 
-    public void setIngameKills(int ingameKills) {
-        this.ingameKills = ingameKills;
-    }
-
     public void increaseIngameKills(int ingameKills) {
         this.ingameKills += ingameKills;
+        gameUsers.increaseValueBy(getUsername(), "kills", 1);
     }
 
 
@@ -96,6 +97,7 @@ public class GameUser extends SQLUser {
     public void setProtectedFurnaces(int protectedFurnaces) {
         this.protectedFurnaces = protectedFurnaces;
     }
+
     public int getLose() {
         return this.statsUser.getLose();
     }
@@ -112,4 +114,19 @@ public class GameUser extends SQLUser {
         return this.statsUser.getKills();
     }
 
+    public void addExp(int expForKill) {
+        gameUsers.changePlayerExp(getUsername(), expForKill);
+    }
+
+    public void addDeath() {
+        gameUsers.increaseValueBy(getUsername(), "deaths", 1);
+    }
+
+    public void addLostGame() {
+        gameUsers.increaseValueBy(getUsername(), "lose", 1);
+    }
+
+    public void addWonGame() {
+        gameUsers.increaseValueBy(getUsername(), "wins", 1);
+    }
 }

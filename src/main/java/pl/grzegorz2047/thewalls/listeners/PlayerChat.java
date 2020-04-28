@@ -9,9 +9,8 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerChatTabCompleteEvent;
 import pl.grzegorz2047.thewalls.GameData;
 import pl.grzegorz2047.thewalls.GameUser;
-import pl.grzegorz2047.thewalls.TheWalls;
+import pl.grzegorz2047.thewalls.GameUsers;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -23,11 +22,13 @@ public class PlayerChat implements Listener {
 
     private final HashMap<String, String> settings;
     private final GameData gameData;
+    private GameUsers gameUsers;
 
 
-    public PlayerChat(HashMap<String, String> settings, GameData gameData) {
+    public PlayerChat(HashMap<String, String> settings, GameData gameData, GameUsers gameUsers) {
         this.settings = settings;
         this.gameData = gameData;
+        this.gameUsers = gameUsers;
     }
 
     @EventHandler
@@ -37,7 +38,7 @@ public class PlayerChat implements Listener {
         }
         Player p = e.getPlayer();
         String playerName = p.getName();
-        GameUser user = gameData.getGameUser(playerName);
+        GameUser user = gameUsers.getGameUser(playerName);
         String userRank = user.getRank();
         String displayName = p.getDisplayName();
 

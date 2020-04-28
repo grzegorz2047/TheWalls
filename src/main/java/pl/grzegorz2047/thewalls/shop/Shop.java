@@ -10,6 +10,8 @@ import pl.grzegorz2047.databaseapi.SQLUser;
 import pl.grzegorz2047.databaseapi.messages.MessageAPI;
 import pl.grzegorz2047.databaseapi.shop.Item;
 import pl.grzegorz2047.databaseapi.shop.ShopAPI;
+import pl.grzegorz2047.databaseapi.shop.Transaction;
+import pl.grzegorz2047.thewalls.GameUser;
 import pl.grzegorz2047.thewalls.api.util.CreateItemUtil;
 
 import java.util.ArrayList;
@@ -78,7 +80,7 @@ public class Shop {
         Inventory inv = Bukkit.createInventory(null, 9, "Main");
         inv.setItem(3, CreateItemUtil.createItem(Material.QUARTZ, msg.getMessage(user.getLanguage(), "shop.item.tempitems")));
         inv.setItem(5, CreateItemUtil.createItem(Material.MAGMA_CREAM, msg.getMessage(user.getLanguage(), "shop.item.permitems")));
-            p.openInventory(inv);
+        p.openInventory(inv);
 
     }
 
@@ -88,5 +90,15 @@ public class Shop {
 
     public HashMap<Integer, Item> getTempItems() {
         return tempItems;
+    }
+
+    public void givePermItems(Player p, GameUser user) {
+        for (Transaction t : user.getTransactions()) {
+            Item perm = getNormalItems().get(t.getItemid());
+            if (perm != null) {
+                p.getInventory().addItem(perm.toItemStack());
+            }
+        }
+
     }
 }

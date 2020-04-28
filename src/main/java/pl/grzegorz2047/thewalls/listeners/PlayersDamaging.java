@@ -11,7 +11,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.projectiles.ProjectileSource;
 import pl.grzegorz2047.thewalls.GameData;
 import pl.grzegorz2047.thewalls.GameUser;
-import pl.grzegorz2047.thewalls.TheWalls;
+import pl.grzegorz2047.thewalls.GameUsers;
 
 /**
  * Created by grzeg on 17.05.2016.
@@ -19,12 +19,12 @@ import pl.grzegorz2047.thewalls.TheWalls;
 public class PlayersDamaging implements Listener {
 
 
-
     private final GameData gameData;
+    private GameUsers gameUsers;
 
-    public PlayersDamaging(GameData gameData) {
-
+    public PlayersDamaging(GameData gameData, GameUsers gameUsers) {
         this.gameData = gameData;
+        this.gameUsers = gameUsers;
     }
 
     @EventHandler
@@ -43,8 +43,8 @@ public class PlayersDamaging implements Listener {
             if (event.getEntity() instanceof Player) {
                 Player attacked = (Player) event.getEntity();
                 Player attacker = (Player) event.getDamager();
-                GameUser attackedUser = gameData.getGameUser(attacked.getName());
-                GameUser attackerUser = gameData.getGameUser(attacker.getName());
+                GameUser attackedUser = gameUsers.getGameUser(attacked.getName());
+                GameUser attackerUser = gameUsers.getGameUser(attacker.getName());
                 if (checkIfTheSameTeam(attackedUser, attackerUser)) {
                     event.setCancelled(true);
                 }
@@ -57,8 +57,8 @@ public class PlayersDamaging implements Listener {
                 if (attackerEntity instanceof Player) {
                     Player attacker = (Player) attackerEntity;
 
-                    GameUser attackedUser = gameData.getGameUser(attacked.getName());
-                    GameUser attackerUser = gameData.getGameUser(attacker.getName());
+                    GameUser attackedUser = gameUsers.getGameUser(attacked.getName());
+                    GameUser attackerUser = gameUsers.getGameUser(attacker.getName());
                     if (checkIfTheSameTeam(attackedUser, attackerUser)) {
                         event.setCancelled(true);
                     }
@@ -71,8 +71,8 @@ public class PlayersDamaging implements Listener {
 
                 if (attackerEntity instanceof Player) {
                     Player attacker = (Player) attackerEntity;
-                    GameUser attackedUser = gameData.getGameUser(attacked.getName());
-                    GameUser attackerUser = gameData.getGameUser(attacker.getName());
+                    GameUser attackedUser = gameUsers.getGameUser(attacked.getName());
+                    GameUser attackerUser = gameUsers.getGameUser(attacker.getName());
                     if (checkIfTheSameTeam(attackedUser, attackerUser)) {
                         event.setCancelled(true);
                     }
@@ -84,8 +84,8 @@ public class PlayersDamaging implements Listener {
                 ProjectileSource attackerEntity = ((Egg) event.getDamager()).getShooter();
                 if (attackerEntity instanceof Player) {
                     Player attacker = (Player) attackerEntity;
-                    GameUser attackedUser = gameData.getGameUser(attacked.getName());
-                    GameUser attackerUser = gameData.getGameUser(attacker.getName());
+                    GameUser attackedUser = gameUsers.getGameUser(attacked.getName());
+                    GameUser attackerUser = gameUsers.getGameUser(attacker.getName());
                     if (checkIfTheSameTeam(attackedUser, attackerUser)) {
                         event.setCancelled(true);
                     }

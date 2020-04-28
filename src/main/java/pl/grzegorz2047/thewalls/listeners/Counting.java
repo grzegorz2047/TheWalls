@@ -7,7 +7,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import pl.grzegorz2047.thewalls.Counter;
 import pl.grzegorz2047.thewalls.CountingEvent;
-import pl.grzegorz2047.thewalls.TheWalls;
+import pl.grzegorz2047.thewalls.GameUsers;
 import pl.grzegorz2047.thewalls.scoreboard.ScoreboardAPI;
 
 /**
@@ -16,9 +16,11 @@ import pl.grzegorz2047.thewalls.scoreboard.ScoreboardAPI;
 public class Counting implements Listener {
 
     private final ScoreboardAPI scoreboardAPI;
+    private GameUsers gameUsers;
 
-    public Counting(ScoreboardAPI scoreboardAPI) {
+    public Counting(ScoreboardAPI scoreboardAPI, GameUsers gameUsers) {
         this.scoreboardAPI = scoreboardAPI;
+        this.gameUsers = gameUsers;
     }
 
     @EventHandler
@@ -91,7 +93,7 @@ public class Counting implements Listener {
         }
 
         for (Player p : Bukkit.getOnlinePlayers()) {
-            scoreboardAPI.updateDisplayName(time, p);
+            scoreboardAPI.updateDisplayName(time, p, gameUsers.getNumberOfPlayers());
         }
     }
 

@@ -14,7 +14,7 @@ import pl.grzegorz2047.databaseapi.shop.ShopAPI;
 import pl.grzegorz2047.databaseapi.shop.Transaction;
 import pl.grzegorz2047.thewalls.GameData;
 import pl.grzegorz2047.thewalls.GameUser;
-import pl.grzegorz2047.thewalls.TheWalls;
+import pl.grzegorz2047.thewalls.GameUsers;
 import pl.grzegorz2047.thewalls.api.itemmenu.event.ChooseItemEvent;
 import pl.grzegorz2047.thewalls.playerclass.ClassManager;
 import pl.grzegorz2047.thewalls.scoreboard.ScoreboardAPI;
@@ -37,14 +37,18 @@ public class ChooseItem implements Listener {
     private final MoneyAPI moneyManager;
     private final ShopAPI shopManager;
     private final ScoreboardAPI scoreboardAPI;
+    private final ClassManager classManager;
+    private GameUsers gameUsers;
 
-    public ChooseItem(MessageAPI messageManager, GameData gameData, Shop shopMenuManager, ScoreboardAPI scoreboardAPI, MoneyAPI moneyManager, ShopAPI shopManager) {
+    public ChooseItem(MessageAPI messageManager, GameData gameData, Shop shopMenuManager, ScoreboardAPI scoreboardAPI, MoneyAPI moneyManager, ShopAPI shopManager, ClassManager classManager, GameUsers gameUsers) {
         this.gameData = gameData;
         this.messageManager = messageManager;
         this.shopMenuManager = shopMenuManager;
         this.moneyManager = moneyManager;
         this.shopManager = shopManager;
         this.scoreboardAPI = scoreboardAPI;
+        this.classManager = classManager;
+        this.gameUsers = gameUsers;
     }
 
 
@@ -67,9 +71,9 @@ public class ChooseItem implements Listener {
             String playerName = p.getName();
             if (title.equals("Kits")) {
                 e.setCancelled(true);
-                GameUser user = gameData.getGameUser(playerName);
+                GameUser user = gameUsers.getGameUser(playerName);
                 ClassManager.CLASS kit = null;
-                ClassManager classManager = gameData.getClassManager();
+                ClassManager classManager = this.classManager;
                 HashMap<String, ClassManager.CLASS> playerClasses = classManager.getPlayerClasses();
                 if (clickedType.equals(Material.IRON_SWORD)) {
                     playerClasses.put(playerName, ClassManager.CLASS.WOJOWNIK);
@@ -105,11 +109,11 @@ public class ChooseItem implements Listener {
             if (title.equals("Main")) {
                 e.setCancelled(true);
                 if (clickedType.equals(Material.QUARTZ)) {
-                    GameUser user = gameData.getGameUser(playerName);
+                    GameUser user = gameUsers.getGameUser(playerName);
                     shopMenuManager.openTempItems(p, user, messageManager);
                 }
                 if (clickedType.equals(Material.MAGMA_CREAM)) {
-                    GameUser user = gameData.getGameUser(playerName);
+                    GameUser user = gameUsers.getGameUser(playerName);
                     shopMenuManager.openPermItems(p, user, messageManager);
                 }
                 return;
@@ -117,7 +121,7 @@ public class ChooseItem implements Listener {
             //System.out.println("D");
             PlayerInventory playerInventory = p.getInventory();
             if (title.equals("Perm items")) {
-                GameUser user = gameData.getGameUser(playerName);
+                GameUser user = gameUsers.getGameUser(playerName);
                 e.setCancelled(true);
 
                 int slot = e.getSlot();
@@ -154,7 +158,7 @@ public class ChooseItem implements Listener {
                 }
             }
             if (title.equals("Temp items")) {
-                GameUser user = gameData.getGameUser(playerName);
+                GameUser user = gameUsers.getGameUser(playerName);
                 e.setCancelled(true);
 
                 int slot = e.getSlot();

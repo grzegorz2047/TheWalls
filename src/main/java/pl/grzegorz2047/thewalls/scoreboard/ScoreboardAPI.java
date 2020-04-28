@@ -6,10 +6,9 @@ import org.bukkit.scoreboard.*;
 import pl.grzegorz2047.databaseapi.messages.MessageAPI;
 import pl.grzegorz2047.thewalls.GameData;
 import pl.grzegorz2047.thewalls.GameUser;
-import pl.grzegorz2047.thewalls.TheWalls;
+import pl.grzegorz2047.thewalls.GameUsers;
 
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by s416045 on 2016-04-19.
@@ -34,9 +33,14 @@ public class ScoreboardAPI {
     }
 
 
-    public void createWaitingScoreboard(Player p, int money, int kills, int deaths, int wins, int lose, String userLanguage) {
+    public void createWaitingScoreboard(Player p, GameUser gameUser) {
         Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
-
+        int money = gameUser.getMoney();
+        int kills = gameUser.getKills();
+        int deaths = gameUser.getDeaths();
+        int wins = gameUser.getWins();
+        int lose = gameUser.getLose();
+        String userLanguage = gameUser.getLanguage();
         Objective objective = scoreboard.registerNewObjective("sidebar", "dummy");
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
         objective.setDisplayName("§6§l *** TheWalls ***");
@@ -95,13 +99,14 @@ public class ScoreboardAPI {
         addEntry(scoreboard, objective, team3Label, "0", 6);
         addEntry(scoreboard, objective, team4Label, "0", 5);
         addEntry(scoreboard, objective, "§   ", "", 4);
-        addEntry(scoreboard, objective, this.messageManager.getMessage(user.getLanguage(), "thewalls.scoreboard.kills"), String.valueOf(0), 3);
-        addEntry(scoreboard, objective, this.messageManager.getMessage(user.getLanguage(), "thewalls.scoreboard.money"), String.valueOf(user.getMoney()), 2);
+        String language = user.getLanguage();
+        addEntry(scoreboard, objective, this.messageManager.getMessage(language, "thewalls.scoreboard.kills"), String.valueOf(0), 3);
+        addEntry(scoreboard, objective, this.messageManager.getMessage(language, "thewalls.scoreboard.money"), String.valueOf(user.getMoney()), 2);
         //addEntry(scoreboard, objective, "§bTEAM2§6", "0", 3);
         //addEntry(scoreboard, objective, "§cTEAM3§6", "0", 2);
         //addEntry(scoreboard, objective, "§eTEAM4§6", "0", 2);
         addEntry(scoreboard, objective, "§    ", "", 1);
-        String websiteInfo = this.messageManager.getMessage(user.getLanguage(), "scoreboard.website.address");
+        String websiteInfo = this.messageManager.getMessage(language, "scoreboard.website.address");
         addEntry(scoreboard, objective, websiteInfo, "", 0);
         Team t1 = scoreboard.registerNewTeam("team1");
         t1.setPrefix("§a");
@@ -114,7 +119,7 @@ public class ScoreboardAPI {
         p.setScoreboard(scoreboard);
     }
 
-    public void createJoinSpectatorScoreboard(Player p, GameUser gameUser) {
+    public void createJoinSpectatorScoreboard(Player p, GameUser gameUser, GameUsers gameUsers) {
         Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
 
         Objective objective = scoreboard.registerNewObjective("sidebar", "dummy");
@@ -146,10 +151,10 @@ public class ScoreboardAPI {
         System.out.print(
                 "DDDD spect"
         );
-        refreshTags(p);
+        refreshTags(p, gameUsers);
     }
 
-    public void refreshTags(Player p) {
+    public void refreshTags(Player p, GameUsers gameUsers) {
         Scoreboard sc = p.getScoreboard();
         Team t1 = sc.getTeam("team1");
         t1.setPrefix("§a");
@@ -159,8 +164,8 @@ public class ScoreboardAPI {
         t3.setPrefix("§c");
         Team t4 = sc.getTeam("team4");
         t4.setPrefix("§e");
-        Set<Map.Entry<String, GameUser>> arenaUsers = gameData.getArenaUsers();
-        for (Map.Entry<String, GameUser> entry : arenaUsers) {
+
+        for (Map.Entry<String, GameUser> entry : gameUsers.getArenaUsers()) {
             GameUser user = entry.getValue();
             if (user.isSpectator()) {
                 continue;
@@ -241,12 +246,11 @@ public class ScoreboardAPI {
         updateTabListEntry(scoreboard, name, color);
     }
 
-    public void updateDisplayName(int time, Player p) {
+    public void updateDisplayName(int time, Player p, int numberOfPlayers) {
         Scoreboard scoreboard = p.getScoreboard();
         Objective sidebar = scoreboard.getObjective(DisplaySlot.SIDEBAR);
         String formattedTime = formatIntoHHMMSS(time);
         int arenaNumber = Bukkit.getPort() % 10;
-        int numberOfPlayers = this.gameData.getNumberOfPlayers();
         int maxPlayers = Bukkit.getMaxPlayers();
         String displayName = "§a" + formattedTime + " §6TheWalls #" + arenaNumber + " §a" + numberOfPlayers + "/" + maxPlayers;
         sidebar.setDisplayName(displayName);

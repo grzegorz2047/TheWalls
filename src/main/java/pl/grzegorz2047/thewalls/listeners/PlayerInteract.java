@@ -15,6 +15,8 @@ import pl.grzegorz2047.databaseapi.messages.MessageAPI;
 import pl.grzegorz2047.thewalls.Counter;
 import pl.grzegorz2047.thewalls.GameData;
 import pl.grzegorz2047.thewalls.GameUser;
+import pl.grzegorz2047.thewalls.GameUsers;
+import pl.grzegorz2047.thewalls.playerclass.ClassManager;
 import pl.grzegorz2047.thewalls.shop.Shop;
 
 import java.util.Arrays;
@@ -30,12 +32,19 @@ public class PlayerInteract implements Listener {
     private final MessageAPI messageManager;
     private final Counter counter;
     private final Shop shopMenuManager;
+    private final ClassManager classManager;
+    private final StorageProtection storageProtection;
+    private GameUsers gameUsers;
 
-    public PlayerInteract(GameData gameData, MessageAPI messageManager, Shop shopMenuManager) {
+
+    public PlayerInteract(GameData gameData, MessageAPI messageManager, Shop shopMenuManager, ClassManager classManager, StorageProtection storageProtection, GameUsers gameUsers) {
         this.gameData = gameData;
         this.messageManager = messageManager;
+        this.storageProtection = storageProtection;
+        this.gameUsers = gameUsers;
         counter = this.gameData.getCounter();
         this.shopMenuManager = shopMenuManager;
+        this.classManager = classManager;
     }
 
     @EventHandler
@@ -74,7 +83,7 @@ public class PlayerInteract implements Listener {
             }
 
             if (itemInHandType.equals(Material.BOOK)) {
-                player.openInventory(gameData.getClassManager().getClassMenu());
+                player.openInventory(classManager.getClassMenu());
                 return;
             }
 
@@ -82,7 +91,7 @@ public class PlayerInteract implements Listener {
 
         String playerName = player.getName();
         if (itemInHandType.equals(Material.NETHER_STAR)) {
-            GameUser user = gameData.getGameUser(playerName);
+            GameUser user = gameUsers.getGameUser(playerName);
             if (!gameData.isStatus(GameData.GameStatus.INGAME)) {
                 player.sendMessage(messageManager.getMessage(user.getLanguage(), "thewalls.shoponlyingame"));
                 return;
@@ -94,7 +103,7 @@ public class PlayerInteract implements Listener {
         }
         if (itemInHandType.equals(Material.ENDER_PEARL)) {
             if (counter.getStatus().equals(Counter.CounterStatus.COUNTINGTODROPWALLS)) {
-                GameUser user = gameData.getGameUser(playerName);
+                GameUser user = gameUsers.getGameUser(playerName);
                 player.sendMessage(messageManager.getMessage(user.getLanguage(), "thewalls.msg.cantplacelava"));
                 event.setCancelled(true);
                 return;
@@ -104,7 +113,7 @@ public class PlayerInteract implements Listener {
         if (clickedBlock == null) {
             return;
         }
-        boolean isChestOwner = gameData.isChestOwner(player, playerName, clickedBlock);
+        boolean isChestOwner = storageProtection.isChestOwner(player, playerName, clickedBlock);
         if (!isChestOwner) {
             event.setCancelled(true);
             return;
@@ -115,6 +124,8 @@ public class PlayerInteract implements Listener {
         }
         handleChestOpen(player, clickedBlock);
     }
+
+
 
     private void handleChestOpen(Player player, Block clickedBlock) {
         Chest cb = (Chest) clickedBlock.getState();

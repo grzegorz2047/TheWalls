@@ -1,6 +1,8 @@
 package pl.grzegorz2047.thewalls;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
 import pl.grzegorz2047.thewalls.api.exception.IncorrectDataStringException;
 import pl.grzegorz2047.thewalls.api.util.LocationUtil;
 
@@ -12,45 +14,52 @@ import java.util.Map;
  */
 public class GameLocationLoader {
 
-
     private Map<GameData.GameTeam, Location> teamSpawnLocations = new HashMap<>();
+    private Map<GameData.GameTeam, Location> dmTeamSpawnLocations = new HashMap<>();
     private final HashMap<String, String> settings;
-    private String spawnTeam1;
-    private String spawnTeam2;
-    private String spawnTeam3;
-    private String spawnTeam4;
 
-    public GameLocationLoader(HashMap<String, String> settings) {
+    public GameLocationLoader(HashMap<String, String> settings, String worldName) {
         this.settings = settings;
-        spawnTeam1 = settings.get("thewalls.spawns.team." + 1);
-        spawnTeam2 = settings.get("thewalls.spawns.team." + 2);
-        spawnTeam3 = settings.get("thewalls.spawns.team." + 3);
-        spawnTeam4 = settings.get("thewalls.spawns.team." + 4);
+        String spawnPath = "thewalls.spawns.team.";
+        for (int i = 1; i <= 4; i++) {
+            try {
+                GameData.GameTeam fromNumber = GameData.GameTeam.fromNumber(i);
+                dmTeamSpawnLocations.put(fromNumber, getTeamDmSpawn(i, worldName));
+                teamSpawnLocations.put(fromNumber, getSpawn(worldName, settings.get(spawnPath + i)));
+            } catch (IncorrectDataStringException e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
+
+    private Location getSpawn(String worldName, String locPath) throws IncorrectDataStringException {
+        return LocationUtil.entityStringToLocation(worldName, locPath);
     }
 
     public Location getStartLocation(GameData.GameTeam team) {
         return teamSpawnLocations.get(team);
     }
 
-    public void loadSpawns(String worldName) {
-        teamSpawnLocations = new HashMap<>();
-        try {
-            teamSpawnLocations.put(GameData.GameTeam.TEAM1, LocationUtil.entityStringToLocation(
-                    worldName,
-                    spawnTeam1));
-            teamSpawnLocations.put(GameData.GameTeam.TEAM2, LocationUtil.entityStringToLocation(
-                    worldName,
-                    spawnTeam2));
-            teamSpawnLocations.put(GameData.GameTeam.TEAM3, LocationUtil.entityStringToLocation(
-                    worldName,
-                    spawnTeam3));
 
-            teamSpawnLocations.put(GameData.GameTeam.TEAM4, LocationUtil.entityStringToLocation(
-                    worldName,
-                    spawnTeam4));
-        } catch (IncorrectDataStringException e) {
-            e.printStackTrace();
+    private Location getTeamDmSpawn(int i, String worldName) throws IncorrectDataStringException {
+        return getSpawn(worldName, settings.get("thewalls.spawns.dm.team." + i));
+    }
+
+    public void teleportToDeathMatch(Player p, GameData.GameTeam assignedTeam) {
+        p.teleport(dmTeamSpawnLocations.get(assignedTeam));
+    }
+
+    public void teleportPlayersOnDeathMatch(GameUsers gameUsers) {
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            GameUser gameUser = gameUsers.getGameUser(p.getName());
+            if (gameUser.getAssignedTeam() == null) {
+                p.teleport(dmTeamSpawnLocations.get(GameData.GameTeam.TEAM1));
+                continue;
+            }
+            teleportToDeathMatch(p, gameUser.getAssignedTeam());
         }
     }
+
 
 }

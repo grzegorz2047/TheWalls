@@ -16,6 +16,7 @@ import org.bukkit.entity.LivingEntity;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -27,13 +28,15 @@ public class WorldManagement {
     private static World loadedWorld;
     private static Random r = new Random();
     private final int numberOfMaps;
+    private final HashMap<String, String> settings;
 
     private GameLocationLoader gameLocationLoader;
 
-    public WorldManagement(int numberOfMaps, GameLocationLoader gameLocationLoader) {
+    public WorldManagement(int numberOfMaps, HashMap<String, String> settings) {
         this.numberOfMaps = numberOfMaps;
+        this.settings = settings;
 
-     }
+    }
 
     public void loadWorld(String mapName) {
         loadedWorld = Bukkit.createWorld(new WorldCreator(mapName));
@@ -47,11 +50,14 @@ public class WorldManagement {
         loadedWorld.setTime(0);
         loadedWorld.setStorm(false);
         loadedWorld.setThundering(true);
+        loadedWorld.setKeepSpawnInMemory(true);
         loadedWorld.setSpawnLocation(0, 147, 0);
         List<LivingEntity> livingEntities = loadedWorld.getLivingEntities();
         for (Entity e : livingEntities) {
             e.remove();
         }
+        this.gameLocationLoader = new GameLocationLoader(settings, mapName);
+
     }
 
     public void disableSaving() {
@@ -67,7 +73,6 @@ public class WorldManagement {
             }
             w.setKeepSpawnInMemory(false);
             boolean b = Bukkit.unloadWorld(w, false);
-            System.out.println("unload world " + w.getName() + " " + b);
             loadedWorld = null;
         }
         int randomised = r.nextInt(numberOfMaps);
@@ -76,8 +81,6 @@ public class WorldManagement {
         String mainOutputWorldName = "walls_mapa";
         String destWorldPath = Bukkit.getWorldContainer().getAbsolutePath() + File.separator + mainOutputWorldName;
         String scrFolder = "/home/mcserver/minigames/TheWalls/Mapy";
-        System.out.println(mapToLoad);
-        System.out.println(destWorldPath);
         try {
             FileUtils.deleteDirectory(new File(destWorldPath));
         } catch (IOException e) {
@@ -89,8 +92,6 @@ public class WorldManagement {
             e.printStackTrace();
         }
         loadWorld(mainOutputWorldName);
-        gameLocationLoader.loadSpawns(this.getLoadedWorldName());
-
     }
 
 
@@ -206,5 +207,9 @@ public class WorldManagement {
 
     public Location getStartLocation(GameData.GameTeam assignedTeam) {
         return gameLocationLoader.getStartLocation(assignedTeam);
+    }
+
+    public void teleportPlayersOnDeathMatch(GameUsers gameusers) {
+        gameLocationLoader.teleportPlayersOnDeathMatch(gameusers);
     }
 }

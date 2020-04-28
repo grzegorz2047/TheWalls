@@ -7,6 +7,7 @@ import org.bukkit.plugin.Plugin;
 import pl.grzegorz2047.databaseapi.messages.MessageAPI;
 import pl.grzegorz2047.thewalls.GameData;
 import pl.grzegorz2047.thewalls.GameUser;
+import pl.grzegorz2047.thewalls.GameUsers;
 import pl.grzegorz2047.thewalls.TheWalls;
 import pl.grzegorz2047.thewalls.api.command.Arg;
 import pl.grzegorz2047.thewalls.api.util.ColoringUtil;
@@ -20,9 +21,11 @@ public class TeamArg implements Arg {
     TheWalls plugin;
     private GameData gameData;
     private MessageAPI messageManager;
+    private GameUsers gameUsers;
 
-    public TeamArg(Plugin plugin) {
+    public TeamArg(Plugin plugin, GameUsers gameUsers) {
         this.plugin = (TheWalls) plugin;
+        this.gameUsers = gameUsers;
         gameData = this.plugin.getGameData();
         messageManager = this.plugin.getMessageManager();
 
@@ -32,7 +35,7 @@ public class TeamArg implements Arg {
     public void execute(CommandSender sender, String[] args) {
         Player p = (Player) sender;
         String username = p.getName();
-        GameUser user = gameData.getGameUser(username);
+        GameUser user = gameUsers.getGameUser(username);
         String userLanguage = user.getLanguage();
         if (gameData.isStatus(GameData.GameStatus.INGAME)) {
             String message = messageManager.getMessage(userLanguage, "thewalls.command.team.ingameerror");

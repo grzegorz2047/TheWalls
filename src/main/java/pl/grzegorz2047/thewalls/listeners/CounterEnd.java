@@ -1,12 +1,10 @@
 package pl.grzegorz2047.thewalls.listeners;
 
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import pl.grzegorz2047.databaseapi.messages.MessageAPI;
 import pl.grzegorz2047.thewalls.*;
-import pl.grzegorz2047.thewalls.api.util.BungeeUtil;
+import pl.grzegorz2047.thewalls.playerclass.ClassManager;
 import pl.grzegorz2047.thewalls.scoreboard.ScoreboardAPI;
 
 /**
@@ -18,19 +16,23 @@ public class CounterEnd implements Listener {
     private final ScoreboardAPI scoreboardAPI;
     private final GameData gameData;
     private final MessageAPI messageManager;
+    private final ClassManager classManager;
 
-    public CounterEnd(TheWalls plugin) {
+    public CounterEnd(TheWalls plugin, ClassManager classManager) {
         this.plugin = plugin;
         scoreboardAPI = plugin.getScoreboardAPI();
         gameData = plugin.getGameData();
         messageManager = plugin.getMessageManager();
+        this.classManager = classManager;
+
     }
 
     @EventHandler
     public void onCounterEnd(CounterEndEvent e) {
         Counter.CounterStatus status = e.getStatus();
         if (e.getStatus().equals(Counter.CounterStatus.COUNTINGTOSTART)) {
-            gameData.startGame(scoreboardAPI);
+
+            gameData.startGame(scoreboardAPI, classManager);
             return;
         }
         if (status.equals(Counter.CounterStatus.COUNTINGTODROPWALLS)) {

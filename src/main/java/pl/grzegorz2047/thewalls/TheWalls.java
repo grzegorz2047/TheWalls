@@ -78,7 +78,7 @@ public class TheWalls extends JavaPlugin {
         gameData = new GameData(this);
         scoreboardAPI = new ScoreboardAPI(messageManager, gameData);
         World loadedWorld = gameData.getWorldManagement().getLoadedWorld();
-        registerListeners(Bukkit.getPluginManager(), loadedMotd, loadedWorld, dropsMap);
+        registerListeners(Bukkit.getPluginManager(), loadedMotd, dropsMap);
         this.getCommand("team").setExecutor(new TeamCommand("team", new String[]{"team", "druzyna", "t", "d"}, this));
         this.getCommand("wyjdz").setExecutor(new SurfaceCommand("wyjdz", new String[]{"wyjdz", "surface"}, this, gameData, messageManager));
         this.getCommand("walls").setExecutor(new WallsCommand("walls", new String[]{"walls", "thewalls"}, this));
@@ -167,9 +167,9 @@ public class TheWalls extends JavaPlugin {
         return drop;
     }
 
-    private void registerListeners(PluginManager pluginManager, String loadedMotd, World loadedWorld, Map<Material, BlockDrop> dropsMap) {
+    private void registerListeners(PluginManager pluginManager, String loadedMotd, Map<Material, BlockDrop> dropsMap) {
 
-        pluginManager.registerEvents(new PlayerJoin(gameData, loadedWorld), this);
+        pluginManager.registerEvents(new PlayerJoin(gameData), this);
         pluginManager.registerEvents(new PlayerQuit(this), this);
         pluginManager.registerEvents(new PlayerLogin(playerManager, gameData, messageManager), this);
         pluginManager.registerEvents(new EntityExplode(this, dropsMap), this);

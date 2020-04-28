@@ -8,7 +8,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scoreboard.Scoreboard;
 import pl.grzegorz2047.databaseapi.*;
 import pl.grzegorz2047.databaseapi.messages.MessageAPI;
@@ -48,7 +47,7 @@ public class GameData {
     private int multiplier;
     private int expForKill;
     private int expForWin;
-    private StartGameLocationLoader startGameLocationLoader;
+
     private final StatsAPI statsManager;
     private boolean isCrackersAuthme = true;
 
@@ -65,18 +64,17 @@ public class GameData {
         expForKill = Integer.parseInt(settings.get("thewalls.expforkill"));
         expForWin = Integer.parseInt(settings.get("thewalls.expforwin"));
         initializeArrays();
-        this.worldManagement = new WorldManagement();
+        this.settings = plugin.getSettings();
+        this.worldManagement = new WorldManagement(Integer.parseInt(settings.get("thewalls.numberofmaps")), new GameLocationLoader(settings));
         //WorldManagement.loadWorld(getSettings().get("thewalls.map.path"));
-        int numberOfMaps = Integer.parseInt(settings.get("thewalls.numberofmaps"));
-        worldManagement.loadWorld(numberOfMaps);
+        worldManagement.initNewWorld();
         worldManagement.disableSaving();
         classManager = new ClassManager(plugin);
-        startGameLocationLoader = new StartGameLocationLoader(plugin.getSettings()).loadSpawns(worldManagement);
 
         moneyManager = plugin.getMoneyManager();
         playerManager = plugin.getPlayerManager();
         messageManager = plugin.getMessageManager();
-        this.settings = plugin.getSettings();
+
         shopMenuManager = plugin.getShopMenuManager();
         statsManager = plugin.getStatsManager();
         shopManager = plugin.getShopManager();
@@ -165,9 +163,6 @@ public class GameData {
         return gameUsers.size() == 0;
     }
 
-    public String getLoadedWorldName() {
-        return worldManagement.getLoadedWorld().getName();
-    }
 
     public GameUser removePlayerFromGame(Player p) {
         return gameUsers.remove(p.getName());
@@ -186,10 +181,12 @@ public class GameData {
     }
 
 
-    public void addPlayerToArena(Player p, String playerName) {
+    public void addPlayerToArena(Player p) {
+        String playerName = p.getName();
         GameUser gameUser = addGameUser(playerName);
-        assignUserPermission(p, getLoadedWorldName(), gameUser);
-
+        assignUserPermission(p, getWorldManagement().getLoadedWorldName(), gameUser);
+        Location spawn = new Location(getWorldManagement().getLoadedWorld(), 0, 147, 0);
+        p.teleport(spawn);
         ScoreboardAPI scoreboardAPI = plugin.getScoreboardAPI();
         if (!isStatus(GameData.GameStatus.INGAME)) {
             checkToStart();
@@ -245,6 +242,10 @@ public class GameData {
         p.setFlying(false);
         p.setAllowFlight(false);
         inventory.setItem(0, CreateItemUtil.createItem(Material.BOOK, 1, "§7Klasy"));
+        inventory.setItem(2, CreateItemUtil.createItem(Material.GREEN_WOOL, 1, "§aZieloni"));
+        inventory.setItem(3, CreateItemUtil.createItem(Material.LIGHT_BLUE_WOOL, 1, "§bNiebiescy"));
+        inventory.setItem(4, CreateItemUtil.createItem(Material.RED_WOOL, 1, "§cCzerwoni"));
+        inventory.setItem(5, CreateItemUtil.createItem(Material.YELLOW_WOOL, 1, "§eŻółci"));
     }
 
     public boolean isChestOwner(Player player, String playerName, Block clickedBlock) {
@@ -265,7 +266,7 @@ public class GameData {
     public void handlePlayerQuit(Player p) {
         GameUser user = getGameUser(p.getName());
         //e.setQuitMessage(plugin.getMessageManager().getMessage(user.getLanguage(),"thewalls.msg.quit"));
-        makePlayerSpectator(user, p, getLoadedWorldName());
+        makePlayerSpectator(user, p, getWorldManagement().getLoadedWorldName());
         removePlayerFromGame(p);
         if (isStatus(GameData.GameStatus.WAITING)) {
             checkToStart();
@@ -274,7 +275,7 @@ public class GameData {
             }
         } else if (isStatus(GameData.GameStatus.INGAME)) {
             if (isArenaEmpty()) {
-                restartGame();
+                restartGame("thewalls.empty");
             }
             checkWinners();
         }
@@ -354,27 +355,8 @@ public class GameData {
     }
 
     public void setNobodyWin() {
-        for (Player p : Bukkit.getOnlinePlayers()) {
-            GameUser user = getGameUser(p.getName());
-            p.sendMessage(messageManager.getMessage(user.getLanguage(), "thewalls.nowinners"));
-        }
-        Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
-            @Override
-            public void run() {
-                for (Player p : Bukkit.getOnlinePlayers()) {
-                    //nikt nie wygral
-                    BungeeUtil.changeServer(plugin, p, "Lobby1");
-                }
-                restartGame();
-            }
-        }, 20 * 4);
-        Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
-            @Override
-            public void run() {
-                restartGame();
-            }
-        }, 20 * 8);
-        return;
+
+
     }
 
     public void removeFurnaceProtection(GameUser user, Location location) {
@@ -415,15 +397,26 @@ public class GameData {
         RESTARTING
     }
 
-    public void restartGame() {
-        for (Player p : Bukkit.getOnlinePlayers()) {
-            p.kickPlayer("Arena przygotowuje sie do nowej gry!");
+    public void restartGame(String s) {
+        if (status.equals(GameStatus.RESTARTING)) {
+            plugin.getLogger().info("bug?");
+            return;
         }
-        worldManagement.reloadLoadedWorld(settings.get("thewalls.numberofmaps"));
-        startGameLocationLoader = new StartGameLocationLoader(settings).loadSpawns(worldManagement);
-        initializeArrays();
-        status = GameStatus.WAITING;
-        this.counter.cancel();
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                //nikt nie wygral
+                BungeeUtil.changeServer(plugin, p, "Lobby1");
+                p.kickPlayer("Arena przygotowuje sie do nowej gry!");
+            }
+        }, 20l * 3);
+
+        status = GameStatus.RESTARTING;
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            worldManagement.initNewWorld();
+            initializeArrays();
+            status = GameStatus.WAITING;
+            this.counter.cancel();
+        }, 20l * 8);
         /*ArenaStatus.setStatus(ArenaStatus.Status.WAITING);
         ArenaStatus.setLore(
                 "\n§7§l> §a1.7 - 1.10"
@@ -526,7 +519,7 @@ public class GameData {
 
             assignUnassigedToTeams(p, user);
 
-            p.teleport(startGameLocationLoader.getStartLocation(user.getAssignedTeam()));
+            p.teleport(worldManagement.getStartLocation(user.getAssignedTeam()));
             if (!userRank.equals("Gracz")) {
                 p.setLevel(5);
                 String userLanguage = user.getLanguage();
@@ -620,27 +613,31 @@ public class GameData {
 
     public void startDeathMatch() {
         try {
-            String worldName = this.getWorldManagement().getLoadedWorld().getName();
-            Location dmloc1 = getTeamDmSpawn(worldName, 1);
-            Location dmloc2 = getTeamDmSpawn(worldName, 2);
-            Location dmloc3 = getTeamDmSpawn(worldName, 3);
-            Location dmloc4 = getTeamDmSpawn(worldName, 4);
-
-            for (Player p : Bukkit.getOnlinePlayers()) {
-                HashMap<String, GameUser> gameUsers = this.gameUsers;
-                GameUser user = gameUsers.get(p.getName());
-                if (user.getAssignedTeam() == null) {
-                    p.teleport(dmloc1);
-                    continue;
-                }
-                teleportToDeathMatch(dmloc1, dmloc2, dmloc3, dmloc4, p, user);
-            }
+            teleportPlayersOnDeathMatch();
             this.setStatus(GameStatus.INGAME);
             //ArenaStatus.setStatus(//ArenaStatus.Status.INGAME);
         } catch (IncorrectDataStringException e) {
             e.printStackTrace();
         }
         this.counter.start(Counter.CounterStatus.DEATHMATCH);
+    }
+
+    private void teleportPlayersOnDeathMatch() throws IncorrectDataStringException {
+        String worldName = this.getWorldManagement().getLoadedWorld().getName();
+        Location dmloc1 = getTeamDmSpawn(worldName, 1);
+        Location dmloc2 = getTeamDmSpawn(worldName, 2);
+        Location dmloc3 = getTeamDmSpawn(worldName, 3);
+        Location dmloc4 = getTeamDmSpawn(worldName, 4);
+
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            HashMap<String, GameUser> gameUsers = this.gameUsers;
+            GameUser user = gameUsers.get(p.getName());
+            if (user.getAssignedTeam() == null) {
+                p.teleport(dmloc1);
+                continue;
+            }
+            teleportToDeathMatch(dmloc1, dmloc2, dmloc3, dmloc4, p, user);
+        }
     }
 
     private Location getTeamDmSpawn(String worldName, int i) throws IncorrectDataStringException {
@@ -682,8 +679,8 @@ public class GameData {
     }
 
     public void checkWinners() {
-        int alive = 0;
         GameTeam team = null;
+        int alive = 0;
         Set<Map.Entry<GameTeam, ArrayList<String>>> teams = this.getTeams().entrySet();
         for (Map.Entry<GameTeam, ArrayList<String>> iteratedTeamData : teams) {
 
@@ -693,38 +690,17 @@ public class GameData {
                 team = iteratedTeamData.getKey();
             }
         }
-        BukkitScheduler scheduler = Bukkit.getScheduler();
         if (alive == 0) {
-            scheduler.runTaskLater(plugin, () -> {
-                for (Player p : Bukkit.getOnlinePlayers()) {
-                    //nikt nie wygral
-                    BungeeUtil.changeServer(plugin, p, "Lobby1");
-                }
-                status = GameStatus.RESTARTING;
-            }, 20 * 3);
-
-            scheduler.runTaskLater(plugin, this::restartGame, 20 * 10);
-
+            restartGame("thewalls.nowinners");
         } else if (alive == 1) {
-            final GameTeam finalTeam = team;
-            int moveEndPlCooldown = 20 * 3;
-            scheduler.runTaskLater(plugin, () -> {
-                for (Map.Entry<String, GameUser> user : getGameUsers().entrySet()) {
-                    String playerName = user.getKey();
-                    Player p = Bukkit.getPlayer(playerName);
-                    GameUser gameUser = user.getValue();
-                    String teamName = finalTeam.name().toLowerCase();
-                    p.sendMessage(messageManager.getMessage(gameUser.getLanguage(), "thewalls.game.win." + teamName));
-                    giveMoneyToWinners(user.getValue(), playerName);
-                    BungeeUtil.changeServer(plugin, p, "Lobby1");
-                }
-                status = GameStatus.RESTARTING;
-            }, moveEndPlCooldown);
-
-
-            int restartCooldown = 20 * 6;
-            scheduler.runTaskLater(plugin, this::restartGame, restartCooldown);
-
+            String teamName = team.name().toLowerCase();
+            for (Map.Entry<String, GameUser> user : getGameUsers().entrySet()) {
+                String playerName = user.getKey();
+                Player p = Bukkit.getPlayer(playerName);
+                GameUser gameUser = user.getValue();
+                giveMoneyToWinners(gameUser, playerName);
+            }
+            restartGame("thewalls.game.win." + teamName);
         }
     }
 

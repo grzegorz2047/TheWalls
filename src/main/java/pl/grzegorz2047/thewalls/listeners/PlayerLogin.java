@@ -31,20 +31,24 @@ public class PlayerLogin implements Listener {
 
         playerManager.insertPlayer(p.getName(), "127.0.0.1");
         SQLUser user = playerManager.getPlayer(p.getName());
+        PlayerLoginEvent.Result kickOtherResult = PlayerLoginEvent.Result.KICK_OTHER;
+
+        String userLanguage = user.getLanguage();
+        if (gameData.isStatus(GameData.GameStatus.RESTARTING)) {
+            e.disallow(kickOtherResult, messageManager.getMessage(userLanguage, "thewalls.login.restarting"));
+            return;
+        }
         String userRank = user.getRank();
         if (!userRank.equals("Gracz") && !userRank.equals("Vip") && !userRank.equals("Youtube") && !userRank.equals("miniYT")) {
             e.allow();
             return;
         }
-        String userLanguage = user.getLanguage();
-        PlayerLoginEvent.Result kickOtherResult = PlayerLoginEvent.Result.KICK_OTHER;
+
         if (gameData.isStatus(GameData.GameStatus.INGAME)) {
             if (userRank.equals("Gracz")) {
                 e.disallow(kickOtherResult, messageManager.getMessage(userLanguage, "thewalls.login.notspectator"));
                 return;
             }
-        } else if (gameData.isStatus(GameData.GameStatus.RESTARTING)) {
-            e.disallow(kickOtherResult, messageManager.getMessage(userLanguage, "thewalls.login.restarting"));
         } else {
             if (userRank.equals("Gracz")) {
                 if ((Bukkit.getMaxPlayers() - Bukkit.getOnlinePlayers().size()) < 5) {

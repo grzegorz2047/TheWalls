@@ -1,5 +1,6 @@
 package pl.grzegorz2047.thewalls.listeners;
 
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -50,12 +51,35 @@ public class PlayerInteract implements Listener {
             return;
         }
         Material itemInHandType = itemInHand.getType();
-        if (itemInHandType.equals(Material.BOOK)) {
-            if (!gameData.isStatus(GameData.GameStatus.INGAME)) {
+        if (!gameData.isStatus(GameData.GameStatus.INGAME)) {
+            if (itemInHandType.equals(Material.GREEN_WOOL)) {
+                Bukkit.dispatchCommand(player, "team 1");
+                event.setCancelled(true);
+                return;
+            }
+            if (itemInHandType.equals(Material.LIGHT_BLUE_WOOL)) {
+                Bukkit.dispatchCommand(player, "team 2");
+                event.setCancelled(true);
+                return;
+            }
+            if (itemInHandType.equals(Material.RED_WOOL)) {
+                Bukkit.dispatchCommand(player, "team 3");
+                event.setCancelled(true);
+                return;
+            }
+            if (itemInHandType.equals(Material.YELLOW_WOOL)) {
+                Bukkit.dispatchCommand(player, "team 4");
+                event.setCancelled(true);
+                return;
+            }
+
+            if (itemInHandType.equals(Material.BOOK)) {
                 player.openInventory(gameData.getClassManager().getClassMenu());
                 return;
             }
+
         }
+
         String playerName = player.getName();
         if (itemInHandType.equals(Material.NETHER_STAR)) {
             GameUser user = gameData.getGameUser(playerName);

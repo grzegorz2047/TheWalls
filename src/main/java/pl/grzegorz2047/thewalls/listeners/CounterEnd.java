@@ -42,7 +42,7 @@ public class CounterEnd implements Listener {
             return;
         }
         if (status.equals(Counter.CounterStatus.DEATHMATCH)) {
-            gameData.setNobodyWin();
+            gameData.restartGame("thewalls.nowinners");
             return;
         }
     }

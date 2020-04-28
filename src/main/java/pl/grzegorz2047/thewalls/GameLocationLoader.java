@@ -10,41 +10,47 @@ import java.util.Map;
 /**
  * Created by grzeg on 04.11.2016.
  */
-public class StartGameLocationLoader {
+public class GameLocationLoader {
 
 
     private Map<GameData.GameTeam, Location> teamSpawnLocations = new HashMap<>();
     private final HashMap<String, String> settings;
+    private String spawnTeam1;
+    private String spawnTeam2;
+    private String spawnTeam3;
+    private String spawnTeam4;
 
-    public StartGameLocationLoader(HashMap<String, String> settings) {
-
+    public GameLocationLoader(HashMap<String, String> settings) {
         this.settings = settings;
+        spawnTeam1 = settings.get("thewalls.spawns.team." + 1);
+        spawnTeam2 = settings.get("thewalls.spawns.team." + 2);
+        spawnTeam3 = settings.get("thewalls.spawns.team." + 3);
+        spawnTeam4 = settings.get("thewalls.spawns.team." + 4);
     }
 
     public Location getStartLocation(GameData.GameTeam team) {
         return teamSpawnLocations.get(team);
     }
 
-    public StartGameLocationLoader loadSpawns(WorldManagement worldManagement) {
+    public void loadSpawns(String worldName) {
+        teamSpawnLocations = new HashMap<>();
         try {
-            String worldName = worldManagement.getLoadedWorldName();
             teamSpawnLocations.put(GameData.GameTeam.TEAM1, LocationUtil.entityStringToLocation(
                     worldName,
-                    settings.get("thewalls.spawns.team." + 1)));
+                    spawnTeam1));
             teamSpawnLocations.put(GameData.GameTeam.TEAM2, LocationUtil.entityStringToLocation(
                     worldName,
-                    settings.get("thewalls.spawns.team." + 2)));
+                    spawnTeam2));
             teamSpawnLocations.put(GameData.GameTeam.TEAM3, LocationUtil.entityStringToLocation(
                     worldName,
-                    settings.get("thewalls.spawns.team." + 3)));
+                    spawnTeam3));
 
             teamSpawnLocations.put(GameData.GameTeam.TEAM4, LocationUtil.entityStringToLocation(
                     worldName,
-                    settings.get("thewalls.spawns.team." + 4)));
+                    spawnTeam4));
         } catch (IncorrectDataStringException e) {
             e.printStackTrace();
         }
-        return this;
     }
 
 }

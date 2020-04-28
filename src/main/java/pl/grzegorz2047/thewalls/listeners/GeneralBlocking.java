@@ -6,7 +6,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
+import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.weather.WeatherChangeEvent;
 import org.bukkit.event.world.WorldSaveEvent;
@@ -77,5 +79,18 @@ public class GeneralBlocking implements Listener {
     @EventHandler
     public void onWOrld(WorldSaveEvent e) {
         System.out.println("Ktos zapisje? >:<");
+    }
+
+    @EventHandler
+    public void pre(AsyncPlayerPreLoginEvent e) {
+        System.out.println("Ktos zapisje? >:<");
+    }
+    @EventHandler
+    public void onPlayerSayStop(PlayerCommandPreprocessEvent e){
+        if(e.getMessage().equalsIgnoreCase("/stop") || e.getMessage().equalsIgnoreCase("stop")){
+            /* Cancel execution of command */
+            e.setCancelled(true);
+            e.setMessage("Chyba cos cie boli!");
+        }
     }
 }

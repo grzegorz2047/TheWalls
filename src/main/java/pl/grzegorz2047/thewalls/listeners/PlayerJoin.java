@@ -26,11 +26,11 @@ import java.util.List;
 public class PlayerJoin implements Listener {
 
     private final GameData gameData;
-    private final Location spawn;
 
-    public PlayerJoin(GameData gameData, World loadedWorld) {
+
+    public PlayerJoin(GameData gameData) {
         this.gameData = gameData;
-        spawn = new Location(loadedWorld, 0, 147, 0);
+
     }
 
     @EventHandler
@@ -40,9 +40,7 @@ public class PlayerJoin implements Listener {
         }
         e.setJoinMessage(null);
         Player p = e.getPlayer();
-        p.teleport(spawn);
-        String playerName = p.getName();
-        gameData.addPlayerToArena(p, playerName);
+        gameData.addPlayerToArena(p);
     }
 
 

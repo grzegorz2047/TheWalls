@@ -3,17 +3,20 @@ package pl.grzegorz2047.thewalls;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldguard.WorldGuard;
-import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
- import com.sk89q.worldguard.protection.flags.Flag;
+import com.sk89q.worldguard.protection.flags.Flag;
 import com.sk89q.worldguard.protection.flags.Flags;
 import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import com.sk89q.worldguard.protection.regions.RegionContainer;
+import org.apache.commons.io.FileUtils;
 import org.bukkit.*;
 import org.bukkit.entity.Entity;
-import org.bukkit.plugin.Plugin;
+import org.bukkit.entity.LivingEntity;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -23,22 +26,30 @@ import java.util.Random;
 public class WorldManagement {
     private static World loadedWorld;
     private static Random r = new Random();
+    private final int numberOfMaps;
 
-    public void loadWorld(int numberOfMaps) {
-        int randomised = r.nextInt(numberOfMaps);
+    private GameLocationLoader gameLocationLoader;
 
-        loadedWorld = Bukkit.createWorld(new WorldCreator("Walls_Mapa_" + randomised));
+    public WorldManagement(int numberOfMaps, GameLocationLoader gameLocationLoader) {
+        this.numberOfMaps = numberOfMaps;
+
+     }
+
+    public void loadWorld(String mapName) {
+        loadedWorld = Bukkit.createWorld(new WorldCreator(mapName));
         loadedWorld.setAutoSave(false);
         loadedWorld.setGameRule(GameRule.DO_INSOMNIA, false);
         loadedWorld.setGameRule(GameRule.DO_WEATHER_CYCLE, false);
         loadedWorld.setGameRule(GameRule.DO_MOB_SPAWNING, false);
         loadedWorld.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
+        loadedWorld.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
+        loadedWorld.setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true);
         loadedWorld.setTime(0);
-        loadedWorld.setKeepSpawnInMemory(true);
         loadedWorld.setStorm(false);
         loadedWorld.setThundering(true);
         loadedWorld.setSpawnLocation(0, 147, 0);
-        for (Entity e : loadedWorld.getEntities()) {
+        List<LivingEntity> livingEntities = loadedWorld.getLivingEntities();
+        for (Entity e : livingEntities) {
             e.remove();
         }
     }
@@ -49,14 +60,37 @@ public class WorldManagement {
         }
     }
 
-    public void reloadLoadedWorld(String numberOfMaps) {
+    public void initNewWorld() {
         for (World w : Bukkit.getWorlds()) {
-            if(w.equals(Bukkit.getWorlds().get(0))){
+            if (w.equals(Bukkit.getWorlds().get(0))) {
                 continue;
             }
-            Bukkit.unloadWorld(w, false);
+            w.setKeepSpawnInMemory(false);
+            boolean b = Bukkit.unloadWorld(w, false);
+            System.out.println("unload world " + w.getName() + " " + b);
+            loadedWorld = null;
         }
-        loadWorld(Integer.parseInt(numberOfMaps));
+        int randomised = r.nextInt(numberOfMaps);
+
+        String mapToLoad = "Walls_Mapa_" + randomised;
+        String mainOutputWorldName = "walls_mapa";
+        String destWorldPath = Bukkit.getWorldContainer().getAbsolutePath() + File.separator + mainOutputWorldName;
+        String scrFolder = "/home/mcserver/minigames/TheWalls/Mapy";
+        System.out.println(mapToLoad);
+        System.out.println(destWorldPath);
+        try {
+            FileUtils.deleteDirectory(new File(destWorldPath));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            FileUtils.copyDirectory(FileUtils.getFile(scrFolder + File.separator + mapToLoad), FileUtils.getFile(destWorldPath));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        loadWorld(mainOutputWorldName);
+        gameLocationLoader.loadSpawns(this.getLoadedWorldName());
+
     }
 
 
@@ -168,5 +202,9 @@ public class WorldManagement {
 
     public String getLoadedWorldName() {
         return loadedWorld.getName();
+    }
+
+    public Location getStartLocation(GameData.GameTeam assignedTeam) {
+        return gameLocationLoader.getStartLocation(assignedTeam);
     }
 }

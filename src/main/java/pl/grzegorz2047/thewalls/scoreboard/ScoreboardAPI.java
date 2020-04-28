@@ -93,10 +93,10 @@ public class ScoreboardAPI {
         //addTabListEntry(scoreboard, p.getName(), " §7"); //color tablist?
 
         addEntry(scoreboard, objective, "§§", "", 9);
-        addEntry(scoreboard, objective, team1Label, "0", 8);
-        addEntry(scoreboard, objective, team2Label, "0", 7);
-        addEntry(scoreboard, objective, team3Label, "0", 6);
-        addEntry(scoreboard, objective, team4Label, "0", 5);
+        addEntry(scoreboard, objective, team1Label, "§60", 8);
+        addEntry(scoreboard, objective, team2Label, "§60", 7);
+        addEntry(scoreboard, objective, team3Label, "§60", 6);
+        addEntry(scoreboard, objective, team4Label, "§60", 5);
         addEntry(scoreboard, objective, "§   ", "", 4);
         String language = user.getLanguage();
         addEntry(scoreboard, objective, this.messageManager.getMessage(language, "thewalls.scoreboard.kills"), String.valueOf(0), 3);
@@ -130,10 +130,10 @@ public class ScoreboardAPI {
         objective.setDisplayName("§6§l *** TheWalls ***");
 
         addEntry(scoreboard, objective, "§§", "", 9);
-        addEntry(scoreboard, objective, team1Label, "0", 8);
-        addEntry(scoreboard, objective, team2Label, "0", 7);
-        addEntry(scoreboard, objective, team3Label, "0", 6);
-        addEntry(scoreboard, objective, team4Label, "0", 5);
+        addEntry(scoreboard, objective, team1Label, "§60", 8);
+        addEntry(scoreboard, objective, team2Label, "§60", 7);
+        addEntry(scoreboard, objective, team3Label, "§60", 6);
+        addEntry(scoreboard, objective, team4Label, "§60", 5);
         addEntry(scoreboard, objective, "§   ", "", 4);
         addEntry(scoreboard, objective, "§    ", "", 1);
 
@@ -206,8 +206,8 @@ public class ScoreboardAPI {
 
     public void updateIncreaseEntry(Scoreboard scoreboard, String name, int value) {
         Team t = scoreboard.getTeam(name);
-        int val = Integer.parseInt(t.getSuffix());
-        t.setSuffix(String.valueOf(val + value));
+        int val = Integer.parseInt(t.getSuffix().replace("§6", ""));
+        t.setSuffix("§6" + (val + value));
     }
 
     public void refreshIngameScoreboard(int team1, int team2, int team3, int team4) {

@@ -17,6 +17,7 @@ import pl.grzegorz2047.thewalls.GameData;
 import pl.grzegorz2047.thewalls.GameUser;
 import pl.grzegorz2047.thewalls.GameUsers;
 import pl.grzegorz2047.thewalls.playerclass.ClassManager;
+import pl.grzegorz2047.thewalls.scoreboard.ScoreboardAPI;
 import pl.grzegorz2047.thewalls.shop.Shop;
 
 import java.util.Arrays;
@@ -35,13 +36,15 @@ public class PlayerInteract implements Listener {
     private final ClassManager classManager;
     private final StorageProtection storageProtection;
     private GameUsers gameUsers;
+    private ScoreboardAPI scoreboardAPI;
 
 
-    public PlayerInteract(GameData gameData, MessageAPI messageManager, Shop shopMenuManager, ClassManager classManager, StorageProtection storageProtection, GameUsers gameUsers) {
+    public PlayerInteract(GameData gameData, MessageAPI messageManager, Shop shopMenuManager, ClassManager classManager, StorageProtection storageProtection, GameUsers gameUsers, ScoreboardAPI scoreboardAPI) {
         this.gameData = gameData;
         this.messageManager = messageManager;
         this.storageProtection = storageProtection;
         this.gameUsers = gameUsers;
+        this.scoreboardAPI = scoreboardAPI;
         counter = this.gameData.getCounter();
         this.shopMenuManager = shopMenuManager;
         this.classManager = classManager;
@@ -84,6 +87,20 @@ public class PlayerInteract implements Listener {
 
             if (itemInHandType.equals(Material.BOOK)) {
                 player.openInventory(classManager.getClassMenu());
+                event.setCancelled(true);
+                return;
+            }
+            if (itemInHandType.equals(Material.FEATHER)) {
+                GameUser gameUser = gameUsers.getGameUser(player.getName());
+                if (gameUser.getLanguage().equalsIgnoreCase("PL")) {
+                    gameUser.setLanguage("EN");
+                }else {
+                    gameUser.setLanguage("PL");
+                }
+                //Jak bedzie trzeba, to albo feature off albo delay just in case maybe.. later :D
+                scoreboardAPI.createWaitingScoreboard(player, gameUser);
+                scoreboardAPI.updateDisplayName(0, player, gameUsers.getNumberOfPlayers());
+                event.setCancelled(true);
                 return;
             }
 
@@ -124,7 +141,6 @@ public class PlayerInteract implements Listener {
         }
         handleChestOpen(player, clickedBlock);
     }
-
 
 
     private void handleChestOpen(Player player, Block clickedBlock) {

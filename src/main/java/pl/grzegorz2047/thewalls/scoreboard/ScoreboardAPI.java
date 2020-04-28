@@ -1,6 +1,7 @@
 package pl.grzegorz2047.thewalls.scoreboard;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.*;
 import pl.grzegorz2047.databaseapi.messages.MessageAPI;
@@ -21,6 +22,10 @@ public class ScoreboardAPI {
     private final String team4Label;
     private final MessageAPI messageManager;
     private final GameData gameData;
+    private final String team1Name = "team1";
+    private final String team2Name = "team2";
+    private final String team3Name = "team3";
+    private final String team4Name = "team4";
 
 
     public ScoreboardAPI(MessageAPI messageManager, GameData gameData) {
@@ -66,14 +71,7 @@ public class ScoreboardAPI {
         addEntry(scoreboard, objective, "§ ", "", 2);
         String websiteInfo = this.messageManager.getMessage(userLanguage, "scoreboard.website.address");
         addEntry(scoreboard, objective, websiteInfo, "", 1);
-        Team t1 = scoreboard.registerNewTeam("team1");
-        t1.setPrefix("§a");
-        Team t2 = scoreboard.registerNewTeam("team2");
-        t2.setPrefix("§b");
-        Team t3 = scoreboard.registerNewTeam("team3");
-        t3.setPrefix("§c");
-        Team t4 = scoreboard.registerNewTeam("team4");
-        t4.setPrefix("§e");
+        createTeamTags(scoreboard);
         p.setScoreboard(scoreboard);
     }
 
@@ -88,6 +86,7 @@ public class ScoreboardAPI {
         healthObj.setDisplaySlot(DisplaySlot.BELOW_NAME);
         healthObj.setDisplayName(" §c§l❤");
         p.setHealth(p.getHealth());
+        p.damage(0);
 
         Objective tablistobj = scoreboard.registerNewObjective("tablist", "dummy");
         tablistobj.setDisplaySlot(DisplaySlot.PLAYER_LIST);
@@ -108,15 +107,19 @@ public class ScoreboardAPI {
         addEntry(scoreboard, objective, "§    ", "", 1);
         String websiteInfo = this.messageManager.getMessage(language, "scoreboard.website.address");
         addEntry(scoreboard, objective, websiteInfo, "", 0);
-        Team t1 = scoreboard.registerNewTeam("team1");
-        t1.setPrefix("§a");
-        Team t2 = scoreboard.registerNewTeam("team2");
-        t2.setPrefix("§b");
-        Team t3 = scoreboard.registerNewTeam("team3");
-        t3.setPrefix("§c");
-        Team t4 = scoreboard.registerNewTeam("team4");
-        t4.setPrefix("§e");
+        createTeamTags(scoreboard);
         p.setScoreboard(scoreboard);
+    }
+
+    private void createTeamTags(Scoreboard scoreboard) {
+        Team t1 = scoreboard.registerNewTeam(team1Name);
+        t1.setColor(ChatColor.GREEN);
+        Team t2 = scoreboard.registerNewTeam(team2Name);
+        t2.setColor(ChatColor.BLUE);
+        Team t3 = scoreboard.registerNewTeam(team3Name);
+        t3.setColor(ChatColor.RED);
+        Team t4 = scoreboard.registerNewTeam(team4Name);
+        t4.setColor(ChatColor.YELLOW);
     }
 
     public void createJoinSpectatorScoreboard(Player p, GameUser gameUser, GameUsers gameUsers) {
@@ -139,47 +142,33 @@ public class ScoreboardAPI {
 
         Objective tablistobj = scoreboard.registerNewObjective("tablist", "dummy");
         tablistobj.setDisplaySlot(DisplaySlot.PLAYER_LIST);
-        Team t1 = scoreboard.registerNewTeam("team1");
-        t1.setPrefix("§a");
-        Team t2 = scoreboard.registerNewTeam("team2");
-        t2.setPrefix("§b");
-        Team t3 = scoreboard.registerNewTeam("team3");
-        t3.setPrefix("§c");
-        Team t4 = scoreboard.registerNewTeam("team4");
-        t4.setPrefix("§e");
+        createTeamTags(scoreboard);
         p.setScoreboard(scoreboard);
-        System.out.print(
-                "DDDD spect"
-        );
         refreshTags(p, gameUsers);
     }
 
     public void refreshTags(Player p, GameUsers gameUsers) {
         Scoreboard sc = p.getScoreboard();
-        Team t1 = sc.getTeam("team1");
-        t1.setPrefix("§a");
-        Team t2 = sc.getTeam("team2");
-        t2.setPrefix("§b");
-        Team t3 = sc.getTeam("team3");
-        t3.setPrefix("§c");
-        Team t4 = sc.getTeam("team4");
-        t4.setPrefix("§e");
+        Team t1 = sc.getTeam(team1Name);
+        Team t2 = sc.getTeam(team2Name);
+        Team t3 = sc.getTeam(team3Name);
+        Team t4 = sc.getTeam(team4Name);
 
         for (Map.Entry<String, GameUser> entry : gameUsers.getArenaUsers()) {
             GameUser user = entry.getValue();
             if (user.isSpectator()) {
                 continue;
             }
-            String key = entry.getKey();
+            String userName = entry.getKey();
             GameData.GameTeam assignedTeam = user.getAssignedTeam();
             if (assignedTeam.equals(GameData.GameTeam.TEAM1)) {
-                t1.addEntry(key);
+                t1.addEntry(userName);
             } else if (assignedTeam.equals(GameData.GameTeam.TEAM2)) {
-                t2.addEntry(key);
+                t2.addEntry(userName);
             } else if (assignedTeam.equals(GameData.GameTeam.TEAM3)) {
-                t3.addEntry(key);
+                t3.addEntry(userName);
             } else if (assignedTeam.equals(GameData.GameTeam.TEAM4)) {
-                t4.addEntry(key);
+                t4.addEntry(userName);
             }
         }
 
@@ -250,7 +239,7 @@ public class ScoreboardAPI {
         Scoreboard scoreboard = p.getScoreboard();
         Objective sidebar = scoreboard.getObjective(DisplaySlot.SIDEBAR);
         String formattedTime = formatIntoHHMMSS(time);
-        int arenaNumber = Bukkit.getPort() % 10;
+        int arenaNumber = (Bukkit.getPort() - 65) % 10;
         int maxPlayers = Bukkit.getMaxPlayers();
         String displayName = "§a" + formattedTime + " §6TheWalls #" + arenaNumber + " §a" + numberOfPlayers + "/" + maxPlayers;
         sidebar.setDisplayName(displayName);

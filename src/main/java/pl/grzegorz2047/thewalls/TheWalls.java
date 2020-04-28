@@ -192,7 +192,7 @@ public class TheWalls extends JavaPlugin {
         pluginManager.registerEvents(new Counting(scoreboardAPI, gameUsers), this);
         pluginManager.registerEvents(new InventoryClick(), this);
         pluginManager.registerEvents(new ChooseItem(messageManager, gameData, shopMenuManager, scoreboardAPI, moneyManager, this.getShopManager(), classManager, gameUsers), this);
-        pluginManager.registerEvents(new PlayerInteract(gameData, messageManager, shopMenuManager, classManager, storageProtection, gameUsers), this);
+        pluginManager.registerEvents(new PlayerInteract(gameData, messageManager, shopMenuManager, classManager, storageProtection, gameUsers, scoreboardAPI), this);
         pluginManager.registerEvents(new ItemDrop(gameData), this);
         pluginManager.registerEvents(new ServerMotd(gameData, loadedMotd), this);
 

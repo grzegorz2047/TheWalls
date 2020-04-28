@@ -207,6 +207,7 @@ public class GameData {
         inventory.setItem(3, CreateItemUtil.createItem(Material.LIGHT_BLUE_WOOL, 1, "§bNiebiescy"));
         inventory.setItem(4, CreateItemUtil.createItem(Material.RED_WOOL, 1, "§cCzerwoni"));
         inventory.setItem(5, CreateItemUtil.createItem(Material.YELLOW_WOOL, 1, "§eŻółci"));
+        inventory.setItem(8, CreateItemUtil.createItem(Material.FEATHER, 1, "§cZmień Język/Language"));
     }
 
 
@@ -355,26 +356,31 @@ public class GameData {
         RESTARTING
     }
 
-    public void restartGame(String s) {
+    public void restartGame(String endMessage) {
         if (status.equals(GameStatus.RESTARTING)) {
             plugin.getLogger().info("bug?");
             return;
         }
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            //nikt nie wygral
+             p.sendMessage(endMessage);
+        }
+        status = GameStatus.RESTARTING;
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             for (Player p : Bukkit.getOnlinePlayers()) {
                 //nikt nie wygral
                 BungeeUtil.changeServer(plugin, p, "Lobby1");
                 p.kickPlayer("Arena przygotowuje sie do nowej gry!");
             }
-        }, 20l * 3);
+        }, 20l * 5);
 
-        status = GameStatus.RESTARTING;
+
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             worldManagement.initNewWorld();
             initializeArrays();
             status = GameStatus.WAITING;
             this.counter.cancel();
-        }, 20l * 8);
+        }, 20l * 10);
         /*ArenaStatus.setStatus(ArenaStatus.Status.WAITING);
         ArenaStatus.setLore(
                 "\n§7§l> §a1.7 - 1.10"
@@ -444,22 +450,6 @@ public class GameData {
         p.sendMessage(message);
     }
 
-
-    public static String getTeamColor(GameTeam t) {
-        if (t.equals(GameTeam.TEAM1)) {
-            return "§a";
-        }
-        if (t.equals(GameTeam.TEAM2)) {
-            return "§b";
-        }
-        if (t.equals(GameTeam.TEAM3)) {
-            return "§c";
-        }
-        if (t.equals(GameTeam.TEAM4)) {
-            return "§e";
-        }
-        return "§7";
-    }
 
     public void startGame(ScoreboardAPI scoreboardAPI, ClassManager classManager) {
         //ArenaStatus.setStatus(//ArenaStatus.Status.INGAME);

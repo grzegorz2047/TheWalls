@@ -40,6 +40,7 @@ public class PlayerJoin implements Listener {
         }
         e.setJoinMessage(null);
         Player p = e.getPlayer();
+        
         gameData.addPlayerToArena(p);
     }
 

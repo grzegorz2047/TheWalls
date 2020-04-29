@@ -182,7 +182,7 @@ public class TheWalls extends JavaPlugin {
         pluginManager.registerEvents(new PlayerLogin(playerManager, gameData, messageManager), this);
         pluginManager.registerEvents(new EntityExplode(this, dropsMap), this);
         pluginManager.registerEvents(new PlayerChat(settings, gameData, gameUsers), this);
-        pluginManager.registerEvents(new PlayerDead(gameData), this);
+        pluginManager.registerEvents(new PlayerDead(gameData, this), this);
         pluginManager.registerEvents(new CounterEnd(this, classManager), this);
 
         pluginManager.registerEvents(new GeneralBlocking(gameData, messageManager, gameUsers), this);
@@ -191,7 +191,7 @@ public class TheWalls extends JavaPlugin {
         pluginManager.registerEvents(new BlockBreak(gameData, messageManager, dropsMap, gameUsers, storageProtection), this);
         pluginManager.registerEvents(new Counting(scoreboardAPI, gameUsers), this);
         pluginManager.registerEvents(new InventoryClick(), this);
-        pluginManager.registerEvents(new ChooseItem(messageManager, gameData, shopMenuManager, scoreboardAPI, moneyManager, this.getShopManager(), classManager, gameUsers), this);
+        pluginManager.registerEvents(new ChooseItem(messageManager, gameData, shopMenuManager, scoreboardAPI, this.getShopManager(), classManager, gameUsers), this);
         pluginManager.registerEvents(new PlayerInteract(gameData, messageManager, shopMenuManager, classManager, storageProtection, gameUsers, scoreboardAPI), this);
         pluginManager.registerEvents(new ItemDrop(gameData), this);
         pluginManager.registerEvents(new ServerMotd(gameData, loadedMotd), this);

@@ -68,7 +68,7 @@ public class TeamArg implements Arg {
                 String maxTeamSizeText = String.valueOf(maxTeamSize);
                 if (numberOfPlayers > maxPlayersOnServer) {
                     if (hasTeam) {
-                        gameData.removeFromTeam(username, assignedTeam);
+                        gameData.removeFromTeam(user, p);
                     }
                     user.setAssignedTeam(team);
                     gameData.addPlayerToTeam(username, team);
@@ -90,7 +90,7 @@ public class TeamArg implements Arg {
                             }
                         }
                         if (hasTeam) {
-                            gameData.removeFromTeam(username, assignedTeam);
+                            gameData.removeFromTeam(user, p);
                         }
                         user.setAssignedTeam(team);
                         gameData.addPlayerToTeam(username, team);

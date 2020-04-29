@@ -35,7 +35,7 @@ public class StartArg implements Arg {
             p.sendMessage(messageManager.getMessage(user.getLanguage(), "thewalls.msg.alreadystarted"));
             return;
         }
-        if (user.getRank().contains("Admin")) {
+        if (user.getRank().contains("Admin") || user.getRank().contains("GlobalMod")) {
             counter.start(Counter.CounterStatus.COUNTINGTOSTART);
         }
 

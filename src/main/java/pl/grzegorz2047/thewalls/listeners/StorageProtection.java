@@ -8,6 +8,7 @@ import pl.grzegorz2047.thewalls.GameUser;
 import pl.grzegorz2047.thewalls.GameUsers;
 
 import java.util.HashMap;
+import java.util.Optional;
 
 public class StorageProtection {
 
@@ -20,14 +21,14 @@ public class StorageProtection {
         this.messageManager = messageManager;
     }
 
-    public String getPlayerProtectedFurnace(Location location) {
-        return protectedFurnaces.get(location);
+    public Optional<String> getPlayerProtectedFurnace(Location location) {
+        return Optional.ofNullable(protectedFurnaces.get(location));
     }
 
     public boolean isChestOwner(Player player, String playerName, Block clickedBlock) {
-        String protectedFurnacePlayer = getPlayerProtectedFurnace(clickedBlock.getLocation());
-        if (protectedFurnacePlayer != null) {
-            if (!protectedFurnacePlayer.equals(playerName)) {
+        Optional<String> protectedFurnacePlayer = getPlayerProtectedFurnace(clickedBlock.getLocation());
+        if (protectedFurnacePlayer.isPresent()) {
+            if (!protectedFurnacePlayer.get().equals(playerName)) {
                 GameUser user = gameUsers.getGameUser(playerName);
                 String userLanguage = user.getLanguage();
                 player.sendMessage(messageManager.getMessage(userLanguage, "thewalls.msg.someonesprotectedfurnace"));
@@ -45,11 +46,16 @@ public class StorageProtection {
     }
 
     public boolean isFurnaceOwner(String username, Location blockLocation) {
-        return getPlayerProtectedFurnace(blockLocation).equals(username);
+        Optional<String> playerProtectedFurnace = getPlayerProtectedFurnace(blockLocation);
+        return playerProtectedFurnace.map(s -> s.equals(username)).orElse(true);
     }
 
     public void protectNewFurnace(Location blockLocation, String username, GameUser user) {
         protectedFurnaces.put(blockLocation, username);
         user.setProtectedFurnaces(user.getProtectedFurnaces() + 1);
+    }
+
+    public boolean hasOwner(Location blockLocation) {
+        return getPlayerProtectedFurnace(blockLocation).isPresent();
     }
 }

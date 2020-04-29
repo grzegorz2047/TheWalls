@@ -60,18 +60,16 @@ public class BlockPlace implements Listener {
                 String language = user.getLanguage();
                 if (exceedsNumberOfProtectedFurnaces(user)) {
                     player.sendMessage(messageManager.getMessage(language, "thewalls.msg.furnacenotprotected"));
-                    return;
                 } else {
                     storageProtection.protectNewFurnace(blockLocation, username, user);
                     player.sendMessage(messageManager.getMessage(language, "thewalls.msg.furnacenowprotected"));
-                    return;
                 }
+                return;
             }
         } else if (!counterStatus.equals(Counter.CounterStatus.DEATHMATCH)) {
-            Block b = block;
             Entity ent = null;
             if (blockType == Material.TNT) {
-                ent = b.getWorld().spawn(b.getLocation(), TNTPrimed.class);
+                ent = block.getWorld().spawn(block.getLocation(), TNTPrimed.class);
                 ((TNTPrimed) ent).setFuseTicks(20);
                 block.getWorld().createExplosion(blockLocation.getX(), blockLocation.getY(), blockLocation.getZ(), 1, true, false);
             }

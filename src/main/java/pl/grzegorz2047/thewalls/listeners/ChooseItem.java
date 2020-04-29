@@ -34,17 +34,16 @@ public class ChooseItem implements Listener {
     private final GameData gameData;
     private final MessageAPI messageManager;
     private final Shop shopMenuManager;
-    private final MoneyAPI moneyManager;
+
     private final ShopAPI shopManager;
     private final ScoreboardAPI scoreboardAPI;
     private final ClassManager classManager;
     private GameUsers gameUsers;
 
-    public ChooseItem(MessageAPI messageManager, GameData gameData, Shop shopMenuManager, ScoreboardAPI scoreboardAPI, MoneyAPI moneyManager, ShopAPI shopManager, ClassManager classManager, GameUsers gameUsers) {
+    public ChooseItem(MessageAPI messageManager, GameData gameData, Shop shopMenuManager, ScoreboardAPI scoreboardAPI, ShopAPI shopManager, ClassManager classManager, GameUsers gameUsers) {
         this.gameData = gameData;
         this.messageManager = messageManager;
         this.shopMenuManager = shopMenuManager;
-        this.moneyManager = moneyManager;
         this.shopManager = shopManager;
         this.scoreboardAPI = scoreboardAPI;
         this.classManager = classManager;
@@ -139,7 +138,6 @@ public class ChooseItem implements Listener {
                             if (playerInventory.firstEmpty() != -1) {
                                 shopManager.buyItem(playerName, String.valueOf(item.getItemid()), Instant.EPOCH.getEpochSecond());
                                 user.changeMoney(-item.getPrice());
-                                moneyManager.changePlayerMoney(playerName, -item.getPrice());
                                 Scoreboard scoreboard = p.getScoreboard();
                                 scoreboardAPI.updateIncreaseEntry(scoreboard, messageManager.getMessage(userLanguage, "thewalls.scoreboard.money"), -item.getPrice());
                                 user.getTransactions().add(new Transaction(user.getUserid(), item.getItemid(), 0));
@@ -174,7 +172,6 @@ public class ChooseItem implements Listener {
                         if (user.getMoney() >= item.getPrice()) {
                             if (playerInventory.firstEmpty() != -1) {
                                 user.changeMoney(-item.getPrice());
-                                moneyManager.changePlayerMoney(playerName, -item.getPrice());
                                 userBoughtTempItems.add(item.getMaterial());
                                 playerInventory.addItem(item.toItemStack());
                                 Scoreboard scoreboard = p.getScoreboard();

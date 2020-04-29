@@ -53,6 +53,7 @@ public class GameUsers {
         return gameUsers.remove(p.getName());
     }
 
+
     public Set<Map.Entry<String, GameUser>> getArenaUsers() {
         return gameUsers.entrySet();
     }

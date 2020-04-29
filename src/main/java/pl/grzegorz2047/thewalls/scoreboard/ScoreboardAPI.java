@@ -16,10 +16,6 @@ import java.util.Map;
  */
 public class ScoreboardAPI {
 
-    private final String team1Label;
-    private final String team2Label;
-    private final String team3Label;
-    private final String team4Label;
     private final MessageAPI messageManager;
     private final GameData gameData;
     private final String team1Name = "team1";
@@ -30,10 +26,7 @@ public class ScoreboardAPI {
 
     public ScoreboardAPI(MessageAPI messageManager, GameData gameData) {
         this.messageManager = messageManager;
-        this.team1Label = messageManager.getMessage("PL", "thewalls.scoreboard.ingame.TEAM1");
-        this.team2Label = this.messageManager.getMessage("PL", "thewalls.scoreboard.ingame.TEAM2");
-        this.team3Label = this.messageManager.getMessage("PL", "thewalls.scoreboard.ingame.TEAM3");
-        this.team4Label = this.messageManager.getMessage("PL", "thewalls.scoreboard.ingame.TEAM4");
+
         this.gameData = gameData;
     }
 
@@ -76,6 +69,10 @@ public class ScoreboardAPI {
     }
 
     public void createIngameScoreboard(Player p, GameUser user) {
+        String team1Label = messageManager.getMessage(user.getLanguage(), "thewalls.scoreboard.ingame.TEAM1");
+        String team2Label = this.messageManager.getMessage(user.getLanguage(), "thewalls.scoreboard.ingame.TEAM2");
+        String team3Label = this.messageManager.getMessage(user.getLanguage(), "thewalls.scoreboard.ingame.TEAM3");
+        String team4Label = this.messageManager.getMessage(user.getLanguage(), "thewalls.scoreboard.ingame.TEAM4");
         Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
 
         Objective objective = scoreboard.registerNewObjective("sidebar", "dummy");
@@ -122,7 +119,11 @@ public class ScoreboardAPI {
         t4.setColor(ChatColor.YELLOW);
     }
 
-    public void createJoinSpectatorScoreboard(Player p, GameUser gameUser, GameUsers gameUsers) {
+    public void createJoinSpectatorScoreboard(Player p, GameUser user, GameUsers gameUsers) {
+        String team1Label = messageManager.getMessage(user.getLanguage(), "thewalls.scoreboard.ingame.TEAM1");
+        String team2Label = this.messageManager.getMessage(user.getLanguage(), "thewalls.scoreboard.ingame.TEAM2");
+        String team3Label = this.messageManager.getMessage(user.getLanguage(), "thewalls.scoreboard.ingame.TEAM3");
+        String team4Label = this.messageManager.getMessage(user.getLanguage(), "thewalls.scoreboard.ingame.TEAM4");
         Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
 
         Objective objective = scoreboard.registerNewObjective("sidebar", "dummy");
@@ -137,7 +138,7 @@ public class ScoreboardAPI {
         addEntry(scoreboard, objective, "§   ", "", 4);
         addEntry(scoreboard, objective, "§    ", "", 1);
 
-        String websiteInfo = this.messageManager.getMessage(gameUser.getLanguage(), "scoreboard.website.address");
+        String websiteInfo = this.messageManager.getMessage(user.getLanguage(), "scoreboard.website.address");
         addEntry(scoreboard, objective, websiteInfo, "", 0);
 
         Objective tablistobj = scoreboard.registerNewObjective("tablist", "dummy");
@@ -210,13 +211,18 @@ public class ScoreboardAPI {
         t.setSuffix("§6" + (val + value));
     }
 
-    public void refreshIngameScoreboard(int team1, int team2, int team3, int team4) {
+    public void refreshIngameScoreboard(int team1, int team2, int team3, int team4, GameUsers gameUsers) {
         for (Player p : Bukkit.getOnlinePlayers()) {
             Scoreboard scoreboard = p.getScoreboard();
-            updateIncreaseEntry(scoreboard, this.team1Label, team1);
-            updateIncreaseEntry(scoreboard, this.team2Label, team2);
-            updateIncreaseEntry(scoreboard, this.team3Label, team3);
-            updateIncreaseEntry(scoreboard, this.team4Label, team4);
+            GameUser user = gameUsers.getGameUser(p.getName());
+            String team1Label = messageManager.getMessage(user.getLanguage(), "thewalls.scoreboard.ingame.TEAM1");
+            String team2Label = this.messageManager.getMessage(user.getLanguage(), "thewalls.scoreboard.ingame.TEAM2");
+            String team3Label = this.messageManager.getMessage(user.getLanguage(), "thewalls.scoreboard.ingame.TEAM3");
+            String team4Label = this.messageManager.getMessage(user.getLanguage(), "thewalls.scoreboard.ingame.TEAM4");
+            updateIncreaseEntry(scoreboard, team1Label, team1);
+            updateIncreaseEntry(scoreboard, team2Label, team2);
+            updateIncreaseEntry(scoreboard, team3Label, team3);
+            updateIncreaseEntry(scoreboard, team4Label, team4);
         }
     }
 
@@ -256,16 +262,16 @@ public class ScoreboardAPI {
 
     }
 
-    public void addKillForTeam(GameData.GameTeam killerTeam) {
+    public void addKillForTeam(GameData.GameTeam killerTeam, GameUsers gameUsers) {
         System.out.print("killer user ma " + killerTeam);
         if (killerTeam.equals(GameData.GameTeam.TEAM1)) {
-            refreshIngameScoreboard(1, 0, 0, 0);
+            refreshIngameScoreboard(1, 0, 0, 0, gameUsers);
         } else if (killerTeam.equals(GameData.GameTeam.TEAM2)) {
-            refreshIngameScoreboard(0, 1, 0, 0);
+            refreshIngameScoreboard(0, 1, 0, 0, gameUsers);
         } else if (killerTeam.equals(GameData.GameTeam.TEAM3)) {
-            refreshIngameScoreboard(0, 0, 1, 0);
+            refreshIngameScoreboard(0, 0, 1, 0, gameUsers);
         } else if (killerTeam.equals(GameData.GameTeam.TEAM4)) {
-            refreshIngameScoreboard(0, 0, 0, 1);
+            refreshIngameScoreboard(0, 0, 0, 1, gameUsers);
         }
     }
 }

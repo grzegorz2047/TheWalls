@@ -7,6 +7,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
 import pl.grzegorz2047.thewalls.GameData;
 import pl.grzegorz2047.thewalls.GameData.GameStatus;
 
@@ -16,10 +17,12 @@ import pl.grzegorz2047.thewalls.GameData.GameStatus;
 public class PlayerDead implements Listener {
 
      private final GameData gameData;
+    private Plugin plugin;
 
 
-    public PlayerDead(GameData gameData) {
+    public PlayerDead(GameData gameData, Plugin plugin) {
         this.gameData = gameData;
+        this.plugin = plugin;
     }
 
     @EventHandler
@@ -37,7 +40,7 @@ public class PlayerDead implements Listener {
                 gameData.handleKiller(killer);
                 messageDeath(e, killed, killer, killedPlayerName);
             } else {
-                handleNoKiller(e, killed, killedPlayerName, killed.getLocation().getWorld());
+                handleNoKiller(e, killed, killedPlayerName, killed.getLocation().getWorld(), plugin);
             }
         }
     }
@@ -57,10 +60,13 @@ public class PlayerDead implements Listener {
         }
     }
 
-    private void handleNoKiller(PlayerDeathEvent e, Player killed, String killedPlayerName, World world) {
+    private void handleNoKiller(PlayerDeathEvent e, Player killed, String killedPlayerName, World world, Plugin plugin) {
         e.setDeathMessage("§4 ✖ §7" + killedPlayerName);
-        killed.teleport(world.getSpawnLocation());
-        killed.setGameMode(GameMode.SPECTATOR);
+        Bukkit.getScheduler().runTaskLater(plugin, (Runnable) () -> {
+            killed.spigot().respawn();
+            killed.teleport(world.getSpawnLocation());
+            killed.setGameMode(GameMode.SPECTATOR);
+        }, 1L);
     }
 
 

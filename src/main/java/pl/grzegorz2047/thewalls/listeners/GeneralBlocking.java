@@ -4,6 +4,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
@@ -85,8 +86,16 @@ public class GeneralBlocking implements Listener {
     }
 
     @EventHandler
+    public void criczerSpawn(CreatureSpawnEvent e) {
+        System.out
+                .println("criczer spawn " + e.getSpawnReason().name());
+        LivingEntity entity = e.getEntity();
+        e.setCancelled(true);
+    }
+
+    @EventHandler
     public void pre(AsyncPlayerPreLoginEvent e) {
-        System.out.println("Ktos zapisje? >:<");
+        System.out.println("Ktos loguje? >:<");
     }
     @EventHandler
     public void onPlayerSayStop(PlayerCommandPreprocessEvent e){

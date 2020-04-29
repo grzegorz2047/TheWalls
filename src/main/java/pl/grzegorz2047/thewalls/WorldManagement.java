@@ -52,6 +52,14 @@ public class WorldManagement {
         loadedWorld.setThundering(true);
         loadedWorld.setKeepSpawnInMemory(true);
         loadedWorld.setSpawnLocation(0, 147, 0);
+        Chunk chunkAt = loadedWorld.getChunkAt(loadedWorld.getBlockAt(0, 63, 0));
+        Entity[] entities = chunkAt.getEntities();
+        loadedWorld.loadChunk(chunkAt);
+        for(Entity entity : entities) {
+            if(entity instanceof LivingEntity) {
+                ((LivingEntity) entity).damage(200);
+            }
+        }
         List<LivingEntity> livingEntities = loadedWorld.getLivingEntities();
         for (Entity e : livingEntities) {
             e.remove();

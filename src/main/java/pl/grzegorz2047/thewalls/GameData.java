@@ -116,10 +116,6 @@ public class GameData {
         return teams.get(team);
     }
 
-    public void removeFromTeam(String username, GameTeam assignedTeam) {
-        teams.get(assignedTeam).remove(username);
-    }
-
     public void addPlayerToTeam(String username, GameTeam team) {
         teams.get(team).add(username);
     }
@@ -137,8 +133,8 @@ public class GameData {
     public void addPlayerToArena(Player p) {
         String playerName = p.getName();
         GameUser gameUser = gameUsers.addGameUser(playerName);
-        assignUserPermission(p, getWorldManagement().getLoadedWorldName(), gameUser);
-        Location spawn = new Location(getWorldManagement().getLoadedWorld(), 0, 147, 0);
+        assignUserPermission(p, worldManagement.getLoadedWorldName(), gameUser);
+        Location spawn = new Location(worldManagement.getLoadedWorld(), 0, 147, 0);
         p.teleport(spawn);
         ScoreboardAPI scoreboardAPI = plugin.getScoreboardAPI();
         if (!isStatus(GameData.GameStatus.INGAME)) {
@@ -184,7 +180,7 @@ public class GameData {
 
     private void prepareSpectator(Player p, GameUser gameUser, ScoreboardAPI scoreboardAPI) {
         String loadedWorldName = worldManagement.getLoadedWorldName();
-        makePlayerSpectator(gameUser, p, loadedWorldName);
+        removeFromTeam(gameUser, p);
         makePlayerSpectator(gameUser, p, loadedWorldName);
         scoreboardAPI.createJoinSpectatorScoreboard(p, gameUser, gameUsers);
     }
@@ -215,7 +211,7 @@ public class GameData {
     public void handlePlayerQuit(Player p) {
         GameUser user = gameUsers.getGameUser(p.getName());
         //e.setQuitMessage(plugin.getMessageManager().getMessage(user.getLanguage(),"thewalls.msg.quit"));
-        makePlayerSpectator(user, p, getWorldManagement().getLoadedWorldName());
+        removeFromTeam(user, p);
         gameUsers.removePlayerFromGame(p);
         if (isStatus(GameData.GameStatus.WAITING)) {
             checkToStart();
@@ -231,7 +227,6 @@ public class GameData {
     }
 
     public String handleKilledPerson(Player killed) {
-        World loadedWorld = worldManagement.getLoadedWorld();
         final String killedPlayerName = killed.getName();
         GameUser killedUser = gameUsers.getGameUser(killedPlayerName);
         killedUser.addDeath();
@@ -241,7 +236,7 @@ public class GameData {
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             killed.setHealth(20);
             ColoringUtil.colorPlayerTab(killed, "§7");
-            makePlayerSpectator(killedUser, killed, loadedWorld.getName());
+            prepareSpectator(killed, gameUsers.getGameUser(killed.getName()), plugin.getScoreboardAPI());
             checkWinners();
         }, 1l);
         return killedPlayerName;
@@ -289,7 +284,7 @@ public class GameData {
     private void addKillForTeamScoreboard(GameUser killerUser, Player killer, ScoreboardAPI scoreboardAPI) {
         try {
             GameTeam killerTeam = killerUser.getAssignedTeam();
-            scoreboardAPI.addKillForTeam(killerTeam);
+            scoreboardAPI.addKillForTeam(killerTeam, gameUsers);
         } catch (NullPointerException ex) {
             System.out.print(ex.getMessage());
         }
@@ -364,14 +359,21 @@ public class GameData {
         }
         for (Player p : Bukkit.getOnlinePlayers()) {
             //nikt nie wygral
-             p.sendMessage(messageManager.getMessage(gameUsers.getGameUser(p.getName()).getLanguage(),endMessage));
+            GameUser gameUser = gameUsers.getGameUser(p.getName());
+            if (gameUser != null)
+                p.sendMessage(messageManager.getMessage(gameUser.getLanguage(), endMessage));
+            else {
+                p.sendMessage(messageManager.getMessage("PL", endMessage));
+
+            }
         }
+        this.counter.cancel();
         status = GameStatus.RESTARTING;
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             for (Player p : Bukkit.getOnlinePlayers()) {
                 //nikt nie wygral
                 BungeeUtil.changeServer(plugin, p, "Lobby1");
-                p.kickPlayer("Arena przygotowuje sie do nowej gry!");
+                p.kickPlayer("Arena przygotowuje sie do nowej gry! Restart!");
             }
         }, 20l * 5);
 
@@ -380,7 +382,7 @@ public class GameData {
             worldManagement.initNewWorld();
             initializeArrays();
             status = GameStatus.WAITING;
-            this.counter.cancel();
+
         }, 20l * 10);
         /*ArenaStatus.setStatus(ArenaStatus.Status.WAITING);
         ArenaStatus.setLore(
@@ -433,7 +435,7 @@ public class GameData {
         }
     }
 
-    private void startCountingDown() {
+    public void startCountingDown() {
         getCounter().start(Counter.CounterStatus.COUNTINGTOSTART);
         this.setStatus(GameStatus.STARTING);
         broadcastToAllPlayers("thewalls.countingstarted");
@@ -454,7 +456,7 @@ public class GameData {
 
     public void startGame(ScoreboardAPI scoreboardAPI, ClassManager classManager) {
         //ArenaStatus.setStatus(//ArenaStatus.Status.INGAME);
-        this.getWorldManagement().setProtected(true);
+        this.worldManagement.setProtected(true);
 
         String expGiveMsgPL = messageManager.getMessage("PL", "thewalls.exp.giveinfo");
         String expGiveMsgEN = messageManager.getMessage("EN", "thewalls.exp.giveinfo");
@@ -539,7 +541,7 @@ public class GameData {
 
 
     public void startFight() {
-        this.getWorldManagement().removeWalls();
+        this.worldManagement.removeWalls();
         this.counter.start(Counter.CounterStatus.COUNTINGTODM);
         fixInvisiblePlayers();
     }
@@ -556,7 +558,7 @@ public class GameData {
     }
 
     public void startDeathMatch() {
-        getWorldManagement().teleportPlayersOnDeathMatch(gameUsers);
+        worldManagement.teleportPlayersOnDeathMatch(gameUsers);
         this.setStatus(GameStatus.INGAME);
         //ArenaStatus.setStatus(//ArenaStatus.Status.INGAME);
         this.counter.start(Counter.CounterStatus.DEATHMATCH);
@@ -569,16 +571,17 @@ public class GameData {
         p.setAllowFlight(true);
         p.setFlying(true);
         PermissionAttacher.attachSpectatorPermissions(p, worldName);
-        if (gameUser.getAssignedTeam() != null) {
-            this.getTeams().get(gameUser.getAssignedTeam()).remove(p.getName());
+    }
+
+    public void removeFromTeam(GameUser gameUser, Player p) {
+        GameTeam assignedTeam = gameUser.getAssignedTeam();
+        if (assignedTeam != null) {
+            HashMap<GameTeam, ArrayList<String>> teams = this.getTeams();
+            teams.get(assignedTeam).remove(p.getName());
             gameUser.setAssignedTeam(null);
         }
     }
 
-
-    public WorldManagement getWorldManagement() {
-        return worldManagement;
-    }
 
     public void checkWinners() {
         if (!status.equals(GameStatus.INGAME)) {

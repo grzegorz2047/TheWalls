@@ -48,17 +48,24 @@ public class BlockBreak implements Listener {
             GameUser user = gameUsers.getGameUser(username);
             String language = user.getLanguage();
             Location blockLocation = block.getLocation();
-            if (!storageProtection.isFurnaceOwner(username, blockLocation)) {
-                p.sendMessage(messageManager.getMessage(language, "thewalls.msg.furnacenotyours"));
-                e.setCancelled(true);
-            } else {
-                storageProtection.removeFurnaceProtection(user, blockLocation);
-                p.sendMessage(messageManager.getMessage(language, "thewalls.msg.furnacenolongerprotected"));
-            }
+            handleFurnaceProtection(e, p, username, user, language, blockLocation);
         } else {
             BlockDrop blockDrop = dropsMap.get(type);
             if (blockDrop != null)
                 blockDrop.dropItems(e);
+        }
+    }
+
+    private void handleFurnaceProtection(BlockBreakEvent e, Player p, String username, GameUser user, String language, Location blockLocation) {
+        if(!storageProtection.hasOwner(blockLocation)) {
+            return;
+        }
+        if (!storageProtection.isFurnaceOwner(username, blockLocation)) {
+            p.sendMessage(messageManager.getMessage(language, "thewalls.msg.furnacenotyours"));
+            e.setCancelled(true);
+        } else {
+            storageProtection.removeFurnaceProtection(user, blockLocation);
+            p.sendMessage(messageManager.getMessage(language, "thewalls.msg.furnacenolongerprotected"));
         }
     }
 

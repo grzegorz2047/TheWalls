@@ -2,6 +2,9 @@ package pl.grzegorz2047.thewalls;
 
 import fr.xephi.authme.api.v3.AuthMeApi;
 import org.bukkit.*;
+import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarStyle;
+import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -40,6 +43,7 @@ public class GameData {
     private int multiplier;
     private int expForKill;
     private int expForWin;
+    private BossBar bossBar;
 
 
     private boolean isCrackersAuthme = true;
@@ -71,6 +75,7 @@ public class GameData {
         shopMenuManager = plugin.getShopMenuManager();
 
 
+        bossBar = Bukkit.createBossBar("Zapraszamy na ts.mc-walls.pl", BarColor.BLUE, BarStyle.SOLID);
     }
 
     private GameStatus status = GameStatus.WAITING;
@@ -311,6 +316,29 @@ public class GameData {
                 }
             }
         }, 1l);
+    }
+
+    int bossbarTime = 0;
+    String[] titles = {"Zapraszamy na ts.mc-walls.pl", "Wesprzyj nas na mc-walls.pl"};
+    BarColor[] bossColors = {BarColor.BLUE, BarColor.GREEN};
+    Random r = new Random();
+
+    public void updateBossBar() {
+        bossbarTime++;
+        if (bossbarTime % 60 == 0) {
+            bossbarTime = 0;
+            int index = r.nextInt(2);
+            bossBar.setTitle(titles[index]);
+            bossBar.setColor(bossColors[index]);
+        }
+    }
+
+    public void addToBossBar(Player p) {
+        bossBar.addPlayer(p);
+    }
+
+    public void removeFromBossBar(Player p) {
+        bossBar.removePlayer(p);
     }
 
     public enum GameTeam {

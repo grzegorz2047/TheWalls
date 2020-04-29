@@ -20,6 +20,7 @@ public class GeneralTask implements Runnable {
     public void run() {
         counter.count();
         gameData.checkToStart();
+        gameData.updateBossBar();
         //ArenaStatus.setLastPing();
     }
 }

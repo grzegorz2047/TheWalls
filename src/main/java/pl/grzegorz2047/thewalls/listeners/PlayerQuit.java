@@ -26,6 +26,7 @@ public class PlayerQuit implements Listener {
     @EventHandler
     public void onQuit(PlayerQuitEvent e) {
         Player p = e.getPlayer();
+        gameData.removeFromBossBar(p);
         gameData.handlePlayerQuit(p);
         //ArenaStatus.setPlayers(Bukkit.getOnlinePlayers().size() - 1);
         e.setQuitMessage("");

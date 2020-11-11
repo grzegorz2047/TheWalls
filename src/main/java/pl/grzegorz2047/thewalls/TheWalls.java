@@ -14,6 +14,8 @@ import pl.grzegorz2047.thewalls.api.file.YmlFileHandler;
 import pl.grzegorz2047.thewalls.commands.surface.SurfaceCommand;
 import pl.grzegorz2047.thewalls.commands.team.TeamCommand;
 import pl.grzegorz2047.thewalls.commands.tep.TepCommand;
+import pl.grzegorz2047.thewalls.commands.vote.VoteCommand;
+import pl.grzegorz2047.thewalls.commands.vote.Voter;
 import pl.grzegorz2047.thewalls.commands.walls.WallsCommand;
 import pl.grzegorz2047.thewalls.drop.BlockDrop;
 import pl.grzegorz2047.thewalls.drop.Drop;
@@ -40,6 +42,8 @@ public class TheWalls extends JavaPlugin {
     private ShopAPI shopManager;
     private Shop shopMenuManager;
     private GameUsers gameUsers;
+    private BossBarHandler bossBarHandler;
+    private Voter voter;
 
 
     public ShopAPI getShopManager() {
@@ -54,8 +58,11 @@ public class TheWalls extends JavaPlugin {
         String loadedMotd = config.getString("motd");
         registerDbHandlers(config);
         Counter counter = new Counter(settings);
-        gameData = new GameData(this, counter, gameUsers);
-        Bukkit.getScheduler().runTaskTimer(this, new GeneralTask(gameData, counter), 0, 20l);
+        voter = new Voter();
+        gameData = new GameData(this, counter, gameUsers, voter);
+        this.bossBarHandler = new BossBarHandler();
+
+        Bukkit.getScheduler().runTaskTimer(this, new GeneralTask(gameData, counter, bossBarHandler), 0, 20l);
 
         scoreboardAPI = new ScoreboardAPI(messageManager, gameData);
         Map<Material, BlockDrop> dropsMap = getBlockDrops(config);
@@ -101,6 +108,7 @@ public class TheWalls extends JavaPlugin {
         this.getCommand("team").setExecutor(new TeamCommand("team", new String[]{"team", "druzyna", "t", "d"}, this, gameUsers));
         this.getCommand("wyjdz").setExecutor(new SurfaceCommand("wyjdz", new String[]{"wyjdz", "surface"}, this, gameData, messageManager, gameUsers));
         this.getCommand("walls").setExecutor(new WallsCommand("walls", new String[]{"walls", "thewalls"}, this, gameUsers));
+        this.getCommand("vote").setExecutor(new VoteCommand("vote", new String[]{"v", "vote", "glosuj"}, this, gameUsers, voter));
         this.getCommand("tep").setExecutor(new TepCommand(this, gameUsers));
     }
 
@@ -177,8 +185,8 @@ public class TheWalls extends JavaPlugin {
 
     private void registerListeners(PluginManager pluginManager, String loadedMotd, Map<Material, BlockDrop> dropsMap, ClassManager classManager, StorageProtection storageProtection) {
 
-        pluginManager.registerEvents(new PlayerJoin(gameData), this);
-        pluginManager.registerEvents(new PlayerQuit(this), this);
+        pluginManager.registerEvents(new PlayerJoin(gameData, this.bossBarHandler), this);
+        pluginManager.registerEvents(new PlayerQuit(this, this.bossBarHandler, voter), this);
         pluginManager.registerEvents(new PlayerLogin(playerManager, gameData, messageManager), this);
         pluginManager.registerEvents(new EntityExplode(this, dropsMap), this);
         pluginManager.registerEvents(new PlayerChat(settings, gameData, gameUsers), this);

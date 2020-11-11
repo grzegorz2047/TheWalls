@@ -17,3 +17,5 @@ commands:
     tep:
         description: Komenda do teleportacji pomiedzy graczami w druzynie
         aliases: [teleport]
+    vote:
+        description: Komenda do rozpoczecia rozgrywki

@@ -123,14 +123,14 @@ public class ClassManager {
         Inventory standardFighterInventory = classInventory.get(CLASS.WOJOWNIK).get("Gracz").getInventory();
         standardFighterInventory.addItem(sword);
         standardFighterInventory.addItem(new ItemStack(Material.COOKED_BEEF, 5));
-        standardFighterInventory.addItem(new ItemStack(Material.ENCHANTED_GOLDEN_APPLE, 2));
+        standardFighterInventory.addItem(new ItemStack(Material.GOLDEN_APPLE, 2));
 
         ItemStack vipsword = new ItemStack(Material.IRON_SWORD, 1);
         vipsword.addEnchantment(Enchantment.DAMAGE_ALL, 2);
         Inventory vipFighterInventory = classInventory.get(CLASS.WOJOWNIK).get("Vip").getInventory();
         vipFighterInventory.addItem(vipsword);
         vipFighterInventory.addItem(new ItemStack(Material.COOKED_BEEF, 10));
-        vipFighterInventory.addItem(new ItemStack(Material.ENCHANTED_GOLDEN_APPLE, 4));
+        vipFighterInventory.addItem(new ItemStack(Material.GOLDEN_APPLE, 4));
     }
 
     private void addLucznikItems() {
@@ -145,7 +145,7 @@ public class ClassManager {
         vipBowmanInventory.addItem(vipbow);
         vipBowmanInventory.addItem(new ItemStack(Material.ARROW, 64));
         vipBowmanInventory.addItem(new ItemStack(Material.COOKED_BEEF, 10));
-        vipBowmanInventory.addItem(new ItemStack(Material.ENCHANTED_GOLDEN_APPLE, 3));
+        vipBowmanInventory.addItem(new ItemStack(Material.GOLDEN_APPLE, 3));
         vipBowmanInventory.addItem(new ItemStack(Material.LEATHER_HELMET, 1));
         vipBowmanInventory.addItem(new ItemStack(Material.LEATHER_BOOTS, 1));
 
@@ -172,7 +172,7 @@ public class ClassManager {
         standardFoodInventory.addItem(new ItemStack(Material.CAKE, 1));
         standardFoodInventory.addItem(new ItemStack(Material.BREAD, 16));
         standardFoodInventory.addItem(new ItemStack(Material.BEEF, 32));
-        standardFoodInventory.addItem(new ItemStack(Material.ENCHANTED_GOLDEN_APPLE, 16));
+        standardFoodInventory.addItem(new ItemStack(Material.GOLDEN_APPLE, 16));
         standardFoodInventory.addItem(new ItemStack(Material.FURNACE, 2));
         standardFoodInventory.addItem(new ItemStack(Material.CHARCOAL, 4));
 
@@ -183,7 +183,7 @@ public class ClassManager {
         vipFoodInventory.addItem(new ItemStack(Material.CAKE, 1));
         vipFoodInventory.addItem(new ItemStack(Material.BREAD, 16));
         vipFoodInventory.addItem(new ItemStack(Material.BEEF, 32));
-        vipFoodInventory.addItem(new ItemStack(Material.ENCHANTED_GOLDEN_APPLE, 16));
+        vipFoodInventory.addItem(new ItemStack(Material.GOLDEN_APPLE, 16));
         vipFoodInventory.addItem(new ItemStack(Material.FURNACE, 2));
         vipFoodInventory.addItem(new ItemStack(Material.CHARCOAL, 4));
     }

@@ -30,8 +30,10 @@ public class CounterEnd implements Listener {
     @EventHandler
     public void onCounterEnd(CounterEndEvent e) {
         Counter.CounterStatus status = e.getStatus();
-        if (e.getStatus().equals(Counter.CounterStatus.COUNTINGTOSTART)) {
-
+        if (e.getStatus().equals(Counter.CounterStatus.VOTED_COUNTING_TO_START)) {
+            gameData.forceStartGame(scoreboardAPI, classManager);
+            return;
+        }if (e.getStatus().equals(Counter.CounterStatus.COUNTINGTOSTART)) {
             gameData.startGame(scoreboardAPI, classManager);
             return;
         }

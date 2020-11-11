@@ -1,5 +1,7 @@
 package pl.grzegorz2047.thewalls.listeners;
 
+import org.bukkit.Effect;
+import org.bukkit.Sound;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Egg;
 import org.bukkit.entity.Player;
@@ -62,6 +64,7 @@ public class PlayersDamaging implements Listener {
                     if (checkIfTheSameTeam(attackedUser, attackerUser)) {
                         event.setCancelled(true);
                     }
+                    attacker.playSound(attacker.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 1);
                 }
             }
         } else if (event.getDamager() instanceof Snowball) {

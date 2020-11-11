@@ -30,7 +30,7 @@ public class Counter {
         COUNTINGTODROPWALLS,
         COUNTINGTODM,
         RESTARTINGARENA,
-        DEATHMATCH
+        VOTED_COUNTING_TO_START, DEATHMATCH
     }
 
     public CounterStatus getStatus() {
@@ -50,7 +50,7 @@ public class Counter {
     public void start(CounterStatus status) {
         this.running = true;
 
-        if (status.equals(CounterStatus.COUNTINGTOSTART)) {
+        if (status.equals(CounterStatus.COUNTINGTOSTART) || status.equals(CounterStatus.VOTED_COUNTING_TO_START)) {
             time = Integer.parseInt(settings.get("thewalls.countingtostarttime"));
         }
         if (status.equals(CounterStatus.COUNTINGTODROPWALLS)) {

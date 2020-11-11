@@ -14,6 +14,7 @@ import org.bukkit.scoreboard.Scoreboard;
 import pl.grzegorz2047.databaseapi.*;
 import pl.grzegorz2047.databaseapi.messages.MessageAPI;
 import pl.grzegorz2047.thewalls.api.util.*;
+import pl.grzegorz2047.thewalls.commands.vote.Voter;
 import pl.grzegorz2047.thewalls.permissions.PermissionAttacher;
 import pl.grzegorz2047.thewalls.playerclass.ClassManager;
 import pl.grzegorz2047.thewalls.scoreboard.ScoreboardAPI;
@@ -32,6 +33,8 @@ public class GameData {
 
 
     private final Shop shopMenuManager;
+    private final BossBarHandler bossBarHandler = new BossBarHandler();
+    private final Voter voter;
     private Counter counter;
     private HashMap<GameTeam, ArrayList<String>> teams = new HashMap<GameTeam, ArrayList<String>>();
 
@@ -43,17 +46,18 @@ public class GameData {
     private int multiplier;
     private int expForKill;
     private int expForWin;
-    private BossBar bossBar;
 
 
     private boolean isCrackersAuthme = true;
     private GameUsers gameUsers;
+    private boolean moneyForGame = true;
 
 
-    public GameData(TheWalls plugin, Counter counter, GameUsers gameUsers) {
+    public GameData(TheWalls plugin, Counter counter, GameUsers gameUsers, Voter voter) {
         this.plugin = plugin;
         this.counter = counter;
         this.gameUsers = gameUsers;
+        this.voter = voter;
         HashMap<String, String> settings = plugin.getSettings();
         this.minPlayers = Integer.parseInt(settings.get("thewalls.minplayers"));
         maxTeamSize = Integer.parseInt(settings.get("thewalls.maxteamsize"));
@@ -75,7 +79,6 @@ public class GameData {
         shopMenuManager = plugin.getShopMenuManager();
 
 
-        bossBar = Bukkit.createBossBar("Zapraszamy na ts.mc-walls.pl", BarColor.BLUE, BarStyle.SOLID);
     }
 
     private GameStatus status = GameStatus.WAITING;
@@ -269,6 +272,10 @@ public class GameData {
     }
 
     private void givePlayerMoneyForKill(Player killer, GameUser killerUser, String killerLanguage, ScoreboardAPI scoreboardAPI) {
+        if(!this.moneyForGame) {
+            killer.sendMessage(messageManager.getMessage(killerLanguage, "thewalls.msg.noMoney"));
+            return;
+        }
         String killerRank = killerUser.getRank();
         int moneyForKill = getMoneyForKill();
         Scoreboard killerScoreboard = killer.getScoreboard();
@@ -318,28 +325,11 @@ public class GameData {
         }, 1l);
     }
 
-    int bossbarTime = 0;
-    String[] titles = {"Zapraszamy na ts.mc-walls.pl", "Wesprzyj nas na mc-walls.pl"};
-    BarColor[] bossColors = {BarColor.BLUE, BarColor.GREEN};
-    Random r = new Random();
-
-    public void updateBossBar() {
-        bossbarTime++;
-        if (bossbarTime % 60 == 0) {
-            bossbarTime = 0;
-            int index = r.nextInt(2);
-            bossBar.setTitle(titles[index]);
-            bossBar.setColor(bossColors[index]);
-        }
+    public void forceStartGame(ScoreboardAPI scoreboardAPI, ClassManager classManager) {
+        this.moneyForGame = false;
+        startGame(scoreboardAPI, classManager);
     }
 
-    public void addToBossBar(Player p) {
-        bossBar.addPlayer(p);
-    }
-
-    public void removeFromBossBar(Player p) {
-        bossBar.removePlayer(p);
-    }
 
     public enum GameTeam {
         TEAM1(1, "§a"),
@@ -381,6 +371,7 @@ public class GameData {
     }
 
     public void restartGame(String endMessage) {
+        this.moneyForGame = true;
         if (status.equals(GameStatus.RESTARTING)) {
             plugin.getLogger().info("bug?");
             return;
@@ -395,6 +386,7 @@ public class GameData {
 
             }
         }
+        voter.reset();
         this.counter.cancel();
         status = GameStatus.RESTARTING;
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
@@ -500,7 +492,7 @@ public class GameData {
 
             GameTeam assignedTeam = user.getAssignedTeam();
             Location startLocation = worldManagement.getStartLocation(assignedTeam);
-            System.out.println(startLocation.getWorld().toString());
+//            System.out.println(startLocation.getWorld().toString());
             p.teleport(startLocation);
             if (!userRank.equals("Gracz")) {
                 p.setLevel(5);
@@ -642,13 +634,20 @@ public class GameData {
     private void giveMoneyToWinners(GameUser user) {
         if (user.getAssignedTeam() != null) {
             user.addWonGame();
-            int moneForWin = Integer.parseInt(settings.get("thewalls.moneyforwin"));
-            if (user.getRank().equals("Gracz")) {
-                user.changeMoney(moneForWin);
-            } else {
-                user.changeMoney(moneForWin * 2);
-            }
+            giveWinMoney(user);
             user.addExp(getExpForWin());
+        }
+    }
+
+    private void giveWinMoney(GameUser user) {
+        if(!this.moneyForGame) {
+            return;
+        }
+        int moneForWin = Integer.parseInt(settings.get("thewalls.moneyforwin"));
+        if (user.getRank().equals("Gracz")) {
+            user.changeMoney(moneForWin);
+        } else {
+            user.changeMoney(moneForWin * 2);
         }
     }
 }

@@ -1,5 +1,6 @@
 package pl.grzegorz2047.thewalls.listeners;
 
+import me.rerere.matrix.api.events.PlayerViolationEvent;
 import org.bukkit.Material;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -103,6 +104,18 @@ public class GeneralBlocking implements Listener {
             /* Cancel execution of command */
             e.setCancelled(true);
             e.setMessage("Chyba cos cie boli!");
+        }
+    }
+
+    @EventHandler
+    private void onViolation(PlayerViolationEvent e) {
+        Player player = e.getPlayer();
+        String uuidStr = player.getUniqueId().toString();
+        boolean isBedrock = uuidStr.contains("00000000-0000");
+        //System.out.println(uuidStr + " porownano z 00000000-0000");
+        if (isBedrock) {
+            // System.out.println("Bypass violation for " + player.getName());
+            e.setCancelled(true);
         }
     }
 }

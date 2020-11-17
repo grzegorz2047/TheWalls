@@ -12,13 +12,13 @@ import pl.grzegorz2047.thewalls.*;
 public class PlayerJoin implements Listener {
 
     private final GameData gameData;
-    private BossBarHandler bossBarHandler;
+    private BossBarExtension bossBarExtension;
 
 
-    public PlayerJoin(GameData gameData, BossBarHandler bossBarHandler) {
+    public PlayerJoin(GameData gameData, BossBarExtension bossBarExtension) {
         this.gameData = gameData;
 
-        this.bossBarHandler = bossBarHandler;
+        this.bossBarExtension = bossBarExtension;
     }
 
     @EventHandler
@@ -28,7 +28,7 @@ public class PlayerJoin implements Listener {
         }
         e.setJoinMessage(null);
         Player p = e.getPlayer();
-        bossBarHandler.addToBossBar(p);
+        bossBarExtension.addToBossBar(p);
         gameData.addPlayerToArena(p);
     }
 

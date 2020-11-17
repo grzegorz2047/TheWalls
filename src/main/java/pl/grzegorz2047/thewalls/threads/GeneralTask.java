@@ -1,6 +1,6 @@
 package pl.grzegorz2047.thewalls.threads;
 
-import pl.grzegorz2047.thewalls.BossBarHandler;
+import pl.grzegorz2047.thewalls.BossBarExtension;
 import pl.grzegorz2047.thewalls.Counter;
 import pl.grzegorz2047.thewalls.GameData;
 
@@ -11,19 +11,19 @@ public class GeneralTask implements Runnable {
 
     private final GameData gameData;
     private final Counter counter;
-    private final BossBarHandler bossBarHandler;
+    private final BossBarExtension bossBarExtension;
 
-    public GeneralTask(GameData gameData, Counter counter, BossBarHandler bossBarHandler) {
+    public GeneralTask(GameData gameData, Counter counter, BossBarExtension bossBarExtension) {
         this.gameData = gameData;
         this.counter = counter;
-        this.bossBarHandler = bossBarHandler;
+        this.bossBarExtension = bossBarExtension;
     }
 
     @Override
     public void run() {
         counter.count();
         gameData.checkToStart();
-        bossBarHandler.updateBossBar();
+        bossBarExtension.updateBossBar();
         //ArenaStatus.setLastPing();
     }
 }

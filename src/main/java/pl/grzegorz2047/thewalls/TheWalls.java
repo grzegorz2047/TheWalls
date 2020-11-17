@@ -2,6 +2,8 @@ package pl.grzegorz2047.thewalls;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarStyle;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -42,7 +44,7 @@ public class TheWalls extends JavaPlugin {
     private ShopAPI shopManager;
     private Shop shopMenuManager;
     private GameUsers gameUsers;
-    private BossBarHandler bossBarHandler;
+    private BossBarExtension bossBarExtension;
     private Voter voter;
 
 
@@ -59,10 +61,12 @@ public class TheWalls extends JavaPlugin {
         registerDbHandlers(config);
         Counter counter = new Counter(settings);
         voter = new Voter();
-        gameData = new GameData(this, counter, gameUsers, voter);
-        this.bossBarHandler = new BossBarHandler();
+        String[] titles = {"Zapraszamy na ts.mc-walls.pl", "Wesprzyj nas na mc-walls.pl"};
+        BossBarData bossBarData = new BossBarData(titles, new BarColor[]{BarColor.BLUE, BarColor.GREEN}, 60);
+        this.bossBarExtension = new BossBarExtension(Bukkit.createBossBar("", BarColor.BLUE, BarStyle.SOLID), bossBarData);
+        gameData = new GameData(this, counter, gameUsers, voter, this.bossBarExtension);
 
-        Bukkit.getScheduler().runTaskTimer(this, new GeneralTask(gameData, counter, bossBarHandler), 0, 20l);
+        Bukkit.getScheduler().runTaskTimer(this, new GeneralTask(gameData, counter, bossBarExtension), 0, 20l);
 
         scoreboardAPI = new ScoreboardAPI(messageManager, gameData);
         Map<Material, BlockDrop> dropsMap = getBlockDrops(config);
@@ -185,8 +189,8 @@ public class TheWalls extends JavaPlugin {
 
     private void registerListeners(PluginManager pluginManager, String loadedMotd, Map<Material, BlockDrop> dropsMap, ClassManager classManager, StorageProtection storageProtection) {
 
-        pluginManager.registerEvents(new PlayerJoin(gameData, this.bossBarHandler), this);
-        pluginManager.registerEvents(new PlayerQuit(this, this.bossBarHandler, voter), this);
+        pluginManager.registerEvents(new PlayerJoin(gameData, this.bossBarExtension), this);
+        pluginManager.registerEvents(new PlayerQuit(this, this.bossBarExtension, voter), this);
         pluginManager.registerEvents(new PlayerLogin(playerManager, gameData, messageManager), this);
         pluginManager.registerEvents(new EntityExplode(this, dropsMap), this);
         pluginManager.registerEvents(new PlayerChat(settings, gameData, gameUsers), this);

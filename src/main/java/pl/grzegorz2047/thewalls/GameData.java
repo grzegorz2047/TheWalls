@@ -2,9 +2,6 @@ package pl.grzegorz2047.thewalls;
 
 import fr.xephi.authme.api.v3.AuthMeApi;
 import org.bukkit.*;
-import org.bukkit.boss.BarColor;
-import org.bukkit.boss.BarStyle;
-import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -33,7 +30,7 @@ public class GameData {
 
 
     private final Shop shopMenuManager;
-    private final BossBarHandler bossBarHandler = new BossBarHandler();
+    private final BossBarExtension bossBarExtension;
     private final Voter voter;
     private Counter counter;
     private HashMap<GameTeam, ArrayList<String>> teams = new HashMap<GameTeam, ArrayList<String>>();
@@ -53,11 +50,12 @@ public class GameData {
     private boolean moneyForGame = true;
 
 
-    public GameData(TheWalls plugin, Counter counter, GameUsers gameUsers, Voter voter) {
+    public GameData(TheWalls plugin, Counter counter, GameUsers gameUsers, Voter voter, BossBarExtension bossBarExtension) {
         this.plugin = plugin;
         this.counter = counter;
         this.gameUsers = gameUsers;
         this.voter = voter;
+        this.bossBarExtension = bossBarExtension;
         HashMap<String, String> settings = plugin.getSettings();
         this.minPlayers = Integer.parseInt(settings.get("thewalls.minplayers"));
         maxTeamSize = Integer.parseInt(settings.get("thewalls.maxteamsize"));

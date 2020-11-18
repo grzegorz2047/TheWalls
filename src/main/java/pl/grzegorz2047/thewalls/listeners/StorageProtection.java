@@ -1,7 +1,6 @@
 package pl.grzegorz2047.thewalls.listeners;
 
 import org.bukkit.Location;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import pl.grzegorz2047.databaseapi.messages.MessageAPI;
 import pl.grzegorz2047.thewalls.GameUser;
@@ -25,11 +24,12 @@ public class StorageProtection {
         return Optional.ofNullable(protectedFurnaces.get(location));
     }
 
-    public boolean isChestOwner(Player player, String playerName, Block clickedBlock) {
-        Optional<String> protectedFurnacePlayer = getPlayerProtectedFurnace(clickedBlock.getLocation());
+    public boolean isChestOwner(Player player, Location location) {
+        Optional<String> protectedFurnacePlayer = getPlayerProtectedFurnace(location);
         if (!protectedFurnacePlayer.isPresent()) {
             return true;
         }
+        String playerName = player.getName();
         if (protectedFurnacePlayer.get().equals(playerName)) {
             return true;
         }
@@ -58,9 +58,11 @@ public class StorageProtection {
         return true;
 
     }
+
     private boolean exceedsNumberOfProtectedFurnaces(GameUser user) {
         return user.getProtectedFurnaces() >= 3;
     }
+
     public boolean hasOwner(Location blockLocation) {
         return getPlayerProtectedFurnace(blockLocation).isPresent();
     }

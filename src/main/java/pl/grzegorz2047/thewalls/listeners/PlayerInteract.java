@@ -2,6 +2,7 @@ package pl.grzegorz2047.thewalls.listeners;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
@@ -74,7 +75,27 @@ public class PlayerInteract implements Listener {
 
 
         if (handleIngameInteractions(event, player, itemInHandType, playerName, counterStatus)) return;
-        handleRandomChestOpen(event, player);
+        Block clickedBlock = event.getClickedBlock();
+        if (clickedBlock == null) {
+            return;
+        }
+        if (!(clickedBlock.getState() instanceof Chest)) {
+            return;
+        }
+        Chest state = (Chest) clickedBlock.getState();
+        Location blockLocation = clickedBlock.getLocation();
+        if (handleChestProtection(event, player, blockLocation)) return;
+
+        handleRandomChestOpen(player, clickedBlock, state);
+    }
+
+    private boolean handleChestProtection(PlayerInteractEvent event, Player player, Location location) {
+        boolean isChestOwner = storageProtection.isChestOwner(player, location);
+        if (!isChestOwner) {
+            event.setCancelled(true);
+            return true;
+        }
+        return false;
     }
 
     private boolean handleIngameInteractions(PlayerInteractEvent event, Player player, Material itemInHandType, String playerName, Counter.CounterStatus status) {
@@ -89,6 +110,7 @@ public class PlayerInteract implements Listener {
                 return true;
             }
             shopMenuManager.openMainMenu(player, user, messageManager);
+            return true;
         }
         if (itemInHandType.equals(Material.ENDER_PEARL)) {
             if (status.equals(Counter.CounterStatus.COUNTINGTODROPWALLS)) {
@@ -144,23 +166,7 @@ public class PlayerInteract implements Listener {
     }
 
 
-    private void handleRandomChestOpen(PlayerInteractEvent event, Player player) {
-        Block clickedBlock = event.getClickedBlock();
-
-        if (clickedBlock == null) {
-            return;
-        }
-        boolean isChestOwner = storageProtection.isChestOwner(player, player.getName(), clickedBlock);
-        if (!isChestOwner) {
-            event.setCancelled(true);
-            return;
-        }
-
-        if (!(clickedBlock.getState() instanceof Chest)) {
-            return;
-        }
-        Chest cb = (Chest) clickedBlock.getState();
-
+    private void handleRandomChestOpen(Player player, Block clickedBlock, Chest cb) {
         if (!cb.getInventory().contains(Material.BEDROCK)) {
             return;
         }

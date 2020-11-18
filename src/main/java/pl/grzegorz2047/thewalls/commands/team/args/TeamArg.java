@@ -18,17 +18,15 @@ import pl.grzegorz2047.thewalls.api.util.ColoringUtil;
  */
 public class TeamArg implements Arg {
 
-    TheWalls plugin;
+
     private GameData gameData;
     private MessageAPI messageManager;
     private GameUsers gameUsers;
 
-    public TeamArg(Plugin plugin, GameUsers gameUsers) {
-        this.plugin = (TheWalls) plugin;
+    public TeamArg(GameUsers gameUsers, GameData gameData, MessageAPI messageManager) {
         this.gameUsers = gameUsers;
-        gameData = this.plugin.getGameData();
-        messageManager = this.plugin.getMessageManager();
-
+        this.gameData = gameData;
+        this.messageManager = messageManager;
     }
 
     @Override

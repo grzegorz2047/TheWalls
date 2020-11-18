@@ -15,8 +15,8 @@ public class SurfaceCommand extends BaseWithAliasCommand {
 
     private final GameUsers gameUsers;
 
-    public SurfaceCommand(String baseCmd, String[] aliases, TheWalls plugin, GameData gameData, MessageAPI messageManager, GameUsers gameUsers) {
-        super(baseCmd, aliases, plugin);
+    public SurfaceCommand(String baseCmd, String[] aliases, GameData gameData, MessageAPI messageManager, GameUsers gameUsers) {
+        super(baseCmd, aliases);
         this.gameUsers = gameUsers;
         this.commands.put(new String[]{""}, new SurfaceArg(gameData, messageManager, this.gameUsers));
     }

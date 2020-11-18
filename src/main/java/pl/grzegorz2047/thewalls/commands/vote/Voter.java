@@ -1,7 +1,6 @@
 package pl.grzegorz2047.thewalls.commands.vote;
 
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
+import pl.grzegorz2047.thewalls.GameData;
 import pl.grzegorz2047.thewalls.GameUser;
 
 import java.util.ArrayList;
@@ -10,19 +9,20 @@ import java.util.List;
 public class Voter {
     private List<String> voters = new ArrayList<>();
 
-    public boolean addVote(Player p, GameUser user) {
-        String playerName = p.getName();
+    public boolean vote(GameUser user) {
+        GameData.GameTeam assignedTeam = user.getAssignedTeam();
+        String playerName = user.getUsername();
         if (voters.contains(playerName)) {
             return false;
         }
-        if (user.getAssignedTeam() == null) {
+        if (assignedTeam == null) {
             return false;
         }
         voters.add(playerName);
         return true;
     }
 
-    public boolean check() {
+    public boolean isEnoughNumberOfVotes() {
         return voters.size() >= getMinPlayersToStart();
     }
 
@@ -34,8 +34,8 @@ public class Voter {
         return (int) (getMinPlayersToStart() - voters.size());
     }
 
-    public void handlerPlayerQuit(Player p) {
-        voters.remove(p.getName());
+    public void handlePlayerQuit(String name) {
+        voters.remove(name);
     }
 
     public void reset() {

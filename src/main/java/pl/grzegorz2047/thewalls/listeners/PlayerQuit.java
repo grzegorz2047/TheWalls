@@ -34,7 +34,7 @@ public class PlayerQuit implements Listener {
         Player p = e.getPlayer();
         bossBarExtension.removeFromBossBar(p);
         gameData.handlePlayerQuit(p);
-        voter.handlerPlayerQuit(p);
+        voter.handlePlayerQuit(p.getName());
         //ArenaStatus.setPlayers(Bukkit.getOnlinePlayers().size() - 1);
         e.setQuitMessage("");
     }

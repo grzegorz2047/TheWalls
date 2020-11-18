@@ -7,8 +7,13 @@ import static org.junit.jupiter.api.Assertions.*;
 class CommandSanitizerTest {
 
     @Test
-    void isDisallowedCommand() {
+    void whenCommandisDisallowedThenReturnTrue() {
         assertTrue(CommandSanitizer.isDisallowedCommand("/me"));
         assertTrue(CommandSanitizer.isDisallowedCommand("/minecraft:me"));
+    }
+    @Test
+    void whenCommandissallowedThenReturnFalse() {
+        assertFalse(CommandSanitizer.isDisallowedCommand("/bukkit"));
+        assertFalse(CommandSanitizer.isDisallowedCommand("no elo"));
     }
 }

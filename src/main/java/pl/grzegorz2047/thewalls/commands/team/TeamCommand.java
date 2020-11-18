@@ -1,6 +1,7 @@
 package pl.grzegorz2047.thewalls.commands.team;
 
-import org.bukkit.plugin.Plugin;
+import pl.grzegorz2047.databaseapi.messages.MessageAPI;
+import pl.grzegorz2047.thewalls.GameData;
 import pl.grzegorz2047.thewalls.GameUsers;
 import pl.grzegorz2047.thewalls.TheWalls;
 import pl.grzegorz2047.thewalls.api.command.BaseWithAliasCommand;
@@ -12,10 +13,10 @@ import pl.grzegorz2047.thewalls.commands.team.args.TeamArg;
  */
 public class TeamCommand extends BaseWithAliasCommand {
 
-    private TheWalls plugin;
 
-    public TeamCommand(String baseCmd, String[] aliases, Plugin plugin, GameUsers gameUsers) {
-        super(baseCmd, aliases, plugin);
-        this.commands.put(new String[]{"1", "2", "3", "4"}, new TeamArg(plugin, gameUsers));
+
+    public TeamCommand(String baseCmd, String[] aliases, GameUsers gameUsers, GameData gameData, MessageAPI messageManager) {
+        super(baseCmd, aliases);
+        this.commands.put(new String[]{"1", "2", "3", "4"}, new TeamArg(gameUsers, gameData, messageManager));
     }
 }

@@ -12,16 +12,14 @@ import java.util.Map;
 /**
  * Created by Grzegorz2047. 18.09.2015.
  */
-public class BaseWithAliasCommand extends BaseCommand {
+public abstract class BaseWithAliasCommand extends BaseCommand {
 
-    Plugin plugin;
     String[] aliases;
 
     protected Map<String[], Arg> commands = new HashMap<String[], Arg>();
 
-    public BaseWithAliasCommand(String baseCmd, String[] aliases, Plugin plugin) {
+    public BaseWithAliasCommand(String baseCmd, String[] aliases) {
         super(baseCmd);
-        this.plugin = plugin;
         this.aliases = aliases;
         //this.command.put(aliases, new KlasaTypeArg(levels)); example
     }

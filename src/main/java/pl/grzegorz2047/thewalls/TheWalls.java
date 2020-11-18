@@ -111,10 +111,10 @@ public class TheWalls extends JavaPlugin {
     }
 
     private void registerCommands() {
-        this.getCommand("team").setExecutor(new TeamCommand("team", new String[]{"team", "druzyna", "t", "d"}, this, gameUsers));
-        this.getCommand("wyjdz").setExecutor(new SurfaceCommand("wyjdz", new String[]{"wyjdz", "surface"}, this, gameData, messageManager, gameUsers));
-        this.getCommand("walls").setExecutor(new WallsCommand("walls", new String[]{"walls", "thewalls"}, this, gameUsers));
-        this.getCommand("vote").setExecutor(new VoteCommand("vote", new String[]{"v", "vote", "glosuj"}, this, gameUsers, voter));
+        this.getCommand("team").setExecutor(new TeamCommand("team", new String[]{"team", "druzyna", "t", "d"}, gameUsers, gameData, messageManager));
+        this.getCommand("wyjdz").setExecutor(new SurfaceCommand("wyjdz", new String[]{"wyjdz", "surface"}, gameData, messageManager, gameUsers));
+        this.getCommand("walls").setExecutor(new WallsCommand("walls", new String[]{"walls", "thewalls"}, gameUsers, gameData, messageManager));
+        this.getCommand("vote").setExecutor(new VoteCommand("vote", new String[]{"v", "vote", "glosuj"}, gameData));
         this.getCommand("tep").setExecutor(new TepCommand(this, gameUsers));
     }
 

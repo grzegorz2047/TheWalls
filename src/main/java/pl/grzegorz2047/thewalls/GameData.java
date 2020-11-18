@@ -328,6 +328,34 @@ public class GameData {
         startGame(scoreboardAPI, classManager);
     }
 
+    public void tryToCount(String userLanguage) {
+        if (this.voter.isEnoughNumberOfVotes()) {
+            counter.start(Counter.CounterStatus.VOTED_COUNTING_TO_START);
+            Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', messageManager.getMessage(userLanguage, "thewalls.msg.noMoneyWhenVoting")));
+            Bukkit.broadcastMessage(messageManager.getMessage(userLanguage, "thewalls.countingstarted"));
+        } else {
+            int remaining = this.voter.getRemaining();
+            Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', messageManager.getMessage(userLanguage, "thewalls.msg.noMoneyWhenVoting")));
+            Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', messageManager.getMessage(userLanguage, "thewalls.msg.remainingToStart").replace("%REMAINING%", String.valueOf(remaining))));
+        }
+    }
+
+    public void vote(Player p) {
+        String username = p.getName();
+        GameUser user = gameUsers.getGameUser(username);
+        String userLanguage = user.getLanguage();
+        if (isStatus(GameData.GameStatus.WAITING)) {
+            boolean isVoted = this.voter.vote(user);
+            if (isVoted) {
+                tryToCount(userLanguage);
+            } else {
+                p.sendMessage(ChatColor.translateAlternateColorCodes('&', messageManager.getMessage(userLanguage, "thewalls.msg.noTeamOrAlreadyVoted")));
+            }
+        } else {
+            p.sendMessage(ChatColor.translateAlternateColorCodes('&', messageManager.getMessage(userLanguage, "thewalls.msg.alreadystarted")));
+        }
+    }
+
 
     public enum GameTeam {
         TEAM1(1, "§a"),

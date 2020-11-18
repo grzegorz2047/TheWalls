@@ -7,10 +7,12 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerChatTabCompleteEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import pl.grzegorz2047.thewalls.GameData;
 import pl.grzegorz2047.thewalls.GameUser;
 import pl.grzegorz2047.thewalls.GameUsers;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -30,6 +32,15 @@ public class PlayerChat implements Listener {
         this.gameData = gameData;
         this.gameUsers = gameUsers;
     }
+
+    @EventHandler
+    public void onCommand(PlayerCommandPreprocessEvent e) {
+        if(CommandSanitizer.isDisallowedCommand(e.getMessage())) {
+            e.setCancelled(true);
+        }
+    }
+
+
 
     @EventHandler
     public void onChat(AsyncPlayerChatEvent e) {

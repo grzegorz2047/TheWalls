@@ -27,17 +27,16 @@ public class StorageProtection {
 
     public boolean isChestOwner(Player player, String playerName, Block clickedBlock) {
         Optional<String> protectedFurnacePlayer = getPlayerProtectedFurnace(clickedBlock.getLocation());
-        if (protectedFurnacePlayer.isPresent()) {
-            if (!protectedFurnacePlayer.get().equals(playerName)) {
-                GameUser user = gameUsers.getGameUser(playerName);
-                String userLanguage = user.getLanguage();
-                player.sendMessage(messageManager.getMessage(userLanguage, "thewalls.msg.someonesprotectedfurnace"));
-                return false;
-            } else {
-                return true;
-            }
+        if (!protectedFurnacePlayer.isPresent()) {
+            return true;
         }
-        return true;
+        if (protectedFurnacePlayer.get().equals(playerName)) {
+            return true;
+        }
+        GameUser user = gameUsers.getGameUser(playerName);
+        String userLanguage = user.getLanguage();
+        player.sendMessage(messageManager.getMessage(userLanguage, "thewalls.msg.someonesprotectedfurnace"));
+        return false;
     }
 
     public void removeFurnaceProtection(GameUser user, Location location) {
@@ -50,11 +49,18 @@ public class StorageProtection {
         return playerProtectedFurnace.map(s -> s.equals(username)).orElse(true);
     }
 
-    public void protectNewFurnace(Location blockLocation, String username, GameUser user) {
+    public boolean protectNewFurnace(Location blockLocation, String username, GameUser user) {
+        if (exceedsNumberOfProtectedFurnaces(user)) {
+            return false;
+        }
         protectedFurnaces.put(blockLocation, username);
         user.setProtectedFurnaces(user.getProtectedFurnaces() + 1);
-    }
+        return true;
 
+    }
+    private boolean exceedsNumberOfProtectedFurnaces(GameUser user) {
+        return user.getProtectedFurnaces() >= 3;
+    }
     public boolean hasOwner(Location blockLocation) {
         return getPlayerProtectedFurnace(blockLocation).isPresent();
     }

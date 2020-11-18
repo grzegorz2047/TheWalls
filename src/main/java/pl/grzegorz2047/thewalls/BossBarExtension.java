@@ -18,6 +18,7 @@ public class BossBarExtension {
             bossbarTime = 0;
             this.bossBar.setTitle(bossBarData.getRandomTitle());
             this.bossBar.setColor(bossBarData.getRandomColor());
+
         }
         bossbarTime = bossbarTime + 1;
     }

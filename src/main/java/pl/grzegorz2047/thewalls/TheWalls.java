@@ -4,6 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
+import org.bukkit.boss.BossBar;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -63,7 +64,8 @@ public class TheWalls extends JavaPlugin {
         voter = new Voter();
         String[] titles = {"Zapraszamy na ts.mc-walls.pl", "Wesprzyj nas na mc-walls.pl"};
         BossBarData bossBarData = new BossBarData(titles, new BarColor[]{BarColor.BLUE, BarColor.GREEN}, 60);
-        this.bossBarExtension = new BossBarExtension(Bukkit.createBossBar("", BarColor.BLUE, BarStyle.SOLID), bossBarData);
+        BossBar bossBar = Bukkit.createBossBar("", BarColor.BLUE, BarStyle.SOLID);
+        this.bossBarExtension = new BossBarExtension(bossBar, bossBarData);
         gameData = new GameData(this, counter, gameUsers, voter, this.bossBarExtension);
 
         Bukkit.getScheduler().runTaskTimer(this, new GeneralTask(gameData, counter, bossBarExtension), 0, 20l);

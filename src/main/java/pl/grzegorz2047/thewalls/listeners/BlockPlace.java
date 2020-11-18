@@ -58,11 +58,10 @@ public class BlockPlace implements Listener {
             if (blockType.equals(Material.FURNACE)) {
                 GameUser user = gameUsers.getGameUser(username);
                 String language = user.getLanguage();
-                if (exceedsNumberOfProtectedFurnaces(user)) {
-                    player.sendMessage(messageManager.getMessage(language, "thewalls.msg.furnacenotprotected"));
-                } else {
-                    storageProtection.protectNewFurnace(blockLocation, username, user);
+                if (storageProtection.protectNewFurnace(blockLocation, username, user)) {
                     player.sendMessage(messageManager.getMessage(language, "thewalls.msg.furnacenowprotected"));
+                } else {
+                    player.sendMessage(messageManager.getMessage(language, "thewalls.msg.furnacenotprotected"));
                 }
                 return;
             }
@@ -78,7 +77,5 @@ public class BlockPlace implements Listener {
 
 
 
-    private boolean exceedsNumberOfProtectedFurnaces(GameUser user) {
-        return user.getProtectedFurnaces() >= 3;
-    }
+
 }

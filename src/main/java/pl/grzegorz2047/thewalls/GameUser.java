@@ -98,6 +98,14 @@ public class GameUser extends SQLUser {
         this.protectedFurnaces = protectedFurnaces;
     }
 
+    public void incrementProtectedFurnaces() {
+        setProtectedFurnaces(getProtectedFurnaces() + 1);
+    }
+
+    public void decrementProtectedFurnaces() {
+        setProtectedFurnaces(getProtectedFurnaces() - 1);
+    }
+
     public int getLose() {
         return this.statsUser.getLose();
     }

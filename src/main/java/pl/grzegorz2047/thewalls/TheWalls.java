@@ -160,7 +160,7 @@ public class TheWalls extends JavaPlugin {
                         message = (String) propsValue;
                     }
                 }
-                int chanceVal = prepareChance(chance);
+                int chanceVal = chance != 0 ? chance : 100;
                 Drop drop = createDrop(materialDrop, tools, message, quantity, isExp, chanceVal);
                 dropsList.add(drop);
             }
@@ -168,16 +168,6 @@ public class TheWalls extends JavaPlugin {
 
         }
         return dropsMap;
-    }
-
-    private int prepareChance(int chance) {
-        int chanceVal;
-        if (chance == 0) {
-            chanceVal = 100;
-        } else {
-            chanceVal = chance;
-        }
-        return chanceVal;
     }
 
     private Drop createDrop(Material materialDrop, List<String> tools, String message, int quantity, boolean isExp, int chanceVal) {

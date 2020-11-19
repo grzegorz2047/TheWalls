@@ -21,7 +21,7 @@ public abstract class Drop {
         return this.chance;
     }
 
-    public boolean withProperTool(ItemStack item) {
+    public boolean isProperTool(ItemStack item) {
         boolean isAny = this.tools.stream().anyMatch(x -> x.equals("ANY"));
         if (isAny) {
             return true;

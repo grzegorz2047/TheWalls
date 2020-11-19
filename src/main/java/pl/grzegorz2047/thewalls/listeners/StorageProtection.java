@@ -7,12 +7,13 @@ import pl.grzegorz2047.thewalls.GameUser;
 import pl.grzegorz2047.thewalls.GameUsers;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 public class StorageProtection {
 
-    HashMap<Location, String> protectedFurnaces = new HashMap<Location, String>();
-    private GameUsers gameUsers;
+    private final Map<Location, String> protectedFurnaces = new HashMap<>();
+    private final GameUsers gameUsers;
     private final MessageAPI messageManager;
 
     public StorageProtection(GameUsers gameUsers, MessageAPI messageManager) {
@@ -41,7 +42,7 @@ public class StorageProtection {
 
     public void removeFurnaceProtection(GameUser user, Location location) {
         protectedFurnaces.remove(location);
-        user.setProtectedFurnaces(user.getProtectedFurnaces() - 1);
+        user.decrementProtectedFurnaces();
     }
 
     public boolean isFurnaceOwner(String username, Location blockLocation) {
@@ -49,14 +50,17 @@ public class StorageProtection {
         return playerProtectedFurnace.map(s -> s.equals(username)).orElse(true);
     }
 
+    /**
+     * Makes a specified user claim a furnace.
+     * @return True if the furnace is now protected.
+     */
     public boolean protectNewFurnace(Location blockLocation, String username, GameUser user) {
         if (exceedsNumberOfProtectedFurnaces(user)) {
             return false;
         }
         protectedFurnaces.put(blockLocation, username);
-        user.setProtectedFurnaces(user.getProtectedFurnaces() + 1);
+        user.incrementProtectedFurnaces();
         return true;
-
     }
 
     private boolean exceedsNumberOfProtectedFurnaces(GameUser user) {

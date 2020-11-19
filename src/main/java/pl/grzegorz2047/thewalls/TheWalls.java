@@ -22,6 +22,8 @@ import pl.grzegorz2047.thewalls.commands.vote.Voter;
 import pl.grzegorz2047.thewalls.commands.walls.WallsCommand;
 import pl.grzegorz2047.thewalls.drop.BlockDrop;
 import pl.grzegorz2047.thewalls.drop.Drop;
+import pl.grzegorz2047.thewalls.drop.ExperienceDrop;
+import pl.grzegorz2047.thewalls.drop.ItemDrop;
 import pl.grzegorz2047.thewalls.listeners.*;
 import pl.grzegorz2047.thewalls.playerclass.ClassManager;
 import pl.grzegorz2047.thewalls.scoreboard.ScoreboardAPI;
@@ -159,7 +161,7 @@ public class TheWalls extends JavaPlugin {
                     }
                 }
                 int chanceVal = prepareChance(chance);
-                Drop drop = instantiateDrop(materialDrop, tools, message, quantity, isExp, chanceVal);
+                Drop drop = createDrop(materialDrop, tools, message, quantity, isExp, chanceVal);
                 dropsList.add(drop);
             }
             dropsMap.put(materialItem, new BlockDrop(materialItem, dropsList));
@@ -178,15 +180,12 @@ public class TheWalls extends JavaPlugin {
         return chanceVal;
     }
 
-    private Drop instantiateDrop(Material materialDrop, List<String> tools, String message, int quantity, boolean isExp, int chanceVal) {
-        Drop drop;
+    private Drop createDrop(Material materialDrop, List<String> tools, String message, int quantity, boolean isExp, int chanceVal) {
         if (isExp) {
-
-            drop = new Drop(tools, quantity, chanceVal);
+            return new ExperienceDrop(tools, quantity, chanceVal);
         } else {
-            drop = new Drop(materialDrop, tools, quantity, chanceVal, message);
+            return new ItemDrop(materialDrop, tools, quantity, chanceVal, message);
         }
-        return drop;
     }
 
     private void registerListeners(PluginManager pluginManager, String loadedMotd, Map<Material, BlockDrop> dropsMap, ClassManager classManager, StorageProtection storageProtection) {
@@ -207,7 +206,7 @@ public class TheWalls extends JavaPlugin {
         pluginManager.registerEvents(new InventoryClick(), this);
         pluginManager.registerEvents(new ChooseItem(messageManager, gameData, shopMenuManager, scoreboardAPI, this.getShopManager(), classManager, gameUsers), this);
         pluginManager.registerEvents(new PlayerInteract(gameData, messageManager, shopMenuManager, classManager, storageProtection, gameUsers, scoreboardAPI), this);
-        pluginManager.registerEvents(new ItemDrop(gameData), this);
+        pluginManager.registerEvents(new ItemDropWatcher(gameData), this);
         pluginManager.registerEvents(new ServerMotd(gameData, loadedMotd), this);
 
         this.getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");

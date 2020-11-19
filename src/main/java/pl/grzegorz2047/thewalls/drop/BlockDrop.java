@@ -31,7 +31,7 @@ public class BlockDrop {
             int chance = drop.getChance();
             int randomNumber = r.nextInt(100);
             if (randomNumber <= chance) {
-                if (drop.isExp()) {
+                if (drop instanceof ExperienceDrop) {
                     e.setExpToDrop(drop.getQuantity());
                 } else {
                     e.setExpToDrop(0);

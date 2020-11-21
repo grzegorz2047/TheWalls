@@ -8,20 +8,18 @@ import pl.grzegorz2047.thewalls.GameData;
 /**
  * Created by grzeg on 22.05.2016.
  */
-public class ItemDrop implements Listener {
-
+public class ItemDropWatcher implements Listener {
 
     private final GameData gameData;
 
-    public ItemDrop(GameData gameData) {
+    public ItemDropWatcher(GameData gameData) {
         this.gameData = gameData;
     }
 
     @EventHandler
-    private void onDrop(PlayerDropItemEvent e){
-        if(!gameData.isStatus(GameData.GameStatus.INGAME)){
+    private void onDrop(PlayerDropItemEvent e) {
+        if (!gameData.isStatus(GameData.GameStatus.INGAME)) {
             e.setCancelled(true);
         }
     }
-
 }

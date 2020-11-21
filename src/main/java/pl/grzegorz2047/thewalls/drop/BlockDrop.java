@@ -5,13 +5,17 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
+import static pl.grzegorz2047.thewalls.api.util.ColoringUtil.colorText;
+
 public class BlockDrop {
+
+    private final Random random = new Random();
     private final Material material;
     private final List<Drop> drops;
 
@@ -21,29 +25,34 @@ public class BlockDrop {
     }
 
     public void dropItems(BlockBreakEvent e) {
-        boolean chosen = false;
-        Random r = new Random();
+
+        PlayerInventory playerInv = e.getPlayer().getInventory();
+        ItemStack itemInMainHand = playerInv.getItemInMainHand();
+        ItemStack itemInOffHand = playerInv.getItemInOffHand();
+
         for (Drop drop : drops) {
-            ItemStack itemInHand = e.getPlayer().getItemInHand();
-            if (!drop.withProperTool(itemInHand)) {
+
+            if (!drop.isProperTool(itemInMainHand) && !drop.isProperTool(itemInOffHand)) {
                 continue;
             }
+
             int chance = drop.getChance();
-            int randomNumber = r.nextInt(100);
+            int randomNumber = random.nextInt(100);
             if (randomNumber <= chance) {
-                if (drop.isExp()) {
+                if (drop instanceof ExperienceDrop) {
                     e.setExpToDrop(drop.getQuantity());
                 } else {
                     e.setExpToDrop(0);
                     Location location = e.getBlock().getLocation();
                     e.getBlock().setType(Material.AIR);
                     location.getWorld().dropItemNaturally(location, drop.toItemStack());
-                    e.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', drop.getMessage()));
+                    e.getPlayer().sendMessage(colorText(drop.getMessage()));
                     e.setCancelled(true);
                 }
                 break;
             }
         }
+
         Collections.shuffle(drops);
     }
 }

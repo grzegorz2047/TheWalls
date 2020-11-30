@@ -171,7 +171,7 @@ public class PlayerInteract implements Listener {
             return;
         }
         List<ItemStack> chestContent = generateChestContent();
-        PlayerInventory inventory = player.getInventory(); // The player's inventory
+        PlayerInventory inventory = player.getInventory();
         chestContent.forEach(inventory::addItem);
         player.updateInventory();
         cb.getInventory().clear();
@@ -182,16 +182,11 @@ public class PlayerInteract implements Listener {
         int pearl = 0;
         List<ItemStack> chestContent = new ArrayList<>();
         for (int i = 0; i < 4; i++) {
-            //System.out.println("Losuje skrzynke!");
-            //System.out.println("Test Destroy box");
             ItemStack itemstack1 = getRandomItemstack(pearl!= 0);
             if (itemstack1.getType().equals(Material.ENDER_PEARL)) {
                 pearl++;
             }
             chestContent.add(itemstack1);
-            //chest.getInventory().addItem(itemstack1);
-
-
         }
         return chestContent;
     }
@@ -206,6 +201,4 @@ public class PlayerInteract implements Listener {
         }
         return new ItemStack(mat, amount);
      }
-
-
 }

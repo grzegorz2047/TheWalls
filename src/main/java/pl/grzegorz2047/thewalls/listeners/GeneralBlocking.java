@@ -1,6 +1,5 @@
 package pl.grzegorz2047.thewalls.listeners;
 
-import me.rerere.matrix.api.events.PlayerViolationEvent;
 import org.bukkit.Material;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -25,8 +24,7 @@ import pl.grzegorz2047.thewalls.GameUsers;
  */
 public class GeneralBlocking implements Listener {
 
-
-     private final GameData gameData;
+    private final GameData gameData;
     private final MessageAPI messageManager;
     private final Counter counter;
     private final GameUsers gameUsers;
@@ -82,40 +80,28 @@ public class GeneralBlocking implements Listener {
     }
 
     @EventHandler
-    public void onWOrld(WorldSaveEvent e) {
+    public void onWorldSave(WorldSaveEvent e) {
         System.out.println("Ktos zapisje? >:<");
     }
 
     @EventHandler
-    public void criczerSpawn(CreatureSpawnEvent e) {
-        System.out
-                .println("criczer spawn " + e.getSpawnReason().name());
+    public void onCreatureSpawn(CreatureSpawnEvent e) {
+        System.out.println("criczer spawn " + e.getSpawnReason().name());
         LivingEntity entity = e.getEntity();
         e.setCancelled(true);
     }
 
     @EventHandler
-    public void pre(AsyncPlayerPreLoginEvent e) {
+    public void onPreLogin(AsyncPlayerPreLoginEvent e) {
         System.out.println("Ktos loguje? >:<");
     }
+
     @EventHandler
     public void onPlayerSayStop(PlayerCommandPreprocessEvent e){
-        if(e.getMessage().equalsIgnoreCase("/stop") || e.getMessage().equalsIgnoreCase("stop")){
+        if (e.getMessage().equalsIgnoreCase("/stop") || e.getMessage().equalsIgnoreCase("stop")) {
             /* Cancel execution of command */
             e.setCancelled(true);
             e.setMessage("Chyba cos cie boli!");
         }
     }
-
-    /*@EventHandler
-    private void onViolation(PlayerViolationEvent e) {
-        Player player = e.getPlayer();
-        String uuidStr = player.getUniqueId().toString();
-        boolean isBedrock = uuidStr.contains("00000000-0000");
-        //System.out.println(uuidStr + " porownano z 00000000-0000");
-        if (isBedrock) {
-            // System.out.println("Bypass violation for " + player.getName());
-            e.setCancelled(true);
-        }
-    }*/
 }

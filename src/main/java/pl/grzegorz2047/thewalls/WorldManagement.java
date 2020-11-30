@@ -191,7 +191,6 @@ public class WorldManagement {
                     for (int y = miny; y <= maxy; y = y + 1) {
                         for (int z = minz; z <= maxz; z = z + 1) {
                             Location blockloc = new Location(loadedWorld, x, y, z);
-                            //System.out.println("xyz"+x+" "+y+" "+z+" ");
                             blockloc.getBlock().setType(Material.AIR);
                         }
                     }
@@ -204,7 +203,7 @@ public class WorldManagement {
         try {
             rm.save();
             System.out.println("Zapis flagi regionu!");
-        } catch (Exception exp) {
+        } catch (Exception ignored) {
         }
         this.setProtected(false);
     }

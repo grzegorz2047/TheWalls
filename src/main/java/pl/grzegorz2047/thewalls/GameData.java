@@ -448,7 +448,6 @@ public class GameData {
         if (this.isStatus(GameStatus.WAITING)) {
             Calendar cal = Calendar.getInstance();
             int hour = cal.get(Calendar.HOUR_OF_DAY);
-//            System.out.println("Godzina jest " + hour);
             if (hour < 13 || hour > 21) {
                 this.minPlayers = Integer.parseInt(settings.get("thewalls.minplayersearly"));
             } else {
@@ -469,7 +468,6 @@ public class GameData {
             } else {
                 if (numberOfPlayers >= this.minPlayers) {
                     startCountingDown();
-                    //ArenaStatus.setStatus(//ArenaStatus.Status.STARTING);
                 }
             }
         } else if (this.isStatus(GameStatus.STARTING)) {
@@ -518,7 +516,7 @@ public class GameData {
 
             GameTeam assignedTeam = user.getAssignedTeam();
             Location startLocation = worldManagement.getStartLocation(assignedTeam);
-//            System.out.println(startLocation.getWorld().toString());
+
             p.teleport(startLocation);
             if (!userRank.equals("Gracz")) {
                 p.setLevel(5);

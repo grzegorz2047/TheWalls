@@ -7,7 +7,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.scoreboard.Scoreboard;
-import pl.grzegorz2047.databaseapi.MoneyAPI;
 import pl.grzegorz2047.databaseapi.messages.MessageAPI;
 import pl.grzegorz2047.databaseapi.shop.Item;
 import pl.grzegorz2047.databaseapi.shop.ShopAPI;
@@ -55,18 +54,18 @@ public class ChooseItem implements Listener {
     public void onChoose(ChooseItemEvent e) {
         Player p = e.getPlayer();
         String title = e.getTitle();
-        // System.out.println("A");
+
         if (title != null) {
-            //System.out.println("B");
             ItemStack clicked = e.getClicked();
             if (clicked == null) {
                 return;
             }
-            //  System.out.println("C");
+
             Material clickedType = clicked.getType();
             if (clickedType == null) {
                 return;
             }
+
             String playerName = p.getName();
             if (title.equals("Kits")) {
                 e.setCancelled(true);
@@ -117,7 +116,7 @@ public class ChooseItem implements Listener {
                 }
                 return;
             }
-            //System.out.println("D");
+
             PlayerInventory playerInventory = p.getInventory();
             if (title.equals("Perm items")) {
                 GameUser user = gameUsers.getGameUser(playerName);
@@ -188,7 +187,6 @@ public class ChooseItem implements Listener {
                         }
                     }
                 }
-
             }
         }
     }

@@ -1,9 +1,4 @@
-package pl.grzegorz2047.thewalls.api.file;/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
+package pl.grzegorz2047.thewalls.api.file;
 
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;

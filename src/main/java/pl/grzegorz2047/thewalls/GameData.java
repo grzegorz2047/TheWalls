@@ -1,39 +1,51 @@
 package pl.grzegorz2047.thewalls;
 
 import fr.xephi.authme.api.v3.AuthMeApi;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.Scoreboard;
-import pl.grzegorz2047.databaseapi.*;
+import pl.grzegorz2047.databaseapi.SQLUser;
 import pl.grzegorz2047.databaseapi.messages.MessageAPI;
-import pl.grzegorz2047.thewalls.api.util.*;
+import pl.grzegorz2047.thewalls.api.util.BungeeUtil;
+import pl.grzegorz2047.thewalls.api.util.ColoringUtil;
+import pl.grzegorz2047.thewalls.api.util.CreateItemUtil;
 import pl.grzegorz2047.thewalls.commands.vote.Voter;
 import pl.grzegorz2047.thewalls.permissions.PermissionAttacher;
 import pl.grzegorz2047.thewalls.playerclass.ClassManager;
 import pl.grzegorz2047.thewalls.scoreboard.ScoreboardAPI;
 import pl.grzegorz2047.thewalls.shop.Shop;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+import static pl.grzegorz2047.thewalls.api.util.ColoringUtil.colorText;
 
 /**
  * Created by grzeg on 16.05.2016.
  */
 public class GameData {
+
     private final TheWalls plugin;
 
     private final MessageAPI messageManager;
     private final HashMap<String, String> settings;
 
-
     private final Shop shopMenuManager;
     private final BossBarExtension bossBarExtension;
     private final Voter voter;
     private final Counter counter;
-    private final HashMap<GameTeam, ArrayList<String>> teams = new HashMap<GameTeam, ArrayList<String>>();
+    private final HashMap<GameTeam, ArrayList<String>> teams = new HashMap<>();
 
     private int minPlayers;
     private final int maxTeamSize;
@@ -44,11 +56,9 @@ public class GameData {
     private final int expForKill;
     private final int expForWin;
 
-
     private final boolean isCrackersAuthme = true;
     private final GameUsers gameUsers;
     private boolean moneyForGame = true;
-
 
     public GameData(TheWalls plugin, Counter counter, GameUsers gameUsers, Voter voter, BossBarExtension bossBarExtension) {
         this.plugin = plugin;
@@ -67,16 +77,12 @@ public class GameData {
         initializeArrays();
         this.settings = plugin.getSettings();
         this.worldManagement = new WorldManagement(Integer.parseInt(settings.get("thewalls.numberofmaps")), settings);
-        //WorldManagement.loadWorld(getSettings().get("thewalls.map.path"));
+
         worldManagement.initNewWorld();
         worldManagement.disableSaving();
 
-
         messageManager = plugin.getMessageManager();
-
         shopMenuManager = plugin.getShopMenuManager();
-
-
     }
 
     private GameStatus status = GameStatus.WAITING;
@@ -117,7 +123,6 @@ public class GameData {
         return expForWin;
     }
 
-
     public ArrayList<String> getTeam(GameTeam team) {
         return teams.get(team);
     }
@@ -130,11 +135,9 @@ public class GameData {
         return teams.get(team).size();
     }
 
-
     public String getCurrentStatusLabel() {
         return status.toString();
     }
-
 
     public void addPlayerToArena(Player p) {
         String playerName = p.getName();
@@ -168,7 +171,6 @@ public class GameData {
             p.removePotionEffect(effect.getType());
         }
     }
-
 
     private void assignUserPermission(Player p, String loadedWorldName, GameUser gameUser) {
         String userRank = gameUser.getRank();
@@ -216,7 +218,6 @@ public class GameData {
 
     public void handlePlayerQuit(Player p) {
         GameUser user = gameUsers.getGameUser(p.getName());
-        //e.setQuitMessage(plugin.getMessageManager().getMessage(user.getLanguage(),"thewalls.msg.quit"));
         removeFromTeam(user, p);
         gameUsers.removePlayerFromGame(p);
         if (isStatus(GameData.GameStatus.WAITING)) {
@@ -237,14 +238,13 @@ public class GameData {
         GameUser killedUser = gameUsers.getGameUser(killedPlayerName);
         killedUser.addDeath();
         killedUser.addLostGame();
-
         killed.setHealth(20);
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             killed.setHealth(20);
             ColoringUtil.colorPlayerTab(killed, "§7");
             prepareSpectator(killed, gameUsers.getGameUser(killed.getName()), plugin.getScoreboardAPI());
             checkWinners();
-        }, 1l);
+        }, 1L);
         return killedPlayerName;
     }
 
@@ -257,20 +257,17 @@ public class GameData {
         addKillerDiamond(killer, killerLanguage);
         killerUser.increaseIngameKills(1);
 
-
         givePlayerMoneyForKill(killer, killerUser, killerLanguage, scoreboardAPI);
         giveKillerExp(killerUser);
-
     }
 
     private void giveKillerExp(GameUser killerUser) {
         int expForKill = getExpForKill();
         killerUser.addExp(expForKill);
-
     }
 
     private void givePlayerMoneyForKill(Player killer, GameUser killerUser, String killerLanguage, ScoreboardAPI scoreboardAPI) {
-        if(!this.moneyForGame) {
+        if (!this.moneyForGame) {
             killer.sendMessage(messageManager.getMessage(killerLanguage, "thewalls.msg.noMoney"));
             return;
         }
@@ -280,14 +277,12 @@ public class GameData {
         if (!killerRank.equals("Gracz")) {
             killerUser.changeMoney(moneyForKill * 2);
             killer.sendMessage(messageManager.getMessage(killerLanguage, "thewalls.msg.moneyforkill").replace("{MONEY}", String.valueOf(moneyForKill * 2)));
-
             scoreboardAPI.updateEntry(killerScoreboard, messageManager.getMessage(killerLanguage, "thewalls.scoreboard.money"), moneyForKill * 2);
 
         } else {
             killerUser.changeMoney(moneyForKill);
             killer.sendMessage(messageManager.getMessage(killerLanguage, "thewalls.msg.moneyforkill").replace("{MONEY}", String.valueOf(moneyForKill)));
             scoreboardAPI.updateEntry(killerScoreboard, messageManager.getMessage(killerLanguage, "thewalls.scoreboard.money"), moneyForKill);
-
         }
     }
 
@@ -300,7 +295,6 @@ public class GameData {
         }
         Scoreboard killerScoreboard = killer.getScoreboard();
         scoreboardAPI.updateEntry(killerScoreboard, messageManager.getMessage(killerUser.getLanguage(), "thewalls.scoreboard.kills"), killerUser.getIngameKills());
-
     }
 
     private void addKillerDiamond(Player killer, String killerLanguage) {
@@ -310,17 +304,14 @@ public class GameData {
     }
 
     public void handleWeirdDeath(Player killed) {
-        Bukkit.getScheduler().runTaskLater(plugin, new Runnable() {
-            @Override
-            public void run() {
-                if (killed != null) {
-                    killed.setHealth(20);
-                    World loadedWorld = worldManagement.getLoadedWorld();
-                    Location spawn = new Location(loadedWorld, 0, 147, 0);
-                    killed.teleport(spawn);
-                }
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            if (killed != null) {
+                killed.setHealth(20);
+                World loadedWorld = worldManagement.getLoadedWorld();
+                Location spawn = new Location(loadedWorld, 0, 147, 0);
+                killed.teleport(spawn);
             }
-        }, 1l);
+        }, 1L);
     }
 
     public void forceStartGame(ScoreboardAPI scoreboardAPI, ClassManager classManager) {
@@ -331,12 +322,12 @@ public class GameData {
     public void tryToCount(String userLanguage) {
         if (this.voter.isEnoughNumberOfVotes()) {
             counter.start(Counter.CounterStatus.VOTED_COUNTING_TO_START);
-            Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', messageManager.getMessage(userLanguage, "thewalls.msg.noMoneyWhenVoting")));
+            Bukkit.broadcastMessage(colorText(messageManager.getMessage(userLanguage, "thewalls.msg.noMoneyWhenVoting")));
             Bukkit.broadcastMessage(messageManager.getMessage(userLanguage, "thewalls.countingstarted"));
         } else {
             int remaining = this.voter.getRemaining();
-            Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', messageManager.getMessage(userLanguage, "thewalls.msg.noMoneyWhenVoting")));
-            Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', messageManager.getMessage(userLanguage, "thewalls.msg.remainingToStart").replace("%REMAINING%", String.valueOf(remaining))));
+            Bukkit.broadcastMessage(colorText(messageManager.getMessage(userLanguage, "thewalls.msg.noMoneyWhenVoting")));
+            Bukkit.broadcastMessage(colorText(messageManager.getMessage(userLanguage, "thewalls.msg.remainingToStart").replace("%REMAINING%", String.valueOf(remaining))));
         }
     }
 
@@ -349,13 +340,12 @@ public class GameData {
             if (isVoted) {
                 tryToCount(userLanguage);
             } else {
-                p.sendMessage(ChatColor.translateAlternateColorCodes('&', messageManager.getMessage(userLanguage, "thewalls.msg.noTeamOrAlreadyVoted")));
+                p.sendMessage(colorText(messageManager.getMessage(userLanguage, "thewalls.msg.noTeamOrAlreadyVoted")));
             }
         } else {
-            p.sendMessage(ChatColor.translateAlternateColorCodes('&', messageManager.getMessage(userLanguage, "thewalls.msg.alreadystarted")));
+            p.sendMessage(colorText(messageManager.getMessage(userLanguage, "thewalls.msg.alreadystarted")));
         }
     }
-
 
     public enum GameTeam {
         TEAM1(1, "§a"),
@@ -402,44 +392,39 @@ public class GameData {
             plugin.getLogger().info("bug?");
             return;
         }
+
         for (Player p : Bukkit.getOnlinePlayers()) {
-            //nikt nie wygral
+            // Nobody won
             GameUser gameUser = gameUsers.getGameUser(p.getName());
             if (gameUser != null)
                 p.sendMessage(messageManager.getMessage(gameUser.getLanguage(), endMessage));
             else {
                 p.sendMessage(messageManager.getMessage("PL", endMessage));
-
             }
         }
+
         voter.reset();
         this.counter.cancel();
         status = GameStatus.RESTARTING;
+
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             for (Player p : Bukkit.getOnlinePlayers()) {
-                //nikt nie wygral
+                // Nobody won
                 BungeeUtil.changeServer(plugin, p, "Lobby1");
                 p.kickPlayer("Arena przygotowuje sie do nowej gry! Restart!");
             }
-        }, 20l * 5);
-
+        }, 20L * 5);
 
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             worldManagement.initNewWorld();
             initializeArrays();
             status = GameStatus.WAITING;
-
-        }, 20l * 10);
-        /*ArenaStatus.setStatus(ArenaStatus.Status.WAITING);
-        ArenaStatus.setLore(
-                "\n§7§l> §a1.7 - 1.10"
-        );*/
-
+        }, 20L * 10);
     }
 
     private void initializeArrays() {
         for (GameTeam team : GameTeam.values()) {
-            teams.put(team, new ArrayList<String>());
+            teams.put(team, new ArrayList<>());
         }
     }
 
@@ -499,7 +484,6 @@ public class GameData {
 
 
     public void startGame(ScoreboardAPI scoreboardAPI, ClassManager classManager) {
-        //ArenaStatus.setStatus(//ArenaStatus.Status.INGAME);
         this.worldManagement.setProtected(true);
 
         String expGiveMsgPL = messageManager.getMessage("PL", "thewalls.exp.giveinfo");
@@ -535,7 +519,6 @@ public class GameData {
             userInventory.setItem(8, netherStar);
             scoreboardAPI.createIngameScoreboard(p, user);
             this.setStatus(GameStatus.INGAME);
-            //ArenaStatus.setStatus(//ArenaStatus.Status.INGAME);
             shopMenuManager.givePermItems(p, user);
             broadcastMessageToPlayer(p, "shop.givenpermitems");
             classManager.givePlayerClass(p, user);
@@ -604,7 +587,6 @@ public class GameData {
     public void startDeathMatch() {
         worldManagement.teleportPlayersOnDeathMatch(gameUsers);
         this.setStatus(GameStatus.INGAME);
-        //ArenaStatus.setStatus(//ArenaStatus.Status.INGAME);
         this.counter.start(Counter.CounterStatus.DEATHMATCH);
     }
 

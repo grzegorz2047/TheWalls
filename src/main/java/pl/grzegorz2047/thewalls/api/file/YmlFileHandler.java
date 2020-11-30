@@ -5,21 +5,21 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * @author Grzegorz
  */
 public class YmlFileHandler {
-    private File file;
-    private FileConfiguration config;
-    private String filename;
 
-    private Plugin plugin;
-
-    private YmlFileHandler() {
-
-    }
+    private final File file;
+    private final FileConfiguration config;
+    private final String filename;
+    private final Plugin plugin;
 
     public YmlFileHandler(Plugin plugin, String path, String name) {
         this.plugin = plugin;
@@ -28,7 +28,7 @@ public class YmlFileHandler {
         this.file = new File(path, this.filename);
         System.out.println(path + " sciezka dla " + name);
         this.config = new YamlConfiguration();
-        if (!file.exists()) {//Copy from plugin.jar
+        if (!file.exists()) { // Copy from plugin.jar
             System.out.println("Plik " + this.filename + " nie istnieje!");
             try {
                 copyFile();
@@ -45,18 +45,15 @@ public class YmlFileHandler {
 
     public void load() {
         try {
-            config.load(file); //Wczytuje plik z cala konfiguracj§
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InvalidConfigurationException e) {
+            config.load(file);
+        } catch (IOException | InvalidConfigurationException e) {
             e.printStackTrace();
         }
     }
 
     public void save() {
         try {
-            config.save(file);//Zapisuje konfiguracje do pliku
-
+            config.save(file);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -65,16 +62,14 @@ public class YmlFileHandler {
     private void copyFile() throws Exception {
         this.file.getParentFile().mkdirs();
         if (plugin.getResource(this.filename) != null) {
-            kopiujPlik(plugin.getResource(this.filename), this.file);
+            copyFileInternal(plugin.getResource(this.filename), this.file);
         } else {
             this.file.createNewFile();
             System.out.println("Plik " + this.filename + " nie jest dolaczony do pluginu. Zostanie utworzony przy zapisie danych");
         }
-
     }
 
-
-    private void kopiujPlik(InputStream in, File file) {
+    private void copyFileInternal(InputStream in, File file) {
         try {
             OutputStream out = new FileOutputStream(file);
             byte[] buf = new byte[1024];
@@ -88,5 +83,4 @@ public class YmlFileHandler {
             e.printStackTrace();
         }
     }
-
 }

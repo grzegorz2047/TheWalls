@@ -5,7 +5,7 @@ import java.util.List;
 
 public class CommandSanitizer {
 
-    private static List<String> disallowedCommands = Arrays.asList("/minecraft:me","/me", "?");
+    private static final List<String> disallowedCommands = Arrays.asList("/minecraft:me","/me", "?");
 
     public static boolean isDisallowedCommand(String message) {
         String[] s = message.split(" ");

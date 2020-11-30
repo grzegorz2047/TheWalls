@@ -14,8 +14,8 @@ import java.util.Map;
  */
 public class GameLocationLoader {
 
-    private Map<GameData.GameTeam, Location> teamSpawnLocations = new HashMap<>();
-    private Map<GameData.GameTeam, Location> dmTeamSpawnLocations = new HashMap<>();
+    private final Map<GameData.GameTeam, Location> teamSpawnLocations = new HashMap<>();
+    private final Map<GameData.GameTeam, Location> dmTeamSpawnLocations = new HashMap<>();
     private final HashMap<String, String> settings;
 
     public GameLocationLoader(HashMap<String, String> settings, String worldName) {

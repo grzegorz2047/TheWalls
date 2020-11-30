@@ -26,7 +26,7 @@ import java.util.Random;
  */
 public class WorldManagement {
     private static World loadedWorld;
-    private static Random r = new Random();
+    private static final Random r = new Random();
     private final int numberOfMaps;
     private final HashMap<String, String> settings;
 

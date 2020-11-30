@@ -22,7 +22,7 @@ public class GameUser extends SQLUser {
     private int ingameKills = 0;
     private StatsUser statsUser;
     private List<Transaction> transactions;
-    private List<Material> boughtTempItems = new ArrayList<Material>();
+    private final List<Material> boughtTempItems = new ArrayList<Material>();
     private int protectedFurnaces = 0;
 
     public GameUser(int userid, String username, String language, String lastip, int exp, boolean pets, boolean effects, boolean disguise, String rank, long rankto, GameUsers gameUsers) {

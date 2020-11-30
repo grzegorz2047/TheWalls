@@ -19,9 +19,9 @@ import pl.grzegorz2047.thewalls.api.util.ColoringUtil;
 public class TeamArg implements Arg {
 
 
-    private GameData gameData;
-    private MessageAPI messageManager;
-    private GameUsers gameUsers;
+    private final GameData gameData;
+    private final MessageAPI messageManager;
+    private final GameUsers gameUsers;
 
     public TeamArg(GameUsers gameUsers, GameData gameData, MessageAPI messageManager) {
         this.gameUsers = gameUsers;

@@ -10,7 +10,7 @@ import pl.grzegorz2047.databaseapi.SQLUser;
  * Created by grzeg on 16.05.2016.
  */
 public class PermissionAttacher {
-    private static Plugin plugin = Bukkit.getPluginManager().getPlugin("TheWalls");
+    private static final Plugin plugin = Bukkit.getPluginManager().getPlugin("TheWalls");
 
     public static void attachSpectatorPermissions(Player p, String worldName) {
         p.addAttachment(plugin, "worldguard.region.bypass." + worldName, true);

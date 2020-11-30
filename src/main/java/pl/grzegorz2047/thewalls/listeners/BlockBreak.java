@@ -23,8 +23,8 @@ public class BlockBreak implements Listener {
     private final GameData gameData;
     private final MessageAPI messageManager;
     private final Map<Material, BlockDrop> dropsMap;
-    private GameUsers gameUsers;
-    private StorageProtection storageProtection;
+    private final GameUsers gameUsers;
+    private final StorageProtection storageProtection;
 
     public BlockBreak(GameData gameData, MessageAPI messageManager, Map<Material, BlockDrop> dropsMap, GameUsers gameUsers, StorageProtection storageProtection) {
         this.gameData = gameData;

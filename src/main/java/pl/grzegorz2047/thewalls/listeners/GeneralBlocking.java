@@ -29,7 +29,7 @@ public class GeneralBlocking implements Listener {
      private final GameData gameData;
     private final MessageAPI messageManager;
     private final Counter counter;
-    private GameUsers gameUsers;
+    private final GameUsers gameUsers;
 
     public GeneralBlocking(GameData gameData, MessageAPI messageManager, GameUsers gameUsers) {
         this.gameData = gameData;

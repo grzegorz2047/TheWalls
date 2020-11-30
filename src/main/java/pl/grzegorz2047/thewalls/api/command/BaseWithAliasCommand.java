@@ -14,9 +14,8 @@ import java.util.Map;
  */
 public abstract class BaseWithAliasCommand extends BaseCommand {
 
-    String[] aliases;
-
-    protected Map<String[], Arg> commands = new HashMap<String[], Arg>();
+    protected final String[] aliases;
+    protected final Map<String[], Arg> commands = new HashMap<>();
 
     public BaseWithAliasCommand(String baseCmd, String[] aliases) {
         super(baseCmd);

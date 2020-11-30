@@ -26,8 +26,8 @@ public class BlockPlace implements Listener {
     private final GameData gameData;
     private final Counter counter;
     private final MessageAPI messageManager;
-    private GameUsers gameUsers;
-    private StorageProtection storageProtection;
+    private final GameUsers gameUsers;
+    private final StorageProtection storageProtection;
 
     public BlockPlace(GameData gameData, MessageAPI messageManager, GameUsers gameUsers, StorageProtection storageProtection) {
         this.gameData = gameData;

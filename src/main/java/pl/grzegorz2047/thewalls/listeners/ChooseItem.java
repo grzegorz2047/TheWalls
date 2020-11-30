@@ -38,7 +38,7 @@ public class ChooseItem implements Listener {
     private final ShopAPI shopManager;
     private final ScoreboardAPI scoreboardAPI;
     private final ClassManager classManager;
-    private GameUsers gameUsers;
+    private final GameUsers gameUsers;
 
     public ChooseItem(MessageAPI messageManager, GameData gameData, Shop shopMenuManager, ScoreboardAPI scoreboardAPI, ShopAPI shopManager, ClassManager classManager, GameUsers gameUsers) {
         this.gameData = gameData;

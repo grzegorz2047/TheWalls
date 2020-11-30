@@ -12,7 +12,7 @@ import pl.grzegorz2047.thewalls.*;
 public class PlayerJoin implements Listener {
 
     private final GameData gameData;
-    private BossBarExtension bossBarExtension;
+    private final BossBarExtension bossBarExtension;
 
 
     public PlayerJoin(GameData gameData, BossBarExtension bossBarExtension) {

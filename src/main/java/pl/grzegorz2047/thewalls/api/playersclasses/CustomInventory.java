@@ -10,10 +10,10 @@ import org.bukkit.inventory.ItemStack;
  */
 public class CustomInventory {
 
-    private Inventory inventory;
+    private final Inventory inventory;
 
     private ItemStack[] contents;
-    private ItemStack[] armorContents;
+    private final ItemStack[] armorContents;
 
     public CustomInventory() {
         this.contents = new ItemStack[36];

@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Voter {
-    private List<String> voters = new ArrayList<>();
+    private final List<String> voters = new ArrayList<>();
 
     public boolean vote(GameUser user) {
         GameData.GameTeam assignedTeam = user.getAssignedTeam();

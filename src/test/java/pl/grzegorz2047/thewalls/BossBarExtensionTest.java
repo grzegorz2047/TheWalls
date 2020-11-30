@@ -42,12 +42,4 @@ class BossBarExtensionTest {
 //        assertEquals(1,players.size());
 
     }
-
-    @Test
-    void addToBossBar() {
-    }
-
-    @Test
-    void removeFromBossBar() {
-    }
 }

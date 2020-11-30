@@ -25,8 +25,8 @@ import java.util.Map;
 public class Shop {
 
     private final ShopAPI shopAPI;
-    private HashMap<Integer, Item> normalItems;
-    private HashMap<Integer, Item> tempItems;
+    private final HashMap<Integer, Item> normalItems;
+    private final HashMap<Integer, Item> tempItems;
 
     public Shop(ShopAPI shopAPI) {
         this.shopAPI = shopAPI;

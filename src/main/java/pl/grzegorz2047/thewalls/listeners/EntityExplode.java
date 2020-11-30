@@ -27,7 +27,7 @@ public class EntityExplode implements Listener {
 
 
     private final Map<Material, BlockDrop> dropsMap;
-    private TheWalls plugin;
+    private final TheWalls plugin;
 
     public EntityExplode(TheWalls plugin, Map<Material, BlockDrop> dropsMap) {
         this.plugin = plugin;

@@ -27,12 +27,12 @@ public class ClassManager {
         return classInventory;
     }
 
-    private HashMap<CLASS, HashMap<String, CustomInventory>> classInventory = new HashMap<CLASS, HashMap<String, CustomInventory>>();
-    private Inventory classMenu;
+    private final HashMap<CLASS, HashMap<String, CustomInventory>> classInventory = new HashMap<CLASS, HashMap<String, CustomInventory>>();
+    private final Inventory classMenu;
 
     public enum CLASS {WOJOWNIK, DRWAL, GORNIK, LUCZNIK, KUCHARZ, ALCHEMIK}
 
-    private HashMap<String, CLASS> classes = new HashMap<String, CLASS>();
+    private final HashMap<String, CLASS> classes = new HashMap<String, CLASS>();
 
 
     public ClassManager(TheWalls plugin) {

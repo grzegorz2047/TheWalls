@@ -14,9 +14,9 @@ import org.bukkit.inventory.ItemStack;
 public class ChooseItemEvent extends Event implements Cancellable {
 
     private final int slot;
-    private Player player;
-    private ItemStack clicked;
-    private InventoryView view;
+    private final Player player;
+    private final ItemStack clicked;
+    private final InventoryView view;
 
     public ChooseItemEvent(String title, int size, Inventory inventory, ItemStack clicked, Player p, int slot, InventoryView view) {
         this.title = view.getTitle();
@@ -30,10 +30,10 @@ public class ChooseItemEvent extends Event implements Cancellable {
 
     private static final HandlerList handlers = new HandlerList();
 
-    private int size;
-    private String title;
+    private final int size;
+    private final String title;
     private boolean cancelled = false;
-    Inventory inventory;
+    private final Inventory inventory;
 
     public Player getPlayer() {
         return player;

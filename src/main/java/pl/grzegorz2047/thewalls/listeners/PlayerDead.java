@@ -17,7 +17,7 @@ import pl.grzegorz2047.thewalls.GameData.GameStatus;
 public class PlayerDead implements Listener {
 
      private final GameData gameData;
-    private Plugin plugin;
+    private final Plugin plugin;
 
 
     public PlayerDead(GameData gameData, Plugin plugin) {
@@ -62,7 +62,7 @@ public class PlayerDead implements Listener {
 
     private void handleNoKiller(PlayerDeathEvent e, Player killed, String killedPlayerName, World world, Plugin plugin) {
         e.setDeathMessage("§4 ✖ §7" + killedPlayerName);
-        Bukkit.getScheduler().runTaskLater(plugin, (Runnable) () -> {
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
             killed.spigot().respawn();
             killed.teleport(world.getSpawnLocation());
             killed.setGameMode(GameMode.SPECTATOR);

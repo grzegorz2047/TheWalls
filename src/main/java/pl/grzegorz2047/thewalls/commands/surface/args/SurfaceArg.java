@@ -14,7 +14,7 @@ public class SurfaceArg implements Arg {
 
     private final GameData gameData;
     private final MessageAPI messageManager;
-    private GameUsers gameUsers;
+    private final GameUsers gameUsers;
 
     public SurfaceArg(GameData gameData, MessageAPI messageManager, GameUsers gameUsers) {
         this.gameData = gameData;

@@ -37,8 +37,8 @@ public class PlayerInteract implements Listener {
     private final Shop shopMenuManager;
     private final ClassManager classManager;
     private final StorageProtection storageProtection;
-    private GameUsers gameUsers;
-    private ScoreboardAPI scoreboardAPI;
+    private final GameUsers gameUsers;
+    private final ScoreboardAPI scoreboardAPI;
     private final Random r = new Random();
     private final List<Material> materialList = Arrays.asList(Material.ENDER_PEARL, Material.EXPERIENCE_BOTTLE, Material.GOLDEN_APPLE, Material.APPLE, Material.GOLD_INGOT, Material.IRON_INGOT, Material.OAK_WOOD);
 

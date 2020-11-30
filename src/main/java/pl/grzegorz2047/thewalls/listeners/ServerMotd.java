@@ -10,7 +10,7 @@ import pl.grzegorz2047.thewalls.api.util.TimeUtil;
 public class ServerMotd implements Listener {
 
     private final GameData gameData;
-    private Counter counter;
+    private final Counter counter;
     private final String motd;
 
     public ServerMotd(GameData gameData, String motd) {

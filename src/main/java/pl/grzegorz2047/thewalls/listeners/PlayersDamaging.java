@@ -22,7 +22,7 @@ public class PlayersDamaging implements Listener {
 
 
     private final GameData gameData;
-    private GameUsers gameUsers;
+    private final GameUsers gameUsers;
 
     public PlayersDamaging(GameData gameData, GameUsers gameUsers) {
         this.gameData = gameData;

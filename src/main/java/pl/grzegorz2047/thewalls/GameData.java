@@ -32,21 +32,21 @@ public class GameData {
     private final Shop shopMenuManager;
     private final BossBarExtension bossBarExtension;
     private final Voter voter;
-    private Counter counter;
-    private HashMap<GameTeam, ArrayList<String>> teams = new HashMap<GameTeam, ArrayList<String>>();
+    private final Counter counter;
+    private final HashMap<GameTeam, ArrayList<String>> teams = new HashMap<GameTeam, ArrayList<String>>();
 
     private int minPlayers;
-    private int maxTeamSize;
-    private WorldManagement worldManagement;
-    private int moneyForKill;
-    private int moneyForWin;
-    private int multiplier;
-    private int expForKill;
-    private int expForWin;
+    private final int maxTeamSize;
+    private final WorldManagement worldManagement;
+    private final int moneyForKill;
+    private final int moneyForWin;
+    private final int multiplier;
+    private final int expForKill;
+    private final int expForWin;
 
 
-    private boolean isCrackersAuthme = true;
-    private GameUsers gameUsers;
+    private final boolean isCrackersAuthme = true;
+    private final GameUsers gameUsers;
     private boolean moneyForGame = true;
 
 
@@ -364,7 +364,7 @@ public class GameData {
         TEAM4(4, "§e");
 
         private String color = "§7";
-        private int number;
+        private final int number;
 
         GameTeam(int number, String teamColor) {
             this.number = number;

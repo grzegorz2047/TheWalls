@@ -24,7 +24,7 @@ public class PlayerChat implements Listener {
 
     private final HashMap<String, String> settings;
     private final GameData gameData;
-    private GameUsers gameUsers;
+    private final GameUsers gameUsers;
 
 
     public PlayerChat(HashMap<String, String> settings, GameData gameData, GameUsers gameUsers) {

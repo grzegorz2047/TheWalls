@@ -12,7 +12,7 @@ import pl.grzegorz2047.thewalls.*;
  */
 public class TepCommand implements CommandExecutor {
     private final TheWalls plugin;
-    private GameUsers gameUsers;
+    private final GameUsers gameUsers;
 
     public TepCommand(TheWalls plugin, GameUsers gameUsers) {
         this.plugin = plugin;

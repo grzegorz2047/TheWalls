@@ -17,7 +17,7 @@ public class StartArg implements Arg {
     private final GameData gameData;
     private final MessageAPI messageManager;
     private final Counter counter;
-    private GameUsers gameUsers;
+    private final GameUsers gameUsers;
 
     public StartArg(GameData gameData, MessageAPI messageManager, GameUsers gameUsers) {
         this.messageManager = messageManager;

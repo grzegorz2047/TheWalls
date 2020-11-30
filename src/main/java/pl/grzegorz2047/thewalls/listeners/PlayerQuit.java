@@ -18,8 +18,8 @@ public class PlayerQuit implements Listener {
     private final TheWalls plugin;
     private final GameData gameData;
     private final ScoreboardAPI scoreboardAPI;
-    private BossBarExtension bossBarExtension;
-    private Voter voter;
+    private final BossBarExtension bossBarExtension;
+    private final Voter voter;
 
     public PlayerQuit(TheWalls plugin, BossBarExtension bossBarExtension, Voter voter) {
         this.plugin = plugin;

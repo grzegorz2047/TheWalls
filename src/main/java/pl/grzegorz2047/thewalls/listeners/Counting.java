@@ -16,7 +16,7 @@ import pl.grzegorz2047.thewalls.scoreboard.ScoreboardAPI;
 public class Counting implements Listener {
 
     private final ScoreboardAPI scoreboardAPI;
-    private GameUsers gameUsers;
+    private final GameUsers gameUsers;
 
     public Counting(ScoreboardAPI scoreboardAPI, GameUsers gameUsers) {
         this.scoreboardAPI = scoreboardAPI;

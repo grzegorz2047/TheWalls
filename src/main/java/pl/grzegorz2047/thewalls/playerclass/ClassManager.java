@@ -3,7 +3,6 @@ package pl.grzegorz2047.thewalls.playerclass;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -13,7 +12,6 @@ import pl.grzegorz2047.thewalls.GameUser;
 import pl.grzegorz2047.thewalls.TheWalls;
 import pl.grzegorz2047.thewalls.api.playersclasses.CustomInventory;
 import pl.grzegorz2047.thewalls.api.util.CreateItemUtil;
-import pl.grzegorz2047.thewalls.api.util.ItemUtil;
 
 import java.util.HashMap;
 
